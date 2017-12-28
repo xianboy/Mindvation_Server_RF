@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component;
 @Data
 @NoArgsConstructor
 public class RtrvCommentInfosRequest {
-    private Long projId;
+    private String projId;
     private String subjectId;
 }

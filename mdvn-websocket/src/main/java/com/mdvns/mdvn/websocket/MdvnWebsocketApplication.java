@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.websocket;
 
 
-import com.mdvns.mdvn.common.beans.RestResponse;
 import com.mdvns.mdvn.websocket.service.WebSocketService;
 import com.mdvns.mdvn.websocket.service.impl.MyWebSocket;
 import org.springframework.boot.SpringApplication;
@@ -17,10 +16,6 @@ public class MdvnWebsocketApplication {
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		// Do any additional configuration here
 		return builder.build();
-	}
-	@Bean
-	public RestResponse restDefaultResponse() {
-		return new RestResponse();
 	}
 
 	@Bean

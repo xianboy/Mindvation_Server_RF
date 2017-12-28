@@ -1,11 +1,9 @@
 package com.mdvns.mdvn.websocket.service.impl;
 
-
-import com.mdvns.mdvn.common.beans.RestResponse;
-import com.mdvns.mdvn.common.beans.SendMessageRequest;
-import com.mdvns.mdvn.common.beans.Staff;
-import com.mdvns.mdvn.common.beans.exception.ExceptionEnum;
-import com.mdvns.mdvn.common.utils.RestResponseUtil;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.model.SendMessageRequest;
+import com.mdvns.mdvn.common.bean.model.Staff;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.websocket.config.WebConfig;
 import com.mdvns.mdvn.websocket.domain.RtrvServerPushListRequest;
 import com.mdvns.mdvn.websocket.domain.RtrvServerPushResponse;
@@ -50,9 +48,6 @@ public class MyWebSocket implements WebSocketService {
 
     @Autowired
     private WebConfig webConfig;
-
-    @Autowired
-    private RestResponse restResponse;
 
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static int onlineCount = 0;
@@ -160,15 +155,15 @@ public class MyWebSocket implements WebSocketService {
     public Boolean sendMessage(SendMessageRequest request) throws IOException {
 //        this.session.getBasicRemote().sendText(message);//阻塞式的,同步
 //        this.session.getAsyncRemote().sendText(message);//非阻塞式的
-        com.mdvns.mdvn.common.beans.ServerPush serverPushResponse = request.getServerPushResponse();
+        com.mdvns.mdvn.common.bean.model.ServerPush serverPushResponse = request.getServerPushResponse();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
         long curTime = currentTime.getTime();
         serverPushResponse.setCreateTime(curTime);
         //1、使用JSONObject
         JSONObject json = JSONObject.fromObject(serverPushResponse);
         String message = json.toString();
-        String initiatorId = request.getInitiatorId();//发起人Id
-        List<String> staffIds = request.getStaffIds();
+        Long initiatorId = request.getInitiatorId();//发起人Id
+        List<Long> staffIds = request.getStaffIds();
         Set<Map.Entry<String, Session>> set = sessionMap.entrySet();
 
         List<String> keyStaffIds = new ArrayList<>();
@@ -229,10 +224,10 @@ public class MyWebSocket implements WebSocketService {
      * @return
      */
     @Override
-    public RestResponse rtrvServerPushInfoList(RtrvServerPushListRequest request) {
+    public RestResponse<?> rtrvServerPushInfoList(RtrvServerPushListRequest request) {
         LOG.info("开始执行{} rtrvServerPushInfoList()方法.",this.CLASS);
         RtrvServerPushResponse rtrvServerPushResponse = new RtrvServerPushResponse();
-        String recipientId = request.getRecipientId();
+        Long recipientId = request.getRecipientId();
         Integer m = request.getStartNum();
         Integer n = request.getSize();
         List<ServerPush> serverPushes = this.serverPushRepository.findByRecipientId(recipientId, m, n);
@@ -245,7 +240,7 @@ public class MyWebSocket implements WebSocketService {
                 ServerPushInfo serverPushInfo = new ServerPushInfo();
                 BeanUtils.copyProperties(serverPush, serverPushInfo);
                 serverPushInfo.setCreateTime(serverPush.getCreateTime().getTime());
-                String initiatorId = serverPush.getInitiatorId();//发起人
+                Long initiatorId = serverPush.getInitiatorId();//发起人
                 Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
                 serverPushInfo.setInitiator(initiator);
                 serverPushInfos.add(serverPushInfo);
@@ -258,12 +253,8 @@ public class MyWebSocket implements WebSocketService {
             rtrvServerPushResponse.setTotalNumbers(0);
         }
         logger.info("返回的serverpush信息wei" + serverPushes.toString());
-        restResponse.setResponseBody(rtrvServerPushResponse);
-        restResponse.setResponseCode("000");
-        restResponse.setResponseMsg("请求成功");
-        restResponse.setStatusCode("200");
         LOG.info("结束执行{} rtrvServerPushInfoList()方法.", this.CLASS);
-        return restResponse;
+        return RestResponseUtil.success(rtrvServerPushResponse);
     }
 
     /**
@@ -273,20 +264,15 @@ public class MyWebSocket implements WebSocketService {
      * @return
      */
     @Override
-    public ResponseEntity<?> deleteServerPushInfo(Integer uuId) {
+    public RestResponse<?> deleteServerPushInfo(Integer uuId) {
         LOG.info("开始执行{} deleteServerPushInfo()方法.",this.CLASS);
         try {
             this.serverPushRepository.delete(uuId);
-            restResponse.setResponseBody(true);
-            restResponse.setResponseCode("000");
-            restResponse.setResponseMsg("请求成功");
-            restResponse.setStatusCode("200");
-            ResponseEntity<?> responseEntity = new ResponseEntity<RestResponse>(restResponse, HttpStatus.OK);
             LOG.info("结束执行{} deleteServerPushInfo()方法.", this.CLASS);
-            return responseEntity;
+            return RestResponseUtil.success(true);
         } catch (Exception e) {
             logger.info("消息推送(创建comment)出现异常，异常信息：");
-            return ResponseEntity.ok(RestResponseUtil.error(HttpStatus.NOT_MODIFIED, ExceptionEnum.DELETE_SERVERPUSH_FAIL + "", "Fail to delete server"));
+            return RestResponseUtil.error("2301","Fail to delete serberPush");
         }
     }
     //-----------------外加----------------

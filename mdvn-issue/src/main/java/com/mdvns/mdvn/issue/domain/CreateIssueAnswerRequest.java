@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateIssueAnswerRequest {
 
-    private Long projId;
+    private String projId;
     private String issueId;
     private Long creatorId;
     private String content;

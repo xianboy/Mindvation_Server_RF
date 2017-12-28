@@ -33,6 +33,6 @@ public class Issue {
     private Integer reward;//赏金
     private Integer isResolved;//问题是否已解决 (1代表已解决，0代表未解决)
     private Long tagId;
-    private Long projId;
+    private String projId;
 
 }

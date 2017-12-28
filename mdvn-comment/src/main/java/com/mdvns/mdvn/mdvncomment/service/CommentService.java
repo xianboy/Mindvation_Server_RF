@@ -2,7 +2,7 @@ package com.mdvns.mdvn.mdvncomment.service;
 
 
 
-import com.mdvns.mdvn.common.beans.RestResponse;
+import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.mdvncomment.domain.*;
 import com.mdvns.mdvn.mdvncomment.domain.entity.Comment;
 
@@ -14,9 +14,9 @@ import java.util.List;
 
 public interface CommentService {
 
-    RestResponse createCommentInfo(CreateCommentInfoRequest request);
+    RestResponse<?> createCommentInfo(CreateCommentInfoRequest request);
 
-    RestResponse likeOrDislike(LikeCommentRequest request);
+    RestResponse<?> likeOrDislike(LikeCommentRequest request);
 
     List<CommentDetail> rtrvCommentInfos(RtrvCommentInfosRequest request);
 

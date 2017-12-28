@@ -1,10 +1,15 @@
 package com.mdvns.mdvn.mdvncomment.domain;
 
-import com.mdvns.mdvn.common.beans.Staff;
+
+import com.mdvns.mdvn.common.bean.model.Staff;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  * 评论类
  */
+@Data
+@NoArgsConstructor
 public class CommentInfo {
 
     private Integer uuId;
@@ -38,127 +43,6 @@ public class CommentInfo {
 //    private Integer isDeleted;
 
     private Staff creatorInfo;
-
-    public Staff getCreatorInfo() {
-        return creatorInfo;
-    }
-
-    public void setCreatorInfo(Staff creatorInfo) {
-        this.creatorInfo = creatorInfo;
-    }
-
-
-    public Long getIntervalTime() {
-        return intervalTime;
-    }
-
-    public void setIntervalTime(Long intervalTime) {
-        this.intervalTime = intervalTime;
-    }
-
-    public String getReplyId() {
-        return replyId;
-    }
-
-    public void setReplyId(String replyId) {
-        this.replyId = replyId;
-    }
-
-    public String getCommentId() {
-        return commentId;
-    }
-
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
-    }
-
-    public String getPassiveAts() {
-        return passiveAts;
-    }
-
-    public void setPassiveAts(String passiveAts) {
-        this.passiveAts = passiveAts;
-    }
-
-    public Integer getUuId() {
-        return uuId;
-    }
-
-    public void setUuId(Integer uuId) {
-        this.uuId = uuId;
-    }
-
-    public String getProjId() {
-        return projId;
-    }
-
-    public void setProjId(String projId) {
-        this.projId = projId;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public String getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(String creatorId) {
-        this.creatorId = creatorId;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public Integer getLikeQty() {
-        return likeQty;
-    }
-
-    public void setLikeQty(Integer likeQty) {
-        this.likeQty = likeQty;
-    }
-
-    public Integer getDislikeQty() {
-        return dislikeQty;
-    }
-
-    public void setDislikeQty(Integer dislikeQty) {
-        this.dislikeQty = dislikeQty;
-    }
-
-    public String getLikeIds() {
-        return likeIds;
-    }
-
-    public void setLikeIds(String likeIds) {
-        this.likeIds = likeIds;
-    }
-
-    public String getDislikeIds() {
-        return dislikeIds;
-    }
-
-    public void setDislikeIds(String dislikeIds) {
-        this.dislikeIds = dislikeIds;
-    }
-
-    public Long getCreateTime() {
-        return createTime;
-    }
-
-    public void setCreateTime(Long createTime) {
-        this.createTime = createTime;
-    }
 }
 
 

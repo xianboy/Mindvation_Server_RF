@@ -19,7 +19,7 @@ public class ServerPush {
     private Integer newProgress;
     private String taskByStoryId;
     private Long createTime;
-    private String initiatorId;//发起人
-    private String recipientId;//接收人
+    private Long initiatorId;//发起人
+    private Long recipientId;//接收人
     private Staff initiator;
 }

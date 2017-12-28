@@ -1,13 +1,11 @@
 package com.mdvns.mdvn.mdvncomment.service.impl;
 
-
-import com.mdvns.mdvn.common.beans.RestResponse;
-import com.mdvns.mdvn.common.beans.SendMessageRequest;
-import com.mdvns.mdvn.common.beans.ServerPush;
-import com.mdvns.mdvn.common.beans.Staff;
-import com.mdvns.mdvn.common.beans.exception.BusinessException;
-import com.mdvns.mdvn.common.beans.exception.ExceptionEnum;
-import com.mdvns.mdvn.common.utils.MdvnStringUtil;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.model.SendMessageRequest;
+import com.mdvns.mdvn.common.bean.model.ServerPush;
+import com.mdvns.mdvn.common.bean.model.Staff;
+import com.mdvns.mdvn.common.util.MdvnStringUtil;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.mdvncomment.config.WebConfig;
 import com.mdvns.mdvn.mdvncomment.domain.*;
 import com.mdvns.mdvn.mdvncomment.domain.entity.Comment;
@@ -17,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -51,11 +48,8 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private WebConfig webConfig;
 
-    /*注入RestResponse*/
-    @Autowired
-    private RestResponse restResponse;
     @Override
-    public RestResponse createCommentInfo(CreateCommentInfoRequest request) {
+    public RestResponse<?> createCommentInfo(CreateCommentInfoRequest request) {
         LOG.info("开始执行{} createCommentInfo()方法.",this.CLASS);
         if (request == null || request.getProjId() == null || request.getSubjectId() == null || request.getCreatorId() == null) {
             throw new NullPointerException("createCommentInfo 或项目Id/subjectId/登录者Id不能为空");
@@ -65,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
         String commentId = request.getReplyId();
         if (request.getReplyId() != null) {
             Comment replyComm = rtrvCommentDetailInfo(commentId);
-            List<String> passiveAts = request.getPassiveAts();
+            List<Long> passiveAts = request.getPassiveAts();
             if (passiveAts == null) {
                 passiveAts = new ArrayList<>();
             }
@@ -83,7 +77,7 @@ public class CommentServiceImpl implements CommentService {
             Comment comment = new Comment();
             String projId = request.getProjId();
             String subjectId = request.getSubjectId();
-            String creatorId = request.getCreatorId();
+            Long creatorId = request.getCreatorId();
             String content = request.getContent();
             comment.setCreateTime(currentTime);
             comment.setProjId(projId);
@@ -93,7 +87,7 @@ public class CommentServiceImpl implements CommentService {
             comment.setLikeQty(0);
             comment.setDislikeQty(0);
             comment.setIsDeleted(0);
-            List<String> passiveAtList = request.getPassiveAts();
+            List<Long> passiveAtList = request.getPassiveAts();
             if (passiveAtList != null && passiveAtList.size() > 0) {
                 String passiveAts = MdvnStringUtil.join(passiveAtList, ",");
                 comment.setPassiveAts(passiveAts);
@@ -126,7 +120,7 @@ public class CommentServiceImpl implements CommentService {
             createCommentInfoResponse.setCommentInfo(commentInfo);
         } catch (Exception ex) {
             LOG.info("创建或者回复评论失败");
-            throw new BusinessException(ExceptionEnum.COMMENT__NOT_CREATE);
+            return RestResponseUtil.error("2201","评论未创建成功");
         }
 
         //创建者返回对象
@@ -148,7 +142,7 @@ public class CommentServiceImpl implements CommentService {
         try {
             SendMessageRequest sendMessageRequest = new SendMessageRequest();
             ServerPush serverPush = new ServerPush();
-            String initiatorId = request.getCreatorId();
+            Long initiatorId = request.getCreatorId();
             String subjectId = request.getSubjectId();
             Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
             serverPush.setInitiator(initiator);
@@ -160,8 +154,8 @@ public class CommentServiceImpl implements CommentService {
             if (request.getPassiveAts().size() > 0) {//回复
                 sendMessageRequest.setStaffIds(request.getPassiveAts());
             } else {//不@人
-                List<String> staffIds = new ArrayList<>();
-                staffIds.add(createId);
+                List<Long> staffIds = new ArrayList<>();
+                staffIds.add(Long.valueOf(createId));
                 sendMessageRequest.setStaffIds(staffIds);
             }
             sendMessageRequest.setInitiatorId(initiatorId);
@@ -171,13 +165,9 @@ public class CommentServiceImpl implements CommentService {
         } catch (Exception e) {
             LOG.error("消息推送(创建comment)出现异常，异常信息：" + e);
         }
-        restResponse.setResponseBody(createCommentInfoResponse);
-        restResponse.setStatusCode(String.valueOf(HttpStatus.OK));
-        restResponse.setResponseMsg("请求成功");
-        restResponse.setResponseCode("000");
         LOG.info("结束执行{} createCommentInfo()方法.", this.CLASS);
 
-        return restResponse;
+        return RestResponseUtil.success(createCommentInfoResponse);
     }
 
     /**
@@ -192,7 +182,7 @@ public class CommentServiceImpl implements CommentService {
         try {
             String remark = request.getRemark();
             String commentId = request.getCommentId();
-            String creatorId = request.getCreatorId();
+            Long creatorId = request.getCreatorId();
             Comment comment = this.commentRepository.findByCommentId(commentId);
             if (remark.equals("like")) {
                 //对于点赞这边
@@ -216,7 +206,7 @@ public class CommentServiceImpl implements CommentService {
                     }
                 } else {
                     comment.setLikeQty(1);
-                    comment.setLikeIds(creatorId);
+                    comment.setLikeIds(String.valueOf(creatorId));
                 }
                 //对于踩这边
                 String dislikeIds = comment.getDislikeIds();
@@ -258,7 +248,7 @@ public class CommentServiceImpl implements CommentService {
                     }
                 } else {
                     comment.setDislikeQty(1);
-                    comment.setDislikeIds(creatorId);
+                    comment.setDislikeIds(String.valueOf(creatorId));
                 }
                 //对于点赞这边
                 String likeIds = comment.getLikeIds();
@@ -294,7 +284,7 @@ public class CommentServiceImpl implements CommentService {
             }
         } catch (Exception ex) {
             LOG.info("点赞或者踩评论失败");
-            throw new BusinessException(ExceptionEnum.COMMENT__LIKEORDISLIKE_FAILD);
+            return RestResponseUtil.error("2203", "评论点赞或者踩失败");
         }
         //创建者返回对象
         String staffUrl = webConfig.getRtrvStaffInfoUrl();
@@ -308,12 +298,8 @@ public class CommentServiceImpl implements CommentService {
             Staff passiveAtInfo = restTemplate.postForObject(staffUrl, passiveAt, Staff.class);
             createCommentInfoResponse.getReplyDetail().setCreatorInfo(passiveAtInfo);
         }
-        restResponse.setResponseBody(createCommentInfoResponse);
-        restResponse.setStatusCode(String.valueOf(HttpStatus.OK));
-        restResponse.setResponseMsg("请求成功");
-        restResponse.setResponseCode("000");
         LOG.info("结束执行{} likeOrDislike()方法.", this.CLASS);
-        return restResponse;
+        return RestResponseUtil.success(createCommentInfoResponse);
     }
 
     /**

@@ -16,5 +16,5 @@ public class CreateIssueRequest {
     private String content;
     private Integer reward;//赏金
     private Long tagId;
-    private Long projId;
+    private String projId;
 }

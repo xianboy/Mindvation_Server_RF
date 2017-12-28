@@ -1,13 +1,11 @@
 package com.mdvns.mdvn.websocket.web;
 
 
-import com.mdvns.mdvn.common.beans.RestResponse;
-import com.mdvns.mdvn.common.beans.SendMessageRequest;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.model.SendMessageRequest;
 import com.mdvns.mdvn.websocket.domain.RtrvServerPushListRequest;
-import com.mdvns.mdvn.websocket.domain.RtrvServerPushResponse;
 import com.mdvns.mdvn.websocket.service.WebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -37,7 +35,7 @@ public class WebSocketController {
      * @return
      */
     @PostMapping(value = "/rtrvServerPushInfoList")
-    public RestResponse rtrvServerPushInfoList(@RequestBody RtrvServerPushListRequest request) throws IOException {
+    public RestResponse<?> rtrvServerPushInfoList(@RequestBody RtrvServerPushListRequest request) throws IOException {
         return this.webSocketService.rtrvServerPushInfoList(request);
     }
 
@@ -48,7 +46,7 @@ public class WebSocketController {
      * @return
      */
     @PostMapping(value = "/deleteServerPushInfo/{uuId}")
-    public ResponseEntity<?> deleteServerPushInfo(@PathVariable Integer uuId) throws IOException {
+    public RestResponse<?> deleteServerPushInfo(@PathVariable Integer uuId) throws IOException {
         return this.webSocketService.deleteServerPushInfo(uuId);
     }
 

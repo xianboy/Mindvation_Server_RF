@@ -247,7 +247,7 @@ public class IssueServiceImpl implements IssueService {
         LOG.info("开始执行{} likeOrDislikeAnswer()方法.", this.CLASS);
         String remark = request.getRemark();
         String answerId = request.getAnswerId();
-        String creatorId = request.getCreatorId();
+        String creatorId = String.valueOf(request.getCreatorId());
         IssueAnswer issueAnswer = new IssueAnswer();
         issueAnswer = this.issueAnswerRepository.findByAnswerId(answerId);
         if (remark.equals("like")) {

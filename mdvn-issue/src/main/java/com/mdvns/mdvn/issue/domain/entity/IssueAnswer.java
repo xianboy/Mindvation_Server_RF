@@ -37,6 +37,6 @@ public class IssueAnswer {
     //踩的所有人的Id
     @Column(columnDefinition = "text")
     private String dislikeIds;
-    private Long projId;
+    private String projId;
 
 }

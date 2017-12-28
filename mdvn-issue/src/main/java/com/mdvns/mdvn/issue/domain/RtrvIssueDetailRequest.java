@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class RtrvIssueDetailRequest {
 
-    private Long projId;
+    private String projId;
 
     private String subjectId;//第一次查只返回第一个
 
