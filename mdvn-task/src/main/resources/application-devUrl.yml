@@ -1,0 +1,4 @@
+url:
+  customDeliveryUrl : http://localhost:20004/mdvn-template/templates/customDelivery
+  retrieveMembersUrl : http://localhost:20001/mdvn-staff/staff/retrieveBaseInfo
+
