@@ -1,0 +1,8 @@
+url:
+   rtrvStaffInfoUrl: http://localhost:10013/mdvn-staff-sapi/rtrvStaffInfo
+#  websocket推送信息测试
+   sendMessageUrl: http://localhost:10027/mdvn-websocket/websocket/sendMessage
+
+
+
+

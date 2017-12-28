@@ -1,0 +1,12 @@
+url:
+   rtrvCommentInfosUrl: http://localhost:10025/mdvn-comment-sapi/comments/rtrvCommentInfos
+   rtrvStaffInfoUrl: http://localhost:10013/mdvn-staff-sapi/rtrvStaffInfo
+   findTagInfoByIdUrl : http://localhost:10002/mdvn-tag-sapi/tags/{tagId}/tag
+   rtrvCreatorIdUrl: http://localhost:10025/mdvn-comment-sapi/comments/rtrvCreatorId
+   #  websocket推送信息测试
+   sendMessageUrl: http://localhost:10027/mdvn-websocket/websocket/sendMessage
+   rtrvSRoleMembersUrl: http://localhost:10015/mdvn-story-sapi/storyDetail/rtrvSRoleMembers
+   rtrvReqmntMembersUrl : http://localhost:10012/mdvn-reqmnt-sapi/rtrvReqmntMembers
+
+
+
