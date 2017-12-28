@@ -1,7 +1,7 @@
 package com.mdvns.mdvn.issue.web;
 
 
-import com.mdvns.mdvn.common.beans.RestResponse;
+import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.issue.domain.*;
 import com.mdvns.mdvn.issue.service.IssueService;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ public class IssueController {
      * @return
      */
     @PostMapping(value = "/createIssueInfo")
-    public RestResponse createIssueInfo(@RequestBody CreateIssueRequest request) {
+    public RestResponse<?> createIssueInfo(@RequestBody CreateIssueRequest request) {
         LOG.info("开始执行{} createIssueInfo()方法.", this.CLASS);
         return this.issueService.createIssueInfo(request);
     }
@@ -42,7 +42,7 @@ public class IssueController {
      * @return
      */
     @PostMapping(value = "/createIssueAnswerInfo")
-    public RestResponse createIssueAnswerInfo(@RequestBody CreateIssueAnswerRequest request) {
+    public RestResponse<?> createIssueAnswerInfo(@RequestBody CreateIssueAnswerRequest request) {
         LOG.info("开始执行{} createIssueAnswerInfo()方法.", this.CLASS);
         return this.issueService.createIssueAnswerInfo(request);
     }
@@ -53,7 +53,7 @@ public class IssueController {
      * @return
      */
     @PostMapping(value = "/rtrvIssueDetail")
-    public RestResponse rtrvIssueDetail(@RequestBody RtrvIssueDetailRequest request) {
+    public RestResponse<?> rtrvIssueDetail(@RequestBody RtrvIssueDetailRequest request) {
         LOG.info("开始执行{} rtrvIssueDetail()方法.", this.CLASS);
         return this.issueService.rtrvIssueDetail(request);
     }
@@ -64,7 +64,7 @@ public class IssueController {
      * @return
      */
     @PostMapping(value = "/likeOrDislikeAnswer")
-    public RestResponse likeOrDislikeAnswer(@RequestBody LikeOrDislikeAnswerRequest request) {
+    public RestResponse<?> likeOrDislikeAnswer(@RequestBody LikeOrDislikeAnswerRequest request) {
         LOG.info("开始执行{} likeOrDislikeAnswer()方法.", this.CLASS);
         return this.issueService.likeOrDislikeAnswer(request);
     }
@@ -73,7 +73,7 @@ public class IssueController {
      * 采纳（answer中isAdopt变为1，issue中isResolved变为1）
      */
     @PostMapping(value = "/adoptAnswer")
-    public RestResponse adoptAnswer(@RequestBody adoptAnswerRequest request) {
+    public RestResponse<?> adoptAnswer(@RequestBody adoptAnswerRequest request) {
         LOG.info("开始执行{} adoptAnswer()方法.", this.CLASS);
         return this.issueService.adoptAnswer(request);
     }

@@ -2,7 +2,7 @@ package com.mdvns.mdvn.issue.service;
 
 
 
-import com.mdvns.mdvn.common.beans.RestResponse;
+import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.issue.domain.*;
 
 /**
@@ -11,13 +11,13 @@ import com.mdvns.mdvn.issue.domain.*;
 
 public interface IssueService {
 
-    RestResponse createIssueInfo(CreateIssueRequest request);
+    RestResponse<?> createIssueInfo(CreateIssueRequest request);
 
-    RestResponse likeOrDislikeAnswer(LikeOrDislikeAnswerRequest request);
+    RestResponse<?> likeOrDislikeAnswer(LikeOrDislikeAnswerRequest request);
 
-    RestResponse rtrvIssueDetail(RtrvIssueDetailRequest request);
+    RestResponse<?> rtrvIssueDetail(RtrvIssueDetailRequest request);
 
-    RestResponse createIssueAnswerInfo(CreateIssueAnswerRequest request);
+    RestResponse<?> createIssueAnswerInfo(CreateIssueAnswerRequest request);
 
-    RestResponse adoptAnswer(adoptAnswerRequest request);
+    RestResponse<?> adoptAnswer(adoptAnswerRequest request);
 }

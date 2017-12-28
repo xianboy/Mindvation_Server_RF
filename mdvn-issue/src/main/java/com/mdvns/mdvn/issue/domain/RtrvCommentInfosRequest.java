@@ -1,25 +1,13 @@
 package com.mdvns.mdvn.issue.domain;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@Data
+@NoArgsConstructor
 public class RtrvCommentInfosRequest {
-    private String projId;
+    private Long projId;
     private String subjectId;
-
-    public String getProjId() {
-        return projId;
-    }
-
-    public void setProjId(String projId) {
-        this.projId = projId;
-    }
-
-    public String getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(String subjectId) {
-        this.subjectId = subjectId;
-    }
 }
