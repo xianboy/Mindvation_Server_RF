@@ -1,0 +1,8 @@
+url:
+
+  customLabelUrl : http://localhost:20004/mdvn-template/templates/customLabel
+  retrieveTagsUrl : http://localhost:20002/mdvn-tag/tags/retrieveTerseInfo
+  retrieveMembersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
+  retrieveRoleUrl : http://localhost:20004/mdvn-template/templates/retrieveRoleTerseInfo
+  retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
+

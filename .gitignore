@@ -17,6 +17,25 @@
 *.zip
 *.tar.gz
 *.rar
-
+*/.idea/*
+*/.mvn/wrapper/maven-wrapper.jar
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+mdvn-department/.mvn/wrapper/maven-wrapper.jar
+mdvn-department/.mvn/wrapper/maven-wrapper.properties
+mdvn-department/.mvn/wrapper/maven-wrapper.jar
+mdvn-department/.mvn/wrapper/maven-wrapper.jar
+mdvn-department/mvnw
+mdvn-department/mvnw.cmd
+mdvn-department/.mvn/wrapper/maven-wrapper.jar
+mdvn-project/mvnw
+mdvn-project/.mvn/wrapper/maven-wrapper.properties
+mdvn-project/.mvn/wrapper/maven-wrapper.jar
+mdvn-project/mvnw.cmd
+mdvn-requirement/.mvn/wrapper/maven-wrapper.jar
+mdvn-requirement/.mvn/wrapper/maven-wrapper.properties
+mdvn-requirement/.mvn/wrapper/maven-wrapper.jar
+mdvn-requirement/mvnw
+mdvn-requirement/mvnw.cmd
+mdvn-staff/mdvn-staff.iml

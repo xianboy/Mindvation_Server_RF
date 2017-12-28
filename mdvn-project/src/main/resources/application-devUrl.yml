@@ -1,0 +1,5 @@
+url:
+  retrieveRequirementsUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveList
+  retrieveTemplatesUrl : http://localhost:20004/mdvn-template/templates/retrieveTerseInfo
+  retrieveTagsUrl : http://localhost:20002/mdvn-tag/tags/retrieveTerseInfo
+  retrieveLeadersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
