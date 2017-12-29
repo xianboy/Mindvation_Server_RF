@@ -1,0 +1,8 @@
+url:
+  saveAttchInfoUrl : http://localhost:8080/mdvn-file-sapi/files
+
+  deleteAttchUrl : http://localhost:8080/mdvn-file-sapi/files/file/
+
+  retrieveUrl : http://localhost:8080/mdvn-file-sapi/files/file/
+
+  retrieveAttchsUrl : http://localhost:8080/mdvn-file-sapi/files/
