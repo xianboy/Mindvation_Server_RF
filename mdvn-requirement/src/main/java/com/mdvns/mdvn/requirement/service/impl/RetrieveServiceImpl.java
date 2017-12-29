@@ -1,11 +1,9 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
+import com.mdvns.mdvn.common.bean.PageableResponse;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.PageableCriteria;
-import com.mdvns.mdvn.common.bean.model.RequirementDetail;
-import com.mdvns.mdvn.common.bean.model.RoleMember;
-import com.mdvns.mdvn.common.bean.model.TerseInfo;
+import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -21,9 +19,14 @@ import com.mdvns.mdvn.requirement.service.RetrieveService;
 import com.mdvns.mdvn.requirement.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -98,14 +101,16 @@ public class RetrieveServiceImpl implements RetrieveService {
     /**
      * 构建需求详情
      *
-     * @param staffId 当前用户id
-     * @param requirement  requirement
+     * @param staffId     当前用户id
+     * @param requirement requirement
      * @return requirementDetail
      */
     private RequirementDetail buildDetail(Long staffId, Requirement requirement) throws BusinessException {
         RequirementDetail detail = new RequirementDetail();
         //设置id
         detail.setId(requirement.getId());
+        /*设置模板id*/
+        detail.setTemplateId(requirement.getTemplateId());
         //设置上层主体编号
         detail.setHostSerialNo(requirement.getHostSerialNo());
         //设置编号
@@ -125,10 +130,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置过程方法
         detail.setLabel(getLabel(staffId, requirement.getFunctionLabelId()));
         //设置成员
-        detail.setRoleMembers(getRoleMembers(staffId, requirement.getId()));
+        detail.setRoleMembers(getRoleMembers(staffId, requirement.getId(), requirement.getTemplateId()));
         //设置开始/结束日期
         detail.setStartDate(requirement.getStartDate().getTime());
         detail.setEndDate(requirement.getEndDate().getTime());
+        detail.setStories(getStories(staffId, requirement.getSerialNo()));
         //设置story point 总数
 //        detail.setStoryPointAmount(getStoryPointAmount());
         //设置附件
@@ -136,18 +142,48 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
+     * 查询指定编号的需求下的Story列表
+     *
+     * @param staffId  staffId
+     * @param serialNo 需求编号
+     * @return List
+     */
+    private PageableResponse<Story> getStories(Long staffId, String serialNo) throws BusinessException {
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        //构建retrieveRequirementsUrl
+        String retrieveStoriesUrl = webConfig.getRetrieveStoriesUrl();
+        //构建ParameterizedTypeReference
+        ParameterizedTypeReference<RestResponse<PageableResponse<Story>>> typeReference = new ParameterizedTypeReference<RestResponse<PageableResponse<Story>>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new SingleCriterionRequest(staffId, serialNo));
+        //构建responseEntity
+        ResponseEntity<RestResponse<PageableResponse<Story>>> responseEntity = restTemplate.exchange(retrieveStoriesUrl, HttpMethod.POST, requestEntity, typeReference);
+        //构建restResponse
+        RestResponse<PageableResponse<Story>> restResponse = responseEntity.getBody();
+        //如果code不是“000”, 抛出异常
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("获取指定项目的需求列表失败: {}", restResponse.getMsg());
+            throw new BusinessException(restResponse.getCode(), restResponse.getMsg());
+        }
+        return restResponse.getData();
+    }
+
+    /**
      * 获取指定reqmntId 的角色成员
      *
      * @return list
      */
-    private List<RoleMember> getRoleMembers(Long staffId, Long requirementId) throws BusinessException {
+    private List<RoleMember> getRoleMembers(Long staffId, Long requirementId, Long templateId) throws BusinessException {
         LOG.info("获取指定需求成员, 开始运行【getRoleMembers】service...");
-        return this.memberService.getRoleMembers(staffId, requirementId, MdvnConstant.ZERO);
+        return this.memberService.getRoleMembers(staffId, requirementId, templateId, MdvnConstant.ZERO);
     }
 
     /**
      * 根据id获取FunctionLabel
-     * @param staffId staffId
+     *
+     * @param staffId         staffId
      * @param functionLabelId labelId
      * @return baseInfo
      * @throws BusinessException exception
@@ -165,7 +201,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             throw ex;
         }
         //如果list为空, 抛出异常
-        MdvnCommonUtil.emptyList(list, ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "id为【"+functionLabelId+"】的FunctionLabel不存在...");
+        MdvnCommonUtil.emptyList(list, ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "id为【" + functionLabelId + "】的FunctionLabel不存在...");
         LOG.info("根据id获取FunctionLabel成功...");
         return list.get(MdvnConstant.ZERO);
     }
@@ -181,7 +217,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     private List<TerseInfo> getTags(Long staffId, Long reqmntId) throws BusinessException {
         LOG.info("查询指定需求的标签, 开始运行【getTags】service...");
         //获取指定项目的模板人id
-        List<Long> ids = this.tagService.getTags(reqmntId);
+        List<Long> ids = this.tagService.getTags(reqmntId, MdvnConstant.ZERO);
         if (ids.isEmpty()) {
             LOG.info("ID为【{}】的需求无标签.", reqmntId);
             return null;
@@ -190,7 +226,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         String retrieveTagsUrl = webConfig.getRetrieveTagsUrl();
         //调用tag模块获取负责人信息
         List<TerseInfo> tags = RestTemplateUtil.retrieveTerseInfo(staffId, ids, retrieveTagsUrl);
-        MdvnCommonUtil.emptyList(tags, ErrorEnum.TAG_NOT_EXISTS, "id为【"+ids.toString()+"】的Tag不存在...");
+        MdvnCommonUtil.emptyList(tags, ErrorEnum.TAG_NOT_EXISTS, "id为【" + ids.toString() + "】的Tag不存在...");
         LOG.info("查询指定需求的标签成功.");
         return tags;
     }

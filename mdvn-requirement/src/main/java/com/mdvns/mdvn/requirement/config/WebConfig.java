@@ -18,10 +18,11 @@ public class WebConfig {
     private String retrieveTagsUrl;
 
     //调用template模块获取role的基本信息
-    private String retrieveRoleUrl;
+    private String retrieveRolesUrl;
 
     //调用template模块获取FunctionLabel的id和name
     private String retrieveLabelUrl;
 
-
+    //获取指定编号的requirement下的Story列表
+    private String retrieveStoriesUrl;
 }

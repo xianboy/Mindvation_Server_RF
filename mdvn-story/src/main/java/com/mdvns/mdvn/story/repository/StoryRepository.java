@@ -22,7 +22,7 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     //更新状态
     @Modifying
     @Query("update Story s set s.status = ?1 where s.id = ?2")
-    Story updateStatus(String status, Long hostId);
+    void updateStatus(String status, Long hostId);
 
     //修改描述
     @Modifying
@@ -35,6 +35,7 @@ public interface StoryRepository extends JpaRepository<Story, Long> {
     Integer updateSummary(@Param("summary") String summary, @Param("id") Long id);
 
     //修改描述和概要
+    @Modifying
     @Query("update Story s set s.summary = ?1, s.description = ?2 where s.id = ?3")
     Integer updateBoth(String summary, String description, Long id);
 }

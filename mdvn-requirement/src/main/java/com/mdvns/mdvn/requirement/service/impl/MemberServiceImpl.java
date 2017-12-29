@@ -1,6 +1,8 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.MemberRequest;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.RoleMember;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
@@ -14,10 +16,18 @@ import com.mdvns.mdvn.requirement.repository.MemberRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -75,36 +85,27 @@ public class MemberServiceImpl implements MemberService {
      *
      * @param staffId       staffId
      * @param requirementId requirementId
+     * @param templateId  templateId
      * @return list
      */
     @Override
-    public List<RoleMember> getRoleMembers(Long staffId, Long requirementId, Integer isDeleted) throws BusinessException {
+    public List<RoleMember> getRoleMembers(Long staffId, Long requirementId, Long templateId, Integer isDeleted) throws BusinessException {
         LOG.info("获取指定requirement的成员信息开始...");
-        //查询指定requirement的所有角色id
-//        getTemplateRoles(staffId, );
-        List<Long> roles = this.memberRepository.findRoleIdByRequirementIdAndIsDeleted(requirementId, isDeleted);
+        //查询requirement对应模板的所有角色
+        List<TerseInfo> roles = getTemplateRoles(staffId, templateId);
+        //如果没有角色, 则返回null
         if (roles.isEmpty()) {
-            LOG.info("ID为【{}】的需求无角色成员", requirementId);
+            LOG.info("ID为【{}】的模板暂无角色", templateId);
             return null;
-        }
-        //获取角色id和name
-        List<TerseInfo> tmplRoles = getRoles(staffId, roles);
-        //如果角色信息为空, 抛出异常
-        if (tmplRoles.isEmpty()) {
-            LOG.error("角色信息不存在...");
-            throw new BusinessException(ErrorEnum.TEMPLATE_ROLE_NOT_EXISTS, "模板角色不存在...");
         }
         //角色成员集合
         List<RoleMember> roleMembers = new ArrayList<>();
         //查询每个角色对应的成员
-        for (TerseInfo tmplRole : tmplRoles) {
+        for (TerseInfo tmplRole : roles) {
             RoleMember roleMember = new RoleMember();
             //根据roleId和requirementId查询角色对应的成员
             //如果成员信息为空, 抛出异常
             List<TerseInfo> members = getMembers(staffId, requirementId, tmplRole.getId(), isDeleted);
-            if (members.isEmpty()) {
-                members = null;
-            }
             //设置templateRole
             roleMember.setRole(tmplRole);
             //设置members
@@ -117,6 +118,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
+     * 查询指定模板的所有角色
+     * @param staffId staffId
+     * @param templateId templateId
+     * @return List
+     */
+    private List<TerseInfo> getTemplateRoles(Long staffId, Long templateId) throws BusinessException {
+        String retrieveRolesUrl = webConfig.getRetrieveRolesUrl();
+        return RestTemplateUtil.getTemplateRoles(staffId, templateId, retrieveRolesUrl);
+    }
+
+    /**
      * 修改角色成员
      *
      * @param staffId       staffId
@@ -124,21 +136,25 @@ public class MemberServiceImpl implements MemberService {
      * @param roleMembers   roleMembers
      */
     @Override
+    @Modifying
+    @Transactional
     public void updateRoleMembers(Long staffId, Long requirementId, List<MemberRequest> roleMembers) {
+        LOG.info("修改角色成员开始...");
         //遍历 roleMembers, 处理每一个角色对应的成员修改
         for (MemberRequest memberRequest : roleMembers) {
             //删除成员
             List<Long> removeList = memberRequest.getRemoveList();
             if (!(null == removeList || removeList.isEmpty())) {
                 this.memberRepository.updateIsDeleted(requirementId, memberRequest.getRoleId(), memberRequest.getRemoveList(), MdvnConstant.ONE);
+                LOG.info("删除ID为【{}】的角色下ID为【{}】的成员成功...", memberRequest.getRoleId(), removeList);
             }
             //新增成员
             List<Long> addList = memberRequest.getAddList();
             if (!(null == addList || addList.isEmpty())) {
                 updateMembers(staffId, requirementId, memberRequest.getRoleId(), memberRequest.getAddList());
             }
-
         }
+        LOG.info("修改角色成员成功...");
     }
 
     /**
@@ -150,6 +166,7 @@ public class MemberServiceImpl implements MemberService {
      * @param addList       addList
      */
     private void updateMembers(Long staffId, Long requirementId, Long roleId, List<Long> addList) {
+        LOG.info("添加角色成员开始...");
         List<Long> addMembers = new ArrayList<>();
         List<Long> updateMembers = new ArrayList<>();
         for (Long memberId : addList) {
@@ -163,9 +180,14 @@ public class MemberServiceImpl implements MemberService {
             }
         }
         //更新已存在映射的isDeleted为0
-        updateIsDeleted(requirementId, roleId, updateMembers, MdvnConstant.ZERO);
+        if (updateMembers.size()>0) {
+            updateIsDeleted(requirementId, roleId, updateMembers, MdvnConstant.ZERO);
+        }
         //添加新映射
-        saveRoleMembers(staffId, requirementId, roleId, addMembers);
+        if (addMembers.size()>0) {
+            saveRoleMembers(staffId, requirementId, roleId, addMembers);
+        }
+        LOG.info("添加ID为【{}】的角色下ID为【{}】的成员成功...", roleId, addList);
     }
 
     /**
@@ -181,22 +203,6 @@ public class MemberServiceImpl implements MemberService {
     }
 
     /**
-     * 根据roleId查询角色id、serialNo和name
-     *
-     * @param staffId staffId
-     * @param roles   roles
-     * @return list
-     */
-    private List<TerseInfo> getRoles(Long staffId, List<Long> roles) throws BusinessException {
-        LOG.info("获取指定Role的信息开始...");
-        //查询role的url
-        String retrieveRoleUrl = webConfig.getRetrieveRoleUrl();
-        //调用Template模块查询role
-        List<TerseInfo> roleList = RestTemplateUtil.retrieveTerseInfo(staffId, roles, retrieveRoleUrl);
-        return roleList;
-    }
-
-    /**
      * 查询指定requirementId 和 roleId的成员信息
      *
      * @param staffId       staffId
@@ -209,6 +215,10 @@ public class MemberServiceImpl implements MemberService {
         LOG.info("获取requirement的成员信息开始...");
         //获取成员id和name
         List<Long> ids = this.memberRepository.findMemberIdByRoleIdAndRequirementIdAndIsDeleted(requirementId, roleId, isDeleted);
+        if (ids.isEmpty()) {
+            LOG.info("roleId为【{}】的角色暂无成员.", roleId);
+            return null;
+        }
         //获取member的url
         String retrieveMembersUrl = webConfig.getRetrieveMembersUrl();
         //调用staff模块获取成员信息

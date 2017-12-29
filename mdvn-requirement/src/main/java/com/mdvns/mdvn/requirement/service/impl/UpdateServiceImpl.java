@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
@@ -11,7 +12,6 @@ import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
-import com.mdvns.mdvn.requirement.service.RetrieveService;
 import com.mdvns.mdvn.requirement.service.TagService;
 import com.mdvns.mdvn.requirement.service.UpdateService;
 import org.slf4j.Logger;
@@ -38,9 +38,6 @@ public class UpdateServiceImpl implements UpdateService {
     @Resource
     private MemberService memberService;
 
-    @Resource
-    private RetrieveService retrieveService;
-
     /**
      * 更新状态
      *
@@ -49,13 +46,14 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     @Modifying
+    @Transactional
     public RestResponse<?> updateStatus(UpdateStatusRequest updateStatusRequest) {
         LOG.info("修改状态开始...");
         //更新项目状态
-        Requirement requirement = this.requirementRepository.updateStatus(updateStatusRequest.getStatus(), updateStatusRequest.getHostId());
+        this.requirementRepository.updateStatus(updateStatusRequest.getStatus(), updateStatusRequest.getHostId());
         //构建response并返回
         LOG.info("修改状态成功...");
-        return RestResponseUtil.success(requirement.getStatus());
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -65,27 +63,27 @@ public class UpdateServiceImpl implements UpdateService {
      * @return 更新数据条数
      */
     @Override
+    @Transactional
     @Modifying
     public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) {
         LOG.info("修改基础信息开始...");
         //获取更新对象的id
         Long requirementId = updateBasicInfoRequest.getHostId();
         //获取summary和desc
-        String summary = updateBasicInfoRequest.getFirstPart();
-        String desc = updateBasicInfoRequest.getSecondPart();
-        Integer updated;
-        //如果那么为空, 则更新描述
+        String summary = updateBasicInfoRequest.getFirstParam();
+        String desc = updateBasicInfoRequest.getSecondParam();
+        //如果summary为空, 则更新描述
         if (StringUtils.isEmpty(summary)) {
-            updated = this.requirementRepository.updateDescription(desc, requirementId);
+            this.requirementRepository.updateDescription(desc, requirementId);
         } else if (StringUtils.isEmpty(desc)) {
-            //如果描述为空,则更新name
-            updated = this.requirementRepository.updateSummary(summary, requirementId);
+            //如果描述为空,则更新summary
+            this.requirementRepository.updateSummary(summary, requirementId);
         } else {
-            //如果都不为空, 同时更新名称和描述
-            updated = this.requirementRepository.updateBoth(summary, desc, requirementId);
+            //如果都不为空, 同时更新summary和描述
+            this.requirementRepository.updateBoth(summary, desc, requirementId);
         }
         LOG.info("修改基础信息成功...");
-        return RestResponseUtil.success(updated);
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -96,10 +94,11 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     @Transactional
+    @Modifying
     public RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException {
         //根据request构建project对象
-        Requirement requirement = buildByRequest(updateRequest);
-        return RestResponseUtil.success(requirement);
+        buildByRequest(updateRequest);
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -133,8 +132,8 @@ public class UpdateServiceImpl implements UpdateService {
             this.tagService.updateTags(updateRequest.getStaffId(), requirementId, updateRequest.getTags());
         }
         //更新RoleMember
-        if (null != updateRequest.getRoleMembers()) {
-            this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getRoleMembers());
+        if (null != updateRequest.getMembers()) {
+            this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getMembers());
         }
         return requirement;
     }

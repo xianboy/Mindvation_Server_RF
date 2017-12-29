@@ -11,8 +11,8 @@ public interface TagRepository extends JpaRepository<RequirementTag, Long> {
 
     /*query*/
     //查询指定reqmntId的标签id
-    @Query("select rt.tagId from RequirementTag rt where rt.reqmntId = ?1")
-    List<Long> findTagsByReqmntId(Long reqmntId);
+    @Query("select rt.tagId from RequirementTag rt where rt.reqmntId = ?1 and rt.isDeleted=?2")
+    List<Long> findTagsByReqmntId(Long reqmntId, Integer isDeleted);
 
     /*update*/
     @Modifying

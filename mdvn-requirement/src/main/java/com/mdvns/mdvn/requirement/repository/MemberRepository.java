@@ -2,6 +2,7 @@ package com.mdvns.mdvn.requirement.repository;
 
 import com.mdvns.mdvn.requirement.domain.entity.RequirementMember;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -16,7 +17,8 @@ public interface MemberRepository extends JpaRepository<RequirementMember, Long>
     List<Long> findMemberIdByRoleIdAndRequirementIdAndIsDeleted(Long requirementId, Long roleId, Integer isDelete);
 
     //修改成员映射
-    @Query("UPDATE RequirementMember rm set rm.isDeleted = ?4 where rm.requirementId=?1 and rm.roleId = ?2 and rm.memberId in ?3")
+    @Modifying
+    @Query("update RequirementMember rm set rm.isDeleted=?4 where rm.requirementId=?1 and rm.roleId=?2 and rm.memberId in ?3")
     void updateIsDeleted(Long requirementId, Long roleId, List<Long> removeList, Integer isDeleted);
 
     //根据requirementId、roleId、memberId查数据

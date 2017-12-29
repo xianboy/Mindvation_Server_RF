@@ -9,15 +9,6 @@ import com.mdvns.mdvn.staff.domain.UpdateStaffRequest;
 
 public interface CreateService {
 
-   /* RestResponse<?> rtrvStaffList(RetrieveStaffListRequest request);
-
-    RestResponse<?> rtrvStaffListById(RtrvStaffListByIdRequest request);
-
-    RestResponse<?> rtrvStaffInfo(String staffId);
-
-
-    RestResponse<?> rtrvStaffListByStaffName(RtrvStaffListByNameRequest request) throws SQLException;
-*/
     /*添加员工*/
     RestResponse<?> create(CreateStaffRequest request) throws BusinessException;
 

@@ -92,13 +92,14 @@ public class RetrieveServiceImpl implements RetrieveService {
 
 
     /**
-     * 获取Story列表:支持分页
+     * 根据上层模块的编号获取Story列表:支持分页
      *
      * @param singleCriterionRequest request
      * @return restResponse
      */
     @Override
     public RestResponse<?> retrieveListByHostSerialNo(SingleCriterionRequest singleCriterionRequest) {
+        Integer isDeleted = (null==singleCriterionRequest.getIsDeleted())?MdvnConstant.ZERO:singleCriterionRequest.getIsDeleted();
         //获取request中的hostSerialNo
         String hostSerialNo = singleCriterionRequest.getCriterion();
         LOG.info("获取hostSerialNo为【{}】的Story列表开始...", hostSerialNo);
@@ -109,10 +110,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             pageRequest = PageableQueryUtil.defaultPageReqestBuilder();
         } else {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
-        }
-        Integer isDeleted = MdvnConstant.ZERO;
-        if (null!=singleCriterionRequest.getIsDeleted()) {
-            isDeleted = singleCriterionRequest.getIsDeleted();
         }
         //执行分页查询
         Page<Story> storyPage = this.repository.findByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted, pageRequest);
@@ -142,7 +139,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置过程方法
         detail.setLabel(getLabel(staffId, story.getFunctionLabelId()));
         //设置成员
-        detail.setMembers(getRoleMembers(staffId, story.getId(), MdvnConstant.ZERO));
+        detail.setMembers(getRoleMembers(staffId, story.getId(), story.getTemplateId()));
         //设置开始/结束日期
         detail.setStartDate(story.getStartDate().getTime());
         detail.setEndDate(story.getEndDate().getTime());
@@ -157,9 +154,9 @@ public class RetrieveServiceImpl implements RetrieveService {
      *
      * @return list
      */
-    private List<RoleMember> getRoleMembers(Long staffId, Long storyId, Integer isDeleted) throws BusinessException {
+    private List<RoleMember> getRoleMembers(Long staffId, Long storyId, Long templateId) throws BusinessException {
         LOG.info("获取指定story成员, 开始运行【getRoleMembers】service...");
-        return this.memberService.getRoleMembers(staffId, storyId, isDeleted);
+        return this.memberService.getRoleMembers(staffId, storyId, templateId, MdvnConstant.ZERO);
     }
 
     /**
@@ -177,7 +174,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         String retrieveLabelUrl = webConfig.getRetrieveLabelUrl();
         List<TerseInfo> list;
         try {
-            list = RestTemplateUtil.retrieveBasicInfo(staffId, ids, retrieveLabelUrl);
+            list = RestTemplateUtil.retrieveTerseInfo(staffId, ids, retrieveLabelUrl);
         } catch (Exception ex) {
             LOG.error("获取id为【{}】的FunctionLabel失败...", functionLabelId);
             throw new BusinessException(ErrorEnum.TEMPLATE_SYSTEM_ERROR, "调用Template模块获取获取id为【" + functionLabelId + "】的FunctionLabel失败");
@@ -203,7 +200,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //构建获取指定项目标签url
         String retrieveTagsUrl = webConfig.getRetrieveTagsUrl();
         //调用tag模块获取负责人信息
-        List<TerseInfo> tags = RestTemplateUtil.retrieveBasicInfo(staffId, ids, retrieveTagsUrl);
+        List<TerseInfo> tags = RestTemplateUtil.retrieveTerseInfo(staffId, ids, retrieveTagsUrl);
         MdvnCommonUtil.emptyList(tags, ErrorEnum.TAG_NOT_EXISTS, "id为【" + ids.toString() + "】的Tag不存在...");
         LOG.info("查询指定story的标签成功, 共有标签{}个. " + tags.size());
         return tags;

@@ -10,11 +10,11 @@ import com.mdvns.mdvn.project.repository.TagRepository;
 import com.mdvns.mdvn.project.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +23,16 @@ import java.util.List;
 public class TagServiceImpl implements TagService {
     private static final Logger LOG = LoggerFactory.getLogger(TagServiceImpl.class);
 
-    @Autowired
+    @Resource
     private TagRepository projectTagRepository;
 
 
     /**
      * 新建项目后，添加项目标签映射
-     * @param projId
-     * @param tags
-     * @param creatorId
-     * @return
+     * @param projId projId
+     * @param tags tags
+     * @param creatorId creatorId
+     * @return List
      */
     @Override
     @Transactional
@@ -65,8 +65,7 @@ public class TagServiceImpl implements TagService {
     @Modifying
     public Integer updateIsDeleted(Long staffId, Long projId, List<Long> tags, Integer isDeleted) {
         LOG.info("id为：[{}]的staff，准备去掉id为：[{}] 的项目的id为：[{}]的标签映射信息.", staffId, projId, tags.toString());
-        Integer number = this.projectTagRepository.updateIsDeleted(isDeleted, projId, tags);
-        return number;
+        return this.projectTagRepository.updateIsDeleted(isDeleted, projId, tags);
     }
 
     /**
@@ -79,8 +78,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public ProjectTag findByProjIdAndTagId(Long staffId, Long projId, Long tagId) {
         //调用repository查询
-        ProjectTag pt = this.projectTagRepository.findByProjIdAndTagId(projId, tagId);
-        return pt;
+        return this.projectTagRepository.findByProjIdAndTagId(projId, tagId);
     }
 
     /**

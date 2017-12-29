@@ -57,4 +57,7 @@ public class Staff {
     private Timestamp createTime;
     /*最后更新时间*/
     private Timestamp lastUpdateTime;
+
+    @JsonIgnore
+    private Integer isDeleted;
 }

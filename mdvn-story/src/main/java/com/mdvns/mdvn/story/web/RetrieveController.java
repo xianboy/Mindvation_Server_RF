@@ -35,7 +35,7 @@ public class RetrieveController {
 
 
     /**
-     * 获取story列表: 支持分页
+     * 根据上层相关模块编号获取story列表: 支持分页
      * @param singleCriterionRequest request
      * @param bindingResult 参数校验
      * @return restResponse
@@ -53,7 +53,7 @@ public class RetrieveController {
      * @return restResponse
      * @throws BusinessException exception
      */
-    @PostMapping(value = "/retrieveDetailBySerialNo")
+    @PostMapping(value = "/retrieveDetail")
     public RestResponse<?> retrieveDetailBySerialNo(@RequestBody  @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveDetailBySerialNo(singleCriterionRequest);

@@ -6,6 +6,7 @@ import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.staff.domain.RetrieveStaffRequest;
 import com.mdvns.mdvn.staff.service.RetrieveService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -49,9 +50,21 @@ public class RetrieveController {
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveTerseInfo")
-    public RestResponse<?> retrieveBaseInfo(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
+    public RestResponse<?> retrieveTerseInfo(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
         BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveBaseInfo(retrieveTerseInfoRequest);
+        return this.retrieveService.retrieveTerseInfo(retrieveTerseInfoRequest);
+    }
+
+
+    @PostMapping(value = "/retrieveByName")
+    public RestResponse<?> retrieveByName(@RequestBody @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveByName(singleCriterionRequest);
+    }
+
+    @PostMapping(value = "/retrieveList")
+    public RestResponse<?> retrieveByNameOrTags(@RequestBody RetrieveStaffRequest retrieveRequest) throws BusinessException {
+        return this.retrieveService.retrieveByNameOrTags(retrieveRequest);
     }
 
 

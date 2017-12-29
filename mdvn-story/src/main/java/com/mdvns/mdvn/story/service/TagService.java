@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.story.service;
 
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
+import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.story.domain.entity.StoryTag;
 import org.springframework.data.jpa.repository.Modifying;
 
@@ -15,7 +16,7 @@ public interface TagService {
     List<Long> getTags(Long staffId, Long storyId, Integer isDeleted);
 
     //修改标签映射
-    void updateTags(Long staffId, Long storyId, AddOrRemoveById tags);
+    void updateTags(Long staffId, Long storyId, AddOrRemoveById tags) throws BusinessException;
 
     //删除映射
     @Modifying

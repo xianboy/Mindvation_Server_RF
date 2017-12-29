@@ -26,6 +26,11 @@ public class Story implements Serializable {
     @Column(nullable = false)
     private Long creatorId;
 
+    /*story所在需求的模板id*/
+    @Column(nullable = false)
+    @JsonIgnore
+    private Long templateId;
+
     /*关联主体编号*/
     @Column(nullable = false)
     @JsonIgnore

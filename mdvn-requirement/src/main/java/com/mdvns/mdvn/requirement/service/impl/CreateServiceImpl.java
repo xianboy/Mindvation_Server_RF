@@ -86,12 +86,10 @@ public class CreateServiceImpl implements CreateService {
         //调用Staff 模块查询id为creatorId的Staff
         String retrieveMembersUrl = webConfig.getRetrieveMembersUrl();
         List<TerseInfo> list = RestTemplateUtil.retrieveTerseInfo(creatorId, ids, retrieveMembersUrl);
-
         if (list.size() <= MdvnConstant.ZERO) {
             LOG.error("id为【{}】的用户不存在...", creatorId);
             throw new BusinessException(ErrorEnum.STAFF_NOT_EXISTS, "id为【" + creatorId + "】的用户不存在.");
         }
-
         return list.get(MdvnConstant.ZERO);
     }
 
@@ -149,9 +147,6 @@ public class CreateServiceImpl implements CreateService {
                 String customLabelUrl = webConfig.getCustomLabelUrl();
                 id = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
             }
-
-//            FunctionLabelModel labelModel = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
-
         }
         return id;
     }

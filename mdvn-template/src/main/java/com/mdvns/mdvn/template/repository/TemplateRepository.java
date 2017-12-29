@@ -28,4 +28,7 @@ public interface TemplateRepository extends JpaRepository<Template, Long> {
     //查询id在集合中的数据
     List<Template> findByIdIn(List<Long> ids);
 
+    //根据id获取编号
+    @Query("select t.serialNo from Template t where t.id=?1")
+    String getSerialNoById(Long id);
 }

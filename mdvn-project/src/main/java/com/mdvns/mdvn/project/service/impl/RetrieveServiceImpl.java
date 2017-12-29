@@ -155,7 +155,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置模板
         detail.setTemplates(getTemplates(staffId, proj.getId()));
         //设置需求列表
-//        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
+        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
         //设置附件
 
         return detail;
@@ -239,7 +239,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      * @param projSerialNo projSerialNo
      * @return restResponse
      */
-    private List<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
+    private PageableResponse<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         //构建retrieveRequirementsUrl
@@ -258,7 +258,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             LOG.error("获取指定项目的需求列表失败: {}", restResponse.getMsg());
             throw new BusinessException(restResponse.getCode(), restResponse.getMsg());
         }
-        return restResponse.getData().getContent();
+        return restResponse.getData();
     }
 
 }

@@ -36,7 +36,7 @@ public class UpdateController {
      * @param bindingResult 参数校验
      * @return restResponse
      */
-    @PostMapping(value = "/updateBaseInfo")
+    @PostMapping(value = "/updateBasicInfo")
     public RestResponse<?> updateBaseInfo(@RequestBody @Validated UpdateBasicInfoRequest updateRequest, BindingResult bindingResult) {
         //请求参数校验
         BindingResultUtil.brResolve(bindingResult);

@@ -25,6 +25,6 @@ public class WebConfig {
     private String retrieveLabelUrl;
 
     //获取TemplateRole的url
-    private String retrieveRoleUrl;
+    private String retrieveRolesUrl;
 
 }

@@ -1,8 +1,8 @@
 package com.mdvns.mdvn.staff.domain;
 
-import com.mdvns.mdvn.common.bean.DepartmentDetail;
-import com.mdvns.mdvn.common.bean.PositionModel;
-import com.mdvns.mdvn.common.bean.TagModel;
+import com.mdvns.mdvn.common.bean.model.DepartmentDetail;
+import com.mdvns.mdvn.common.bean.model.PositionModel;
+import com.mdvns.mdvn.common.bean.model.Tag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -48,7 +48,7 @@ public class StaffDetail {
     /*添加时间*/
     private Long createTime;
     /*标签*/
-    private List<TagModel> tags;
+    private List<Tag> tags;
     /*所属部门*/
     private DepartmentDetail dept;
     /*职位id*/

@@ -11,7 +11,7 @@ public interface MemberService {
     Integer handleMembers(Long creatorId, Long id, List<MemberRequest> members);
 
     //获取指定id的需求的成员
-    List<RoleMember> getRoleMembers(Long staffId, Long requirementId, Integer isDeleted) throws BusinessException;
+    List<RoleMember> getRoleMembers(Long staffId, Long requirementId, Long templateId, Integer isDeleted) throws BusinessException;
 
     //修改角色成员
     void updateRoleMembers(Long staffId, Long requirementId, List<MemberRequest> roleMembers);

@@ -2,6 +2,9 @@ package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
+import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.requirement.domain.entity.RequirementTag;
 import com.mdvns.mdvn.requirement.repository.TagRepository;
 import com.mdvns.mdvn.requirement.service.TagService;
@@ -52,8 +55,8 @@ public class TagServiceImpl implements TagService {
      * @return list
      */
     @Override
-    public List<Long> getTags(Long reqmntId) {
-        return this.tagRepository.findTagsByReqmntId(reqmntId);
+    public List<Long> getTags(Long reqmntId, Integer isDeleted) {
+        return this.tagRepository.findTagsByReqmntId(reqmntId, isDeleted);
     }
 
     /**
@@ -63,13 +66,15 @@ public class TagServiceImpl implements TagService {
      * @param tags tags
      */
     @Override
-    public void updateTags(Long staffId, Long reqmntId, AddOrRemoveById tags) {
+    public void updateTags(Long staffId, Long reqmntId, AddOrRemoveById tags) throws BusinessException {
         //删除标签映射
         if (null != tags.getRemoveList()) {
+            MdvnCommonUtil.emptyList(tags.getRemoveList(), ErrorEnum.ILLEGAL_ARG, "删除标签不能为空");
             updateIsDeleted(staffId, reqmntId, tags.getRemoveList(), MdvnConstant.ONE);
         }
         //添加新增标签映射
         if (null != tags.getAddList()) {
+            MdvnCommonUtil.emptyList(tags.getAddList(), ErrorEnum.ILLEGAL_ARG, "新增标签不能为空");
             List<Long> addTags = new ArrayList<>();
             List<Long> updateTags = new ArrayList<>();
             for (Long tagId : tags.getAddList()) {
@@ -82,9 +87,13 @@ public class TagServiceImpl implements TagService {
                 }
             }
             //更新已存在映射的isDeleted为0
-            updateIsDeleted(staffId, reqmntId, updateTags, MdvnConstant.ZERO);
+            if (updateTags.size()>0) {
+                updateIsDeleted(staffId, reqmntId, updateTags, MdvnConstant.ZERO);
+            }
             //添加新映射
-            handleTags(staffId, reqmntId, addTags);
+            if (addTags.size()>0) {
+                handleTags(staffId, reqmntId, addTags);
+            }
         }
     }
 

@@ -78,6 +78,7 @@ public class CreateServiceImpl implements CreateService {
         Story story = new Story();
         story.setCreatorId(request.getCreatorId());
         story.setHostSerialNo(request.getHostSerialNo());
+        story.setTemplateId(request.getTemplateId());
         String serialNo = buildSerialNo();
         story.setSerialNo(serialNo);
         story.setSummary(request.getSummary());
@@ -96,11 +97,13 @@ public class CreateServiceImpl implements CreateService {
         if (functionLabel instanceof Integer) {
             id = Long.valueOf((Integer) functionLabel);
         } else if (functionLabel instanceof String) {
-            //自定义过程方法url
-            String customLabelUrl = webConfig.getCustomLabelUrl();
-            //调用template模块构建自定义过程方法
-            FunctionLabelModel labelModel = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
-            id = labelModel.getId();
+            try {
+                id = Long.valueOf(functionLabel.toString());
+            } catch (Exception ex) {
+                //自定义过程方法url
+                String customLabelUrl = webConfig.getCustomLabelUrl();
+                id = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
+            }
         }
         return id;
     }

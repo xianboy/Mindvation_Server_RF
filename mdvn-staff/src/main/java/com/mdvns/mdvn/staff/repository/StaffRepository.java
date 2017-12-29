@@ -20,6 +20,11 @@ public interface StaffRepository extends JpaRepository<Staff, Long> {
     //获取指定id集合的id和name
     @Query("select s.id, s.serialNo, s.name from Staff s where s.id in ?1 order by s.id")
     List<Object[]> findTerseInfoById(List<Long> ids);
+
+    //查询name包含指定字符串的人
+    List<Staff> findDistinctByNameContainingAndIsDeleted(String name, Integer isDeleted);
+
+
 /*
     Page<Staff> findAll(Pageable pageable);
 

@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.template.service.RetrieveService;
+import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +19,8 @@ public class RetrieveController {
     @Resource
     private RetrieveService retrieveService;
 
+    @Resource
+    private RoleService roleService;
 
     /**
      * 根据行业类型查询
@@ -98,5 +101,17 @@ public class RetrieveController {
     public RestResponse<?> retrieveById(@RequestBody @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveById(singleCriterionRequest);
+    }
+
+    /**
+     *
+     * @param singleCriterionRequest
+     * @param bindingResult
+     * @return
+     */
+    @PostMapping(value = "/retrieveTemplateRoles")
+    public RestResponse<?> retrieveTemplateRoles(@RequestBody @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.roleService.retrieveRoles(singleCriterionRequest);
     }
 }

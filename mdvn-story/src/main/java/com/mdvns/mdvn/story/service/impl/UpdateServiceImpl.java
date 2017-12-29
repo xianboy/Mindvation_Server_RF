@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
@@ -49,10 +50,10 @@ public class UpdateServiceImpl implements UpdateService {
     public RestResponse<?> updateStatus(UpdateStatusRequest updateStatusRequest) {
         LOG.info("修改状态开始...");
         //更新项目状态
-        Story story = this.repository.updateStatus(updateStatusRequest.getStatus(), updateStatusRequest.getHostId());
+        this.repository.updateStatus(updateStatusRequest.getStatus(), updateStatusRequest.getHostId());
         LOG.info("修改状态成功...");
         //构建response并返回
-        return RestResponseUtil.success(story.getStatus());
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -61,26 +62,26 @@ public class UpdateServiceImpl implements UpdateService {
      * @return restResponse
      */
     @Override
+    @Modifying
     public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) {
         LOG.info("修改基础信息开始...");
         //获取更新对象的id
         Long storyId = updateBasicInfoRequest.getHostId();
         //获取summary和description
-        String summary = updateBasicInfoRequest.getFirstPart();
-        String description = updateBasicInfoRequest.getSecondPart();
-        Integer updated;
+        String summary = updateBasicInfoRequest.getFirstParam();
+        String description = updateBasicInfoRequest.getSecondParam();
         //如果那么为空, 则更新描述
         if (StringUtils.isEmpty(summary)) {
-            updated = this.repository.updateDescription(description, storyId);
+            this.repository.updateDescription(description, storyId);
         } else if (StringUtils.isEmpty(description)) {
             //如果描述为空,则更新name
-            updated = this.repository.updateSummary(summary, storyId);
+            this.repository.updateSummary(summary, storyId);
         } else {
             //如果都不为空, 同时更新名称和描述
-            updated = this.repository.updateBoth(summary, description, storyId);
+            this.repository.updateBoth(summary, description, storyId);
         }
         LOG.info("修改基础信息成功...");
-        return RestResponseUtil.success(updated);
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -90,8 +91,8 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException {
-        Story story = buildByRequest(updateRequest);
-        return null;
+        buildByRequest(updateRequest);
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
@@ -129,8 +130,8 @@ public class UpdateServiceImpl implements UpdateService {
             this.tagService.updateTags(updateRequest.getStaffId(), storyId, updateRequest.getTags());
         }
         //更新RoleMember
-        if (null != updateRequest.getRoleMembers()) {
-            this.memberService.updateRoleMembers(updateRequest.getStaffId(), storyId, updateRequest.getRoleMembers());
+        if (null != updateRequest.getMembers()) {
+            this.memberService.updateRoleMembers(updateRequest.getStaffId(), storyId, updateRequest.getMembers());
         }
         return story;
     }

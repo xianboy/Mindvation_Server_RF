@@ -15,5 +15,8 @@ public interface StaffTagRepository extends JpaRepository<StaffTag, Long> {
     @Query("select st.tagId from StaffTag st where st.staffId =?1")
     List<String> findTagIdByStaffId(String staffId);
 
+    //查询tagID在集合中的数据
+    List<StaffTag> findByIsDeletedAndTagIdIn(Integer isDeleted, List<Long> tags);
+
 
 }
