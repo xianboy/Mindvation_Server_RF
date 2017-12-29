@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.common.bean.model;
 
+import com.mdvns.mdvn.common.bean.PageableResponse;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -36,6 +37,9 @@ public class RequirementDetail implements Serializable {
     /*优先级*/
     private Integer priority;
 
+    /*模板id*/
+    private Long templateId;
+
     /*过程方法*/
     private TerseInfo label;
 
@@ -47,6 +51,9 @@ public class RequirementDetail implements Serializable {
 
     /*当前需求下所有story的story point 总和*/
     private Double storyPointAmount;
+
+    /*其下的Story列表*/
+    private PageableResponse<Story> stories;
 
     /*附件*/
 

@@ -64,6 +64,7 @@ public interface MdvnConstant {
     Integer EIGHT = 8;
     Integer NINE = 9;
     Integer TEN = 10;
+    Double ONE_HALF = 0.5;
 
 
 

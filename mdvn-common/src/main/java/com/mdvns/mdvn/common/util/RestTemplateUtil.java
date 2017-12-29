@@ -3,6 +3,7 @@ package com.mdvns.mdvn.common.util;
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -81,4 +82,26 @@ public class RestTemplateUtil {
     }
 
 
+    /**
+     * 根据模板id获取模板对应的所有角色
+     * @param staffId staffId
+     * @param templateId templateId
+     * @param retrieveRolesUrl retrieveRolesUrl
+     * @return List
+     * @throws BusinessException exception
+     */
+    public static List<TerseInfo> getTemplateRoles(Long staffId, Long templateId, String retrieveRolesUrl) throws BusinessException {
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<RestResponse<TerseInfo[]>> typeRef = new ParameterizedTypeReference<RestResponse<TerseInfo[]>>() {
+        };
+        HttpEntity<?> requestEntity = new HttpEntity(new SingleCriterionRequest(staffId, templateId.toString()));
+        ResponseEntity<RestResponse<TerseInfo[]>> responseEntity = restTemplate.exchange(retrieveRolesUrl, HttpMethod.POST, requestEntity, typeRef, new Object[0]);
+        RestResponse<TerseInfo[]> restResponse = responseEntity.getBody();
+        if (!"000".equals(restResponse.getCode())) {
+            LOG.error("获取指定id集合的TerseInfo失败.");
+            throw new BusinessException(ErrorEnum.GET_BASE_INFO_FAILED, "获取指定id集合的TerseInfo失败.");
+        } else {
+            return Arrays.asList(restResponse.getData());
+        }
+    }
 }

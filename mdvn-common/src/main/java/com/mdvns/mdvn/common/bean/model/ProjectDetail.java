@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.common.bean.model;
 
+import com.mdvns.mdvn.common.bean.PageableResponse;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -36,7 +37,7 @@ public class ProjectDetail implements Serializable {
     /*项目可调整系数*/
     private Double contingency;
     /*需求列表*/
-    private List<RequirementModel> requirements;
+    private PageableResponse<RequirementModel> requirements;
 
 }
 

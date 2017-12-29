@@ -27,7 +27,7 @@ public class UpdateOtherInfoRequest implements Serializable{
     private Integer priority;
 
     /*新增或删除角色成员*/
-    private List<MemberRequest> roleMembers;
+    private List<MemberRequest> members;
 
     /*开始时间*/
     private Long startDate;

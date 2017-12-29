@@ -36,6 +36,9 @@ public class StoryDetail implements Serializable{
     /*优先级*/
     private Integer priority;
 
+    /*模板*/
+    private Long templateId;
+
     /*过程方法*/
     private TerseInfo label;
 
