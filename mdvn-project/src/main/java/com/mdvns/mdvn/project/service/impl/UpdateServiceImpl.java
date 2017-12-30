@@ -1,16 +1,18 @@
 package com.mdvns.mdvn.project.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.AttchInfo;
+import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.project.config.WebConfig;
+import com.mdvns.mdvn.project.domain.UpdateOptionalInfoRequest;
 import com.mdvns.mdvn.project.domain.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.ProjectRepository;
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -158,26 +161,69 @@ public class UpdateServiceImpl implements UpdateService {
         }
         //更新模板
         if (null != updateRequest.getTemplates()) {
-            this.projectTemplateService.updateProjectTemplate(updateRequest.getStaffId(), projId, updateRequest.getTags());
-        }
-        //更新附件
-        if (null != updateRequest.getAttaches()) {
-            /**
-             * 更改附件的状态
-             */
-            List<Long> addList = updateRequest.getAttaches().getAddList();
-            List<Long> removeList = updateRequest.getAttaches().getRemoveList();
-            AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
-            if (addList.size() > 0) {
-                addOrRemoveById.setAddList(addList);
-            }
-            if (removeList.size() > 0) {
-                addOrRemoveById.setRemoveList(removeList);
-            }
-            List<AttchInfo> attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), addOrRemoveById, List.class);
+            this.projectTemplateService.updateProjectTemplate(updateRequest.getStaffId(), projId, updateRequest.getTemplates());
         }
         LOG.info("更新项目其它信息结束...");
         return project;
+    }
+
+    /**
+     * 更新项目可选信息（附件）
+     *
+     * @param updateRequest
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    @Transactional
+    public RestResponse<?> updateOptionalInfo(UpdateOptionalInfoRequest updateRequest) throws BusinessException {
+        LOG.info("更新项目附件信息开始...");
+        //项目id
+        Long projId = updateRequest.getHostId();
+        //根据id查询项目
+        Project project = this.projectRepository.findOne(projId);
+        //如果project不存在, 抛出异常
+        MdvnCommonUtil.notExistingError(project, "id", projId.toString());
+        //更新附件
+        if (null != updateRequest.getAttaches()) {
+            this.updateAttaches(updateRequest, project);
+        }
+        //根据projId获取详情
+        //retrieveByProjId(updateRequest.getStaffId(), updateRequest.getHostId());
+        LOG.info("更新项目附件信息结束...");
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 更新项目附件信息
+     *
+     * @param updateRequest
+     * @return
+     */
+    @Transactional
+    public List<AttchInfo> updateAttaches(UpdateOptionalInfoRequest updateRequest, Project project) throws BusinessException {
+        LOG.info("更新项目附件信息开始...");
+        List<Long> addList = updateRequest.getAttaches().getAddList();
+        List<Long> removeList = updateRequest.getAttaches().getRemoveList();
+        BuildAttachesById buildAttachesById = new BuildAttachesById();
+        AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
+        if (null != addList && addList.size() > 0) {
+            addOrRemoveById.setAddList(addList);
+        }
+        if (null != removeList && removeList.size() > 0) {
+            addOrRemoveById.setRemoveList(removeList);
+        }
+        buildAttachesById.setAddOrRemoveById(addOrRemoveById);
+        buildAttachesById.setSubjectId(project.getSerialNo());
+        List<AttchInfo> attchInfos = new ArrayList<>();
+        try {
+            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), buildAttachesById, List.class);
+        } catch (Exception ex) {
+            LOG.error("更改指定项目的附件列表失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILD, "更改附件列表信息失败");
+        }
+        LOG.info("更新项目附件信息结束...");
+        return attchInfos;
     }
 
 }

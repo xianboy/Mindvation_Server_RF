@@ -3,8 +3,10 @@ package com.mdvns.mdvn.project.service.impl;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.AttchInfo;
+import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
@@ -25,6 +27,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -54,7 +57,8 @@ public class CreateServiceImpl implements CreateService {
     private WebConfig webConfig;
 
     /**
-     *新建项目
+     * 新建项目
+     *
      * @param createRequest createRequest
      * @return RestResponse
      */
@@ -71,15 +75,15 @@ public class CreateServiceImpl implements CreateService {
         //保存
         project = this.projectRepository.saveAndFlush(project);
         //项目保存成功，保存leader: ManyToMany
-        if (!(null==createRequest.getLeaders()||createRequest.getLeaders().isEmpty())) {
+        if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
             this.projectStaffService.createProjectStaff(createRequest.getCreatorId(), project.getId(), createRequest.getLeaders());
         }
         //项目保存成功，保存tag: ManyToMany
-        if (!(null == createRequest.getTags()||createRequest.getTags().isEmpty())) {
+        if (!(null == createRequest.getTags() || createRequest.getTags().isEmpty())) {
             this.projectTagService.createProjectTag(createRequest.getCreatorId(), project.getId(), createRequest.getTags());
         }
         //项目保存成功，保存template: ManyToMany
-        if (!(null==createRequest.getTemplates()||createRequest.getTemplates().isEmpty())) {
+        if (!(null == createRequest.getTemplates() || createRequest.getTemplates().isEmpty())) {
             this.projectTemplateService.createProjectTemplate(createRequest.getCreatorId(), project.getId(), createRequest.getTemplates());
         }
         return RestResponseUtil.success(project);
@@ -87,10 +91,11 @@ public class CreateServiceImpl implements CreateService {
 
     /**
      * 根据 request 构建project对象
+     *
      * @param request request
      * @return project
      */
-    private Project buildProjectByRequest(CreateProjectRequest request) {
+    private Project buildProjectByRequest(CreateProjectRequest request) throws BusinessException {
         LOG.info("创建项目,开始制定buildProjectByRequest...");
         Project project = new Project();
         //给项目编号赋值
@@ -100,15 +105,15 @@ public class CreateServiceImpl implements CreateService {
         //描述
         project.setDescription(request.getDescription());
         //优先级
-        if (null!=request.getPriority()) {
+        if (null != request.getPriority()) {
             project.setPriority(request.getPriority());
         }
         //开始日期
-        if (null!=request.getStartDate()) {
+        if (null != request.getStartDate()) {
             project.setStartDate(request.getStartDate());
         }
         //结束日期
-        if (null!=request.getEndDate()) {
+        if (null != request.getEndDate()) {
             project.setEndDate(request.getEndDate());
         }
         //创建时间
@@ -116,22 +121,14 @@ public class CreateServiceImpl implements CreateService {
         //是否已删除
         project.setIsDeleted(MdvnConstant.ZERO);
         //可调整系数
-        if (null!=request.getContingency()) {
+        if (null != request.getContingency()) {
             project.setContingency(request.getContingency());
         }
         //创建人id
         project.setCreatorId(request.getCreatorId());
         //附件
         if (!StringUtils.isEmpty(request.getAttaches())) {
-            List<Long> attaches = request.getAttaches();
-            String aches = MdvnStringUtil.join(attaches, ",");
-            project.setAttaches(aches);
-            /**
-             * 更改附件的状态
-             */
-            AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
-            addOrRemoveById.setAddList(attaches);
-            List<AttchInfo> attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(),addOrRemoveById,List.class);
+            this.buildProjAttaches(request, project);
         }
         return project;
     }
@@ -140,18 +137,46 @@ public class CreateServiceImpl implements CreateService {
      * 构建项目编号:
      * 1.查询表中的最大id  maxId
      * 2.serialNum = "P" + (maxId + 1)
+     *
      * @return serialNo
      */
     private String buildSerialNo4Proj() {
         //查询表中的最大id  maxId
         Long maxId = this.projectRepository.getMaxId();
         //如果表中没有数据，则给maxId赋值为0
-        if (maxId==null) {
+        if (maxId == null) {
             maxId = Long.valueOf(MdvnConstant.ZERO);
         }
         maxId += 1;
-        return MdvnConstant.P+maxId;
+        return MdvnConstant.P + maxId;
     }
 
-
+    /**
+     * 构建项目附件
+     *
+     * @param request
+     * @param project
+     * @return
+     */
+    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
+        List<Long> attaches = request.getAttaches();
+        String aches = MdvnStringUtil.joinLong(attaches, ",");
+        project.setAttaches(aches);
+        /**
+         * 更改附件的状态
+         */
+        BuildAttachesById buildAttachesById = new BuildAttachesById();
+        AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
+        addOrRemoveById.setAddList(attaches);
+        buildAttachesById.setAddOrRemoveById(addOrRemoveById);
+        buildAttachesById.setSubjectId(project.getSerialNo());
+        List<AttchInfo> attchInfos = new ArrayList<>();
+        try {
+            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), buildAttachesById, List.class);
+        } catch (Exception ex) {
+            LOG.error("创建项目添加附件信息失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
+        }
+        return attchInfos;
+    }
 }

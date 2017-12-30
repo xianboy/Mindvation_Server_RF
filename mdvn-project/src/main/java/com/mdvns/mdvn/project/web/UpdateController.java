@@ -5,6 +5,7 @@ import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.project.domain.UpdateOptionalInfoRequest;
 import com.mdvns.mdvn.project.domain.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.project.service.UpdateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,21 @@ public class UpdateController {
         BindingResultUtil.brResolve(bindingResult);
         //调用更新service
         return this.updateService.updateOtherInfo(updateRequest);
+    }
+
+    /**
+     * 修改可选信息
+     * @param updateRequest request
+     * @param bindingResult bindingResult
+     * @return restResponse
+     * @throws BusinessException error
+     */
+    @PostMapping(value = "/updateOptionalInfo")
+    public RestResponse<?> updateOptionalInfo(@RequestBody @Validated UpdateOptionalInfoRequest updateRequest, BindingResult bindingResult) throws BusinessException{
+        //请求参数校验
+        BindingResultUtil.brResolve(bindingResult);
+        //调用更新service
+        return this.updateService.updateOptionalInfo(updateRequest);
     }
 
 }

@@ -2,6 +2,7 @@ package com.mdvns.mdvn.mdvnfile.web;
 
 
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
+import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.mdvnfile.domain.UpdateAttchRequest;
 import com.mdvns.mdvn.mdvnfile.domain.entity.AttchInfo;
@@ -59,8 +60,8 @@ public class FileController {
      * @param request
      * @return
      */
-    @PutMapping(value = "/updateAttaches")
-    public List<AttchInfo> updateAttaches(@RequestBody AddOrRemoveById request) {
+    @PostMapping(value = "/updateAttaches")
+    public List<AttchInfo> updateAttaches(@RequestBody BuildAttachesById  request) throws BusinessException {
         return this.fileService.updateAttaches(request);
     }
 
@@ -73,8 +74,6 @@ public class FileController {
     public List<AttchInfo> rtrvAttsBySubjectId(@RequestBody String subjectId) {
         return this.fileService.rtrvAttsBySubjectId(subjectId);
     }
-
-
 
 
     /**
@@ -111,8 +110,8 @@ public class FileController {
      * @return
      */
     @PostMapping(value = "/uploadFile")
-    public ResponseEntity<?> uploadFile(HttpServletRequest request, @RequestParam MultipartFile mFile, @RequestParam Long creatorId,@RequestParam String subjectId) throws IOException, BusinessException {
+    public ResponseEntity<?> uploadFile(HttpServletRequest request, @RequestParam MultipartFile mFile, @RequestParam Long creatorId) throws IOException, BusinessException {
         LOG.info("Contrller 开始执行:{}");
-        return this.fileService.uploadFile(request, mFile, creatorId,subjectId);
+        return this.fileService.uploadFile(request, mFile, creatorId);
     }
 }

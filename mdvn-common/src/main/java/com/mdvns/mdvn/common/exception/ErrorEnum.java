@@ -80,6 +80,8 @@ public enum ErrorEnum {
     //attach
     /*获取附件列表信息失败*/
     ATTACHES_RTRV_FAILD("30900"),
+    ATTACHES_UPDATE_FAILD("30901"),
+    ATTACHES_CREATE_FAILD("30902"),
     ;
 
 

@@ -2,6 +2,7 @@ package com.mdvns.mdvn.mdvnfile.servicce.impl;
 
 
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
+import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
@@ -49,6 +50,7 @@ public class FileServiceImpl implements FileService {
     private String uploadDir;
 
     private final RestTemplate restTemplate;
+
     public FileServiceImpl(RestTemplateBuilder restTemplateBuilder) {
         this.restTemplate = restTemplateBuilder.build();
     }
@@ -71,7 +73,7 @@ public class FileServiceImpl implements FileService {
             //附件信息添加时间赋值为系统当前时间*
             attch.setCreateTime(createTime);
             //附件信息是否已删除赋值为0，未删除
-            attch.setIsDeleted(0);
+            attch.setIsDeleted(1);
             //保存附件信息
             attchInfo = this.attchRepository.save(attch);
         } catch (Exception ex) {
@@ -81,6 +83,12 @@ public class FileServiceImpl implements FileService {
         return attchInfo;
     }
 
+    /**
+     * 更新单个附件的信息
+     *
+     * @param updateAttchRequest
+     * @return
+     */
     @Override
     public ResponseEntity<?> update(UpdateAttchRequest updateAttchRequest) {
         LOG.info("更新附件,开始更新上传成功的附件的信息...");
@@ -118,44 +126,56 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
-     * 更改附件的状态
+     * 更改多个附件的状态（新增和删除可同时更新）
+     *
      * @param request
      * @return
      */
     @Override
-    public List<AttchInfo> updateAttaches(AddOrRemoveById request) {
-        List<Long> addList = request.getAddList();
-        List<Long> removeList = request.getRemoveList();
-        String subjectId = null;
-        if (addList.size()>0){
-            List<AttchInfo> attchs = this.attchRepository.findByIdIn(addList);
-            for (int i = 0; i < attchs.size(); i++) {
-                attchs.get(i).setIsDeleted(0);
-                subjectId = attchs.get(i).getSubjectId();
+    @Transactional
+    public List<AttchInfo> updateAttaches(BuildAttachesById request) throws BusinessException {
+        LOG.info("更新附件,开始更新上传成功的附件的信息...");
+        AddOrRemoveById addOrRemoveById = request.getAddOrRemoveById();
+        List<Long> addList = addOrRemoveById.getAddList();
+        List<Long> removeList = addOrRemoveById.getRemoveList();
+        String subjectId = request.getSubjectId();
+        try {
+            if (null != addList && addList.size() > 0) {
+                List<AttchInfo> attchs = this.attchRepository.findByIdIn(addList);
+                for (int i = 0; i < attchs.size(); i++) {
+                    attchs.get(i).setIsDeleted(0);
+                    /*附件表保存附件所属的位置*/
+                    attchs.get(i).setSubjectId(subjectId);
+                }
+                attchs = this.attchRepository.save(attchs);
             }
-            attchs = this.attchRepository.save(attchs);
-        }
-        if (removeList.size()>0){
-            List<AttchInfo> attchs = this.attchRepository.findByIdIn(removeList);
-            for (int i = 0; i < attchs.size(); i++) {
-                attchs.get(i).setIsDeleted(1);
+            if (null != removeList && removeList.size() > 0) {
+                List<AttchInfo> attchs = this.attchRepository.findByIdIn(removeList);
+                for (int i = 0; i < attchs.size(); i++) {
+                    attchs.get(i).setIsDeleted(1);
+                }
+                attchs = this.attchRepository.save(attchs);
             }
-            attchs = this.attchRepository.save(attchs);
+        } catch (Exception ex) {
+            LOG.error("更新附件失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILD, "更新附件失败");
         }
         /*查出有效的附件*/
-        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId,0);
+        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId, 0);
+        LOG.info("========更新成功========{}", attches.toString());
         return attches;
     }
 
     /**
      * 通过subjectId获取附件列表
+     *
      * @param subjectId
      * @return
      */
     @Override
     public List<AttchInfo> rtrvAttsBySubjectId(String subjectId) {
         /*查出有效的附件*/
-        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId,0);
+        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId, 0);
         return attches;
     }
 
@@ -205,8 +225,10 @@ public class FileServiceImpl implements FileService {
         return RestResponseUtil.successResponseEntity(attchs);
     }
     //----------------------------------------------文件上传--------------------------------------------
+
     /**
      * 多文件上传
+     *
      * @param request
      * @param mFiles
      * @param creatorId
@@ -215,7 +237,7 @@ public class FileServiceImpl implements FileService {
      */
     @Transactional
     @Override
-    public ResponseEntity<?> uploadFiles(HttpServletRequest request, List<MultipartFile> mFiles, Long creatorId,String subjectId) throws IOException, BusinessException {
+    public ResponseEntity<?> uploadFiles(HttpServletRequest request, List<MultipartFile> mFiles, Long creatorId) throws IOException, BusinessException {
 
         //保存成功的附件信息Id使用List保存
         List<AttchInfo> attchs = new ArrayList<AttchInfo>();
@@ -223,7 +245,7 @@ public class FileServiceImpl implements FileService {
         //文件依次上传
         try {
             for (MultipartFile mFile : mFiles) {
-                attchs.add(doUpload(request, mFile, creatorId,subjectId));
+                attchs.add(doUpload(request, mFile, creatorId));
             }
         } catch (Exception ex) {
             LOG.info("文件上传失败:{}", ex.getLocalizedMessage());
@@ -235,6 +257,7 @@ public class FileServiceImpl implements FileService {
 
     /**
      * 单文件上传
+     *
      * @param request
      * @param mFile
      * @param creatorId
@@ -243,8 +266,8 @@ public class FileServiceImpl implements FileService {
      */
     @Transactional
     @Override
-    public ResponseEntity<?> uploadFile(HttpServletRequest request, MultipartFile mFile, Long creatorId,String subjectId) throws IOException, BusinessException {
-        AttchInfo attch = doUpload(request, mFile, creatorId,subjectId);
+    public ResponseEntity<?> uploadFile(HttpServletRequest request, MultipartFile mFile, Long creatorId) throws IOException, BusinessException {
+        AttchInfo attch = doUpload(request, mFile, creatorId);
         return RestResponseUtil.successResponseEntity(attch);
     }
 
@@ -254,15 +277,15 @@ public class FileServiceImpl implements FileService {
      * @return 文件信息保存后的Id
      * @throws IOException
      */
-    private AttchInfo doUpload(HttpServletRequest request, MultipartFile mFile, Long creatorId,String subjectId) throws IOException, BusinessException {
-
+    private AttchInfo doUpload(HttpServletRequest request, MultipartFile mFile, Long creatorId) throws IOException, BusinessException {
+        AttchInfo attchInfo = new AttchInfo();
         //如果目录不存在，自动创建文件夹
         File dir = new File(uploadDir);
         if (!dir.exists()) {
             dir.mkdir();
         }
         String contentType = mFile.getContentType();
-        LOG.info("文件类型：{}",contentType);
+        LOG.info("文件类型：{}", contentType);
         //原文件名
         String fileOrigName = mFile.getOriginalFilename();
         //文件后缀名
@@ -278,7 +301,6 @@ public class FileServiceImpl implements FileService {
         attchInfo.setOriginName(fileOrigName);
         attchInfo.setCreatorId(creatorId);
         attchInfo.setUrl(url);
-        attchInfo.setSubjectId(subjectId);
         /**
          * 当前端确认文件上传成功之后，点击“确定”才会变成 0 ,如果点击“取消”则不变
          */
