@@ -4,10 +4,13 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.ProjectRepository;
@@ -19,6 +22,9 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
 
 @Service
 public class UpdateServiceImpl implements UpdateService {
@@ -39,6 +45,14 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Autowired
     private RetrieveService retrieveService;
+
+    /* 注入RestTemplate*/
+    @Autowired
+    private RestTemplate restTemplate;
+
+    /*注入WebConfig*/
+    @Autowired
+    private WebConfig webConfig;
 
     /**
      * 更新项目状态
@@ -143,10 +157,26 @@ public class UpdateServiceImpl implements UpdateService {
             this.projectStaffService.updateProjectLeader(updateRequest.getStaffId(), projId, updateRequest.getLeaders());
         }
         //更新模板
-        if (null != updateRequest.getTags()) {
+        if (null != updateRequest.getTemplates()) {
             this.projectTemplateService.updateProjectTemplate(updateRequest.getStaffId(), projId, updateRequest.getTags());
         }
-        LOG.info("更新项目其它信息开始...");
+        //更新附件
+        if (null != updateRequest.getAttaches()) {
+            /**
+             * 更改附件的状态
+             */
+            List<Long> addList = updateRequest.getAttaches().getAddList();
+            List<Long> removeList = updateRequest.getAttaches().getRemoveList();
+            AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
+            if (addList.size() > 0) {
+                addOrRemoveById.setAddList(addList);
+            }
+            if (removeList.size() > 0) {
+                addOrRemoveById.setRemoveList(removeList);
+            }
+            List<AttchInfo> attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), addOrRemoveById, List.class);
+        }
+        LOG.info("更新项目其它信息结束...");
         return project;
     }
 

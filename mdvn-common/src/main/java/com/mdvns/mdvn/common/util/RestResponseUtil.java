@@ -2,6 +2,8 @@ package com.mdvns.mdvn.common.util;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 
 public class RestResponseUtil {
@@ -20,6 +22,21 @@ public class RestResponseUtil {
             restResponse.setData(data);
         }
         return restResponse;
+    }
+
+    public static ResponseEntity<?> successResponseEntity(Object object) {
+        RestResponse restResponse = new RestResponse();
+        restResponse.setCode("000");
+        restResponse.setMsg("SUCCESS");
+        if (null != object) {
+            restResponse.setData(object);
+        }
+        return ResponseEntity.ok(restResponse);
+    }
+
+    public static ResponseEntity<?> successResponseEntity() {
+
+        return successResponseEntity(null);
     }
 
     /**

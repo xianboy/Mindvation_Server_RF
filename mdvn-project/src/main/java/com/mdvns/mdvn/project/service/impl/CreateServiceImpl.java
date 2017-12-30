@@ -1,10 +1,14 @@
 package com.mdvns.mdvn.project.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
+import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.CreateProjectRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.ProjectRepository;
@@ -18,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Service
 public class CreateServiceImpl implements CreateService {
@@ -38,6 +44,14 @@ public class CreateServiceImpl implements CreateService {
 
     @Autowired
     private TemplateService projectTemplateService;
+
+    /* 注入RestTemplate*/
+    @Autowired
+    private RestTemplate restTemplate;
+
+    /*注入WebConfig*/
+    @Autowired
+    private WebConfig webConfig;
 
     /**
      *新建项目
@@ -109,7 +123,15 @@ public class CreateServiceImpl implements CreateService {
         project.setCreatorId(request.getCreatorId());
         //附件
         if (!StringUtils.isEmpty(request.getAttaches())) {
-            project.setAttaches(request.getAttaches());
+            List<Long> attaches = request.getAttaches();
+            String aches = MdvnStringUtil.join(attaches, ",");
+            project.setAttaches(aches);
+            /**
+             * 更改附件的状态
+             */
+            AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
+            addOrRemoveById.setAddList(attaches);
+            List<AttchInfo> attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(),addOrRemoveById,List.class);
         }
         return project;
     }

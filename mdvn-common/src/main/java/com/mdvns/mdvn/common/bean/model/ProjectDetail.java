@@ -38,6 +38,8 @@ public class ProjectDetail implements Serializable {
     private Double contingency;
     /*需求列表*/
     private PageableResponse<RequirementModel> requirements;
+    /*附件列表*/
+    private List<AttchInfo> attchInfos;
 
 }
 

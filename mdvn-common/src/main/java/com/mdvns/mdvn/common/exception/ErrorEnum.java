@@ -14,6 +14,7 @@ import lombok.*;
  * requirement:30600~30700
  * story:30700~30800
  * task:30800~30900
+ * attach:30900~31000
  */
 public enum ErrorEnum {
 
@@ -74,7 +75,11 @@ public enum ErrorEnum {
 
     //task
     /*task不存在*/
-    TASK_NOT_EXISTS("30800")
+    TASK_NOT_EXISTS("30800"),
+
+    //attach
+    /*获取附件列表信息失败*/
+    ATTACHES_RTRV_FAILD("30900"),
     ;
 
 

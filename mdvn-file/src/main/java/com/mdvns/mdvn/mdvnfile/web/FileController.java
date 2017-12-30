@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.mdvnfile.web;
 
 
+import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.mdvnfile.domain.UpdateAttchRequest;
 import com.mdvns.mdvn.mdvnfile.domain.entity.AttchInfo;
@@ -14,8 +15,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 
 
+@CrossOrigin
 @RestController
 @RequestMapping(value = {"/files", "/v1.0/files"})
 public class FileController {
@@ -47,9 +50,31 @@ public class FileController {
      * @return
      */
     @PutMapping(value = "/delete/{attchId}")
-    public ResponseEntity<?> delete(@PathVariable("attchId") Integer id) {
+    public ResponseEntity<?> delete(@PathVariable("attchId") Long id) {
         return this.fileService.delete(id);
     }
+
+    /**
+     * 更改附件的状态
+     * @param request
+     * @return
+     */
+    @PutMapping(value = "/updateAttaches")
+    public List<AttchInfo> updateAttaches(@RequestBody AddOrRemoveById request) {
+        return this.fileService.updateAttaches(request);
+    }
+
+    /**
+     * 获取附件列表信息（通过subjectId）
+     * @param subjectId
+     * @return
+     */
+    @PostMapping(value = "/rtrvAttsBySubjectId")
+    public List<AttchInfo> rtrvAttsBySubjectId(@RequestBody String subjectId) {
+        return this.fileService.rtrvAttsBySubjectId(subjectId);
+    }
+
+
 
 
     /**
@@ -58,7 +83,7 @@ public class FileController {
      * @return
      */
     @GetMapping(value = "/rtrvAttch/{attchId}")
-    public ResponseEntity<?> retrieve(@PathVariable("attchId") Integer id) {
+    public ResponseEntity<?> retrieve(@PathVariable("attchId") Long id) {
         return this.fileService.retrieve(id);
     }
 
@@ -68,7 +93,7 @@ public class FileController {
      * @return
      */
     @PostMapping(value = "/rtrvAttachInfo")
-    public AttchInfo rtrvAttachInfo(@RequestBody Integer id) {
+    public AttchInfo rtrvAttachInfo(@RequestBody Long id) {
         return this.fileService.rtrvAttachInfo(id);
     }
 

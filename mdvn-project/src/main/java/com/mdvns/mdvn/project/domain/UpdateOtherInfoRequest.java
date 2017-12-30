@@ -33,6 +33,9 @@ public class UpdateOtherInfoRequest {
     private AddOrRemoveById templates;
     /*可调整系数*/
     private Double contingency;
+    /*更新附件*/
+    private AddOrRemoveById attaches;
+
 
 
 }

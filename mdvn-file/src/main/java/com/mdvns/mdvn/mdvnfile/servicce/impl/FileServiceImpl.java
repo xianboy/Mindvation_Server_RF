@@ -1,8 +1,10 @@
 package com.mdvns.mdvn.mdvnfile.servicce.impl;
 
 
+import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.mdvnfile.domain.UpdateAttchRequest;
 import com.mdvns.mdvn.mdvnfile.domain.entity.AttchInfo;
@@ -103,7 +105,7 @@ public class FileServiceImpl implements FileService {
      * @return
      */
     @Override
-    public ResponseEntity<?> delete(Integer attchId) {
+    public ResponseEntity<?> delete(Long attchId) {
         LOG.info("删除附件开始");
         attchInfo = this.attchRepository.findOne(attchId);
         if (attchInfo == null) {
@@ -116,13 +118,55 @@ public class FileServiceImpl implements FileService {
     }
 
     /**
+     * 更改附件的状态
+     * @param request
+     * @return
+     */
+    @Override
+    public List<AttchInfo> updateAttaches(AddOrRemoveById request) {
+        List<Long> addList = request.getAddList();
+        List<Long> removeList = request.getRemoveList();
+        String subjectId = null;
+        if (addList.size()>0){
+            List<AttchInfo> attchs = this.attchRepository.findByIdIn(addList);
+            for (int i = 0; i < attchs.size(); i++) {
+                attchs.get(i).setIsDeleted(0);
+                subjectId = attchs.get(i).getSubjectId();
+            }
+            attchs = this.attchRepository.save(attchs);
+        }
+        if (removeList.size()>0){
+            List<AttchInfo> attchs = this.attchRepository.findByIdIn(removeList);
+            for (int i = 0; i < attchs.size(); i++) {
+                attchs.get(i).setIsDeleted(1);
+            }
+            attchs = this.attchRepository.save(attchs);
+        }
+        /*查出有效的附件*/
+        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId,0);
+        return attches;
+    }
+
+    /**
+     * 通过subjectId获取附件列表
+     * @param subjectId
+     * @return
+     */
+    @Override
+    public List<AttchInfo> rtrvAttsBySubjectId(String subjectId) {
+        /*查出有效的附件*/
+        List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId,0);
+        return attches;
+    }
+
+    /**
      * 根据Id获取附件信息
      *
      * @param id
      * @return
      */
     @Override
-    public ResponseEntity<?> retrieve(Integer id) {
+    public ResponseEntity<?> retrieve(Long id) {
         attchInfo = this.attchRepository.findOne(id);
         LOG.info("查询到的AttchInfo 是： {}", attchInfo.getId());
         return RestResponseUtil.successResponseEntity(attchInfo);
@@ -135,7 +179,7 @@ public class FileServiceImpl implements FileService {
      * @return
      */
     @Override
-    public AttchInfo rtrvAttachInfo(Integer id) {
+    public AttchInfo rtrvAttachInfo(Long id) {
         attchInfo = this.attchRepository.findOne(id);
         LOG.info("查询到的AttchInfo 是： {}", attchInfo.getId());
         return attchInfo;
@@ -151,9 +195,9 @@ public class FileServiceImpl implements FileService {
     @Override
     public ResponseEntity<?> retrieve(String ids) {
         LOG.info("获取多个附件信息开始");
-        List<Integer> idList = new ArrayList<Integer>();
+        List<Long> idList = new ArrayList<Long>();
         for (String id : ids.split(",")) {
-            idList.add(Integer.valueOf(id));
+            idList.add(Long.valueOf(id));
         }
 
         List<AttchInfo> attchs = this.attchRepository.findByIdIn(idList);
@@ -235,6 +279,10 @@ public class FileServiceImpl implements FileService {
         attchInfo.setCreatorId(creatorId);
         attchInfo.setUrl(url);
         attchInfo.setSubjectId(subjectId);
+        /**
+         * 当前端确认文件上传成功之后，点击“确定”才会变成 0 ,如果点击“取消”则不变
+         */
+        attchInfo.setIsDeleted(1);
         //调用SAPI保存实例化AttchInfo对象
         return create(attchInfo);
     }
