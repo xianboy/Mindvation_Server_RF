@@ -1,6 +1,5 @@
 package com.mdvns.mdvn.story.service.impl;
 
-import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -90,21 +89,16 @@ public class CreateServiceImpl implements CreateService {
         return story;
     }
 
+    /**
+     *  构建过程方法
+     * @param creatorId creatorId
+     * @param hostSerialNo hostSerialNo
+     * @param functionLabel functionLabel
+     * @return Long
+     * @throws BusinessException BusinessException
+     */
     private Long buildLabel(Long creatorId, String hostSerialNo, Object functionLabel) throws BusinessException {
-        Long id = null;
-        //如果functionLabel为Long类型, 则为已存在的过程方法的id,直接返回
-        if (functionLabel instanceof Integer) {
-            id = Long.valueOf((Integer) functionLabel);
-        } else if (functionLabel instanceof String) {
-            try {
-                id = Long.valueOf(functionLabel.toString());
-            } catch (Exception ex) {
-                //自定义过程方法url
-                String customLabelUrl = webConfig.getCustomLabelUrl();
-                id = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
-            }
-        }
-        return id;
+        return RestTemplateUtil.buildLabel(webConfig.getCustomLabelUrl(), creatorId, hostSerialNo, functionLabel);
     }
 
 
@@ -112,9 +106,9 @@ public class CreateServiceImpl implements CreateService {
      * 构建需求编号:
      * 1.查询表中的最大id  maxId
      * 2.serialNum = "R" + (maxId + 1)
-     *
-     * @return serialNo
      * @param hostSerialNo
+     * @return serialNo
+     *
      */
     private String buildSerialNo(String hostSerialNo) {
         //查询表中的最大id  maxId

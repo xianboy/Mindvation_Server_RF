@@ -62,25 +62,34 @@ public class RestTemplateUtil {
      */
     public static Long customLabel(String customLabelUrl, CustomFunctionLabelRequest customRequest) throws BusinessException {
         RestTemplate restTemplate = new RestTemplate();
-        //构建ParameterizedTypeReference
-        /*ParameterizedTypeReference<RestResponse<FunctionLabelModel>> typeRef = new ParameterizedTypeReference<RestResponse<FunctionLabelModel>>() {
-        };
-        //构建requestEntity
-        HttpEntity<?> requestEntity = new HttpEntity<>(customRequest);
-        //构建responseEntity
-        ResponseEntity<RestResponse<FunctionLabelModel>> responseEntity = restTemplate.exchange(customLabelUrl,
-                HttpMethod.POST, requestEntity, typeRef);
-        //获取restResponse
-        RestResponse<FunctionLabelModel> restResponse = responseEntity.getBody();
-        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
-            LOG.error("获取指定id集合的id和name失败.");
-            throw new BusinessException(ErrorEnum.CUSTOM_LABEL_FAILD, "获取指定id集合的id和name失败.");
-        }*/
         Long id = restTemplate.postForObject(customLabelUrl, customRequest, Long.class);
-//        FunctionLabelModel labelModel = restResponse.getData();
         return id;
     }
 
+    /**
+     * 处理过程方法: 如果FunctionLabel 为Long,返回; 如果为字符串, 则自定义
+     * @param customLabelUrl customLabelUrl
+     * @param creatorId creatorId
+     * @param hostSerialNo hostSerialNo
+     * @param functionLabel functionLabel
+     * @return Long
+     * @throws BusinessException BusinessException
+     */
+    public static Long buildLabel(String customLabelUrl, Long creatorId, String hostSerialNo, Object functionLabel) throws BusinessException {
+        Long id = null;
+        //如果functionLabel为Long类型, 则为已存在的过程方法的id,直接返回
+        if (functionLabel instanceof Integer) {
+            id = Long.valueOf((Integer) functionLabel);
+        } else if (functionLabel instanceof String) {
+            try {
+                id = Long.valueOf(functionLabel.toString());
+            } catch (Exception ex) {
+                //自定义过程方法
+                id = RestTemplateUtil.customLabel(customLabelUrl, new CustomFunctionLabelRequest(creatorId, hostSerialNo, (String) functionLabel));
+            }
+        }
+        return id;
+    }
 
     /**
      * 根据模板id获取模板对应的所有角色

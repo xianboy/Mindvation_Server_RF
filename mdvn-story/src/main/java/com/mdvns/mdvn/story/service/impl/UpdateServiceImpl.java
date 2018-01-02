@@ -9,6 +9,8 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.story.config.WebConfig;
 import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.repository.StoryRepository;
 import com.mdvns.mdvn.story.service.MemberService;
@@ -39,6 +41,10 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Resource
     private MemberService memberService;
+
+    @Resource
+    private WebConfig webConfig;
+
 
     /**
      * 更新状态
@@ -124,6 +130,11 @@ public class UpdateServiceImpl implements UpdateService {
         if (null != updateRequest.getStoryPoint()) {
             story.setStoryPoint(updateRequest.getStoryPoint());
         }
+        //更新过程方法
+        if (null!=updateRequest.getLabel()) {
+            story.setFunctionLabelId(buildLabel(updateRequest.getStaffId(), story.getSerialNo(), updateRequest.getLabel()));
+        }
+        //保存
         story = this.repository.saveAndFlush(story);
         //更新标签
         if (null != updateRequest.getTags()) {
@@ -134,5 +145,17 @@ public class UpdateServiceImpl implements UpdateService {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), storyId, updateRequest.getMembers());
         }
         return story;
+    }
+
+    /**
+     *  构建过程方法
+     * @param creatorId creatorId
+     * @param hostSerialNo hostSerialNo
+     * @param functionLabel functionLabel
+     * @return Long
+     * @throws BusinessException BusinessException
+     */
+    private Long buildLabel(Long creatorId, String hostSerialNo, Object functionLabel) throws BusinessException {
+        return RestTemplateUtil.buildLabel(webConfig.getCustomLabelUrl(), creatorId, hostSerialNo, functionLabel);
     }
 }

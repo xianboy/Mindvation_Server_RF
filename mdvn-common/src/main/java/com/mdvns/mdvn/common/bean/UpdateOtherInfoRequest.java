@@ -38,4 +38,7 @@ public class UpdateOtherInfoRequest implements Serializable{
     /*story point*/
     private Double storyPoint;
 
+    /*过程方法ID(Story适用)*/
+    private Object label;
+
 }
