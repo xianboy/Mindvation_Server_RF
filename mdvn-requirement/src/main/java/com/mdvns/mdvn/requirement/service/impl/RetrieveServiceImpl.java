@@ -168,7 +168,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置story point 总数
 //        detail.setStoryPointAmount(getStoryPointAmount());
         //设置附件
-        //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(requirement.getSerialNo()));
         return detail;
     }

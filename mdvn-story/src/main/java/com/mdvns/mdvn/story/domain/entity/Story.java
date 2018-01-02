@@ -95,6 +95,9 @@ public class Story implements Serializable {
     @Transient//非持久化字段
     private Integer memberAmount = MdvnConstant.ZERO;
 
+    /*STORY附件：id*/
+    private String attaches;
+
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

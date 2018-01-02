@@ -59,5 +59,6 @@ public class StoryDetail implements Serializable{
 
     /*上层模块成员*/
     private List<RoleMember> optionalMembers;
-    /*附件*/
+    /*附件列表*/
+    private List<AttchInfo> attchInfos;
 }

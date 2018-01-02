@@ -3,6 +3,8 @@ package com.mdvns.mdvn.story.service.impl;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.util.FileUtil;
+import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
 import com.mdvns.mdvn.story.config.WebConfig;
@@ -16,8 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 public class CreateServiceImpl implements CreateService {
@@ -61,7 +65,6 @@ public class CreateServiceImpl implements CreateService {
         if (!(null == createRequest.getTags() || createRequest.getTags().isEmpty())) {
             this.tagService.buildTags(createRequest.getCreatorId(), story.getId(), createRequest.getTags());
         }
-
         LOG.debug("id为【{}】的story创建成功...", story.getId());
         return RestResponseUtil.success(story);
     }
@@ -87,6 +90,13 @@ public class CreateServiceImpl implements CreateService {
         story.setStartDate(request.getStartDate());
         story.setEndDate(request.getEndDate());
         story.setStoryPoint(request.getStoryPoint());
+        //附件
+        if (!StringUtils.isEmpty(request.getAttaches())) {
+            List<Long> attaches = request.getAttaches();
+            String aches = MdvnStringUtil.joinLong(attaches, ",");
+            story.setAttaches(aches);
+            FileUtil.buildAttaches(attaches,serialNo);
+        }
         return story;
     }
 
