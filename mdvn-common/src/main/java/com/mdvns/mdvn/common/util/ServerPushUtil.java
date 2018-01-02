@@ -42,18 +42,19 @@ public class ServerPushUtil {
             singleCriterionRequest.setCriterion(String.valueOf(initiatorId));
             singleCriterionRequest.setStaffId(initiatorId);
 
-//            //构建ParameterizedTypeReference
-//            ParameterizedTypeReference parameterizedTypeReference = new ParameterizedTypeReference<RestResponse<Staff>>() {
-//            };
-//            //构建requestEntity
+            //构建ParameterizedTypeReference
+            ParameterizedTypeReference parameterizedTypeReference = new ParameterizedTypeReference<RestResponse<Staff>>() {
+            };
+            //构建requestEntity
 //            HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveTerseInfoRequest(staffId, ids));
-//            //构建responseEntity
-////            Staff initiator = (Staff) FetchListUtil.fetch(restTemplate,retrieveByIdUrl,singleCriterionRequest, parameterizedTypeReference);
-//            //获取restResponse
+            //构建responseEntity
+            RestResponse<?> restResponse = restTemplate.postForObject(retrieveByIdUrl,singleCriterionRequest,RestResponse.class);
+//            Staff initiator = (Staff) FetchListUtil.fetch(restTemplate,retrieveByIdUrl,singleCriterionRequest, parameterizedTypeReference);
+            //获取restResponse
 //            RestResponse<TerseInfo[]> restResponse = responseEntity.getBody();
 //            RestResponse<Staff> restResponse = restTemplate.postForObject(retrieveByIdUrl, singleCriterionRequest, RestResponse.class);
-//            Staff initiator = restResponse.getData();
-//            serverPush.setInitiator(initiator);
+            Staff initiator = (Staff) restResponse.getData();
+            serverPush.setInitiator(initiator);
             /**
              * 区分是消息更改的位置（project、requirement、story、task、comment、issue等）
              */
