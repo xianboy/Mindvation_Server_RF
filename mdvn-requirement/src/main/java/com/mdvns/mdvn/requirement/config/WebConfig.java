@@ -25,4 +25,7 @@ public class WebConfig {
 
     //获取指定编号的requirement下的Story列表
     private String retrieveStoriesUrl;
+
+    //获取指定id的过程方法及其子过程方法
+    private String retrieveLabelAndSubLabelUrl;
 }

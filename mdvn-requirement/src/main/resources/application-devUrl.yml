@@ -6,3 +6,4 @@ url:
   retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
   retrieveRolesUrl : http://localhost:20004/mdvn-template/templates/retrieveTemplateRoles
   retrieveStoriesUrl : http://localhost:20007/mdvn-story/stories/retrieveList
+  retrieveLabelAndSubLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabelDetail

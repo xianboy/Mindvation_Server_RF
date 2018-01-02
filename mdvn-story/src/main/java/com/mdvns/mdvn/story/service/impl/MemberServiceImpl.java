@@ -14,6 +14,7 @@ import com.mdvns.mdvn.story.repository.MemberRepository;
 import com.mdvns.mdvn.story.service.MemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -185,9 +186,13 @@ public class MemberServiceImpl implements MemberService {
             }
         }
         //更新已存在映射的isDeleted为0
-        updateIsDeleted(storyId, roleId, updateMembers, MdvnConstant.ZERO);
+        if (updateMembers.size()>0) {
+            updateIsDeleted(storyId, roleId, updateMembers, MdvnConstant.ZERO);
+        }
         //添加新映射
-        saveRoleMembers(staffId, storyId, roleId, addMembers);
+        if (addMembers.size()>0) {
+            saveRoleMembers(staffId, storyId, roleId, addMembers);
+        }
     }
 
     /**
@@ -198,6 +203,7 @@ public class MemberServiceImpl implements MemberService {
      * @param updateMembers updateMembers
      * @param isDeleted zero
      */
+    @Modifying
     private void updateIsDeleted(Long storyId, Long roleId, List<Long> updateMembers, Integer isDeleted) {
         this.memberRepository.updateIsDeleted(storyId, roleId, updateMembers, isDeleted);
     }

@@ -3,6 +3,7 @@ package com.mdvns.mdvn.template.web;
 import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.validation.BindingResult;
@@ -45,7 +46,7 @@ public class RetrieveController {
     }
 
     /**
-     * 根据指定id集合查询id和name
+     * 根据指定id集合查询id,serialNo和name
      * @param retrieveTerseInfoRequest retrieveTerseInfoRequest
      * @return RestResponse
      */
@@ -105,13 +106,37 @@ public class RetrieveController {
 
     /**
      *
-     * @param singleCriterionRequest
-     * @param bindingResult
-     * @return
+     * @param singleCriterionRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
      */
     @PostMapping(value = "/retrieveTemplateRoles")
     public RestResponse<?> retrieveTemplateRoles(@RequestBody @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) {
         BindingResultUtil.brResolve(bindingResult);
         return this.roleService.retrieveRoles(singleCriterionRequest);
+    }
+
+    /**
+     * 获取指定id的过程方法及其子方法
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveLabelDetail")
+    public RestResponse<?> retrieveLabelDetail(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveLabelDetail(retrieveRequest);
+    }
+
+    /**
+     * 查询指定id的过程方法的子过程方法
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveHostLabelAndSubLabel")
+    public RestResponse<?> retrieveHostLabelAndSubLabel(@RequestBody @Validated RetrieveHostLabelAndSublabelRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveHostLabelAndSubLabel(retrieveRequest);
     }
 }

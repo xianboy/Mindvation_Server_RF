@@ -1,11 +1,13 @@
 package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
-import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ConvertObjectUtil;
+import com.mdvns.mdvn.common.util.MdvnCommonUtil;
+import com.mdvns.mdvn.template.domain.CreateLabelRequest;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import com.mdvns.mdvn.template.repository.LabelRepository;
 import com.mdvns.mdvn.template.service.LabelService;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -52,21 +55,23 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public FunctionLabel create(Long creatorId, String hostSerialNo, FunctionLabel label) throws BusinessException {
+    public FunctionLabel create(Long creatorId, String hostSerialNo, CreateLabelRequest labelRequest) throws BusinessException {
         //构建并保存label
+        FunctionLabel label = new FunctionLabel();
         label.setCreatorId(creatorId);
         label.setHostSerialNo(hostSerialNo);
         label.setSerialNo(buildSerialNo());
-        FunctionLabel lbel = this.labelRepository.saveAndFlush(label);
-        List<String> subLabels = label.getSubLabels();
+        label = this.labelRepository.saveAndFlush(label);
+        List<String> subLabels = labelRequest.getSubLabels();
         //如果子过程方法存在
         if ((null == subLabels||subLabels.isEmpty())) {
             LOG.error("子过程方法不能为空...");
             throw new BusinessException(ErrorEnum.SUB_LABEL_IS_NULL, "新建模板时, 子过程方法不能为空...");
         }
         //保存子过程方法
-        createSubLabels(creatorId, lbel.getId().toString(), label.getSubLabels());
-        return null;
+        List<TerseInfo> subLabelList = createSubLabels(creatorId, label.getSerialNo(), subLabels);
+        label.setSubLabels(subLabelList);
+        return label;
     }
 
     /**
@@ -75,7 +80,8 @@ public class LabelServiceImpl implements LabelService {
      * @param hostSerialNo 编号
      * @param subLabels 子模块
      */
-    private void createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
+    private List<TerseInfo> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
+        List<Long> subLabel = new ArrayList<>();
         //遍历subLabels
         for (String name : subLabels) {
             FunctionLabel label = new FunctionLabel();
@@ -83,8 +89,90 @@ public class LabelServiceImpl implements LabelService {
             label.setCreatorId(creatorId);
             label.setHostSerialNo(hostSerialNo);
             label.setSerialNo(buildSerialNo());
-            this.labelRepository.saveAndFlush(label);
+            label = this.labelRepository.saveAndFlush(label);
+            subLabel.add(label.getId());
         }
+        List<Object[]> labels = this.labelRepository.findTerseInfoByIdList(subLabel);
+        return ConvertObjectUtil.convertObjectArray2TerseInfo(labels);
+    }
+
+
+    /**
+     * 获取指定id集合的过程方法
+     *
+     * @param ids ids
+     * @return List
+     * @throws BusinessException Exception
+     */
+    @Override
+    public List<TerseInfo> getLabels(List<Long> ids) throws BusinessException {
+        LOG.info("获取过程方法信息开始...");
+        //查询id、serialNo和name
+        List<Object[]> resultSet = this.labelRepository.findTerseInfoById(ids);
+        MdvnCommonUtil.emptyList(resultSet, ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "id为【" + ids.toString() + "】的functionLabel不存在...");
+        LOG.info("获取过程方法信息成功...");
+        //结果集转换
+        return ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);
+    }
+
+    /**
+     * 根据hostSerialNo查询FunctionLabel
+     * @param hostSerialNo hostSerialNo
+     * @param isDeleted isDeleted
+     * @return List
+     */
+    @Override
+    public List<FunctionLabel> findByHostSerialNoAndIsDeleted(String hostSerialNo, Integer isDeleted) {
+        return this.labelRepository.findByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
+    }
+
+    /**
+     * 获取指定id的模板的FunctionLabel
+     * @param hostSerialNo hostSerialNo
+     * @param isDeleted isDeleted
+     * @return List
+     */
+    @Override
+    public List<TerseInfo> getTemplateLabel(String hostSerialNo, Integer isDeleted) throws BusinessException {
+        List<Long> idList = this.labelRepository.findIdByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
+        if (idList.isEmpty()) {
+            return null;
+        }
+        return getLabels(idList);
+    }
+
+    /**
+     * 获取指定id的过程方法模块及其子模块
+     * @param id id
+     * @param isDeleted isDeleted
+     * @return FunctionLabel
+     */
+    @Override
+    public FunctionLabel retrieveLabelDetail(Long id, Integer isDeleted) throws BusinessException {
+        FunctionLabel label = this.labelRepository.findOne(id);
+        if (null == label) {
+            LOG.error("ID为【{}】的FunctionLabel不存在.", id);
+            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
+        }
+        label.setSubLabels(retrieveSubLabel(label.getId(), isDeleted));
+        return label;
+    }
+
+    /**
+     * 获取指定id的过程方法的子过程方法
+     * @param labelId labelId
+     * @param isDeleted isDeleted
+     * @return RestResponse
+     */
+    @Override
+    public List<TerseInfo> retrieveSubLabel(Long labelId, Integer isDeleted) {
+        FunctionLabel label = this.labelRepository.findOne(labelId);
+        if (null == label) {
+            LOG.info("ID为【{}】的过程方法不存在.", labelId);
+            return null;
+        }
+        List<Object[]> subLabels = this.labelRepository.findTerseInfoByHostSerialNo(label.getSerialNo(), isDeleted);
+        return ConvertObjectUtil.convertObjectArray2TerseInfo(subLabels);
     }
 
     /**

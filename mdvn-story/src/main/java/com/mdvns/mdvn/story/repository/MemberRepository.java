@@ -19,7 +19,7 @@ public interface MemberRepository extends JpaRepository<StoryMember, Long> {
 
     //修改成员映射
     @Modifying
-    @Query("UPDATE StoryMember m set m.isDeleted = ?4 where m.storyId=?1 and m.roleId = ?2 and m.memberId in ?3")
+    @Query("update StoryMember m set m.isDeleted = ?4 where m.storyId=?1 and m.roleId = ?2 and m.memberId in ?3")
     void updateIsDeleted(Long storyId, Long roleId, List<Long> removeList, Integer isDeleted);
 
     //根据storyId、roleId、memberId查询

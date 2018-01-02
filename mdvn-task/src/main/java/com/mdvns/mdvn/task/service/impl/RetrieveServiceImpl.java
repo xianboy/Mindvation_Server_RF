@@ -49,7 +49,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         String retrieveMembersUrl = webConfig.getRetrieveMembersUrl();
         List<Long> ids = new ArrayList<>();
         ids.add(task.getCreatorId());
-        List<TerseInfo> list = RestTemplateUtil.retrieveBasicInfo(retrieveRequest.getStaffId(), ids, retrieveMembersUrl);
+        List<TerseInfo> list = RestTemplateUtil.retrieveTerseInfo(retrieveRequest.getStaffId(), ids, retrieveMembersUrl);
         MdvnCommonUtil.emptyList(list, ErrorEnum.STAFF_NOT_EXISTS, "id为【" + task.getCreatorId() + "】的Staff不存在.");
         task.setCreator(list.get(MdvnConstant.ZERO));
         LOG.info("根据Id获取详情成功...");

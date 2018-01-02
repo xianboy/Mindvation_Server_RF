@@ -24,4 +24,10 @@ public interface RetrieveService {
 
     //根据id获取模板信息
     RestResponse<?> retrieveById(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
+
+    //获取指定id的过程方法及其子方法
+    RestResponse<?> retrieveLabelDetail(SingleCriterionRequest retrieveRequest) throws BusinessException;
+
+    //根据hostSerialNo查询过程方法的子过程方法
+    RestResponse<?> retrieveHostLabelAndSubLabel(RetrieveHostLabelAndSublabelRequest retrieveRequest) throws BusinessException;
 }

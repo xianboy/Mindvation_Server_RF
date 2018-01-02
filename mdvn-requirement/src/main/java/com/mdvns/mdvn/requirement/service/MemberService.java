@@ -1,6 +1,8 @@
 package com.mdvns.mdvn.requirement.service;
 
 import com.mdvns.mdvn.common.bean.MemberRequest;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.RoleMember;
 import com.mdvns.mdvn.common.exception.BusinessException;
 
@@ -15,4 +17,6 @@ public interface MemberService {
 
     //修改角色成员
     void updateRoleMembers(Long staffId, Long requirementId, List<MemberRequest> roleMembers);
+
+
 }

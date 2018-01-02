@@ -2,10 +2,8 @@ package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.util.ConvertObjectUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.template.domain.entity.TemplateRole;
 import com.mdvns.mdvn.template.repository.TemplateRepository;

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.template.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -52,8 +53,10 @@ public class FunctionLabel {
     @JsonIgnore
     private Integer isDeleted = MdvnConstant.ZERO;
 
+
+
     /*子模块名称*/
     @Transient//非持久化字段
-    private List<String> subLabels;
+    private List<TerseInfo> subLabels;
 
 }

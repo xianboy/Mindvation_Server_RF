@@ -39,4 +39,8 @@ public interface RequirementRepository extends JpaRepository<Requirement, Long> 
 
     //根据编号查询
     Requirement findBySerialNo(String serialNo);
+
+    //根据编号获取functionLabelId
+    @Query("select r.functionLabelId from Requirement r where r.serialNo=?1 and r.isDeleted=?2")
+    Long findLabelIdBySerialNoAndIsDeleted(String serialNo, Integer isDeleted);
 }

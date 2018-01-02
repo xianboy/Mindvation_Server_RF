@@ -3,15 +3,14 @@ package com.mdvns.mdvn.template.service.impl;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.template.domain.CreateLabelRequest;
 import com.mdvns.mdvn.template.domain.CreateTemplateRequest;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import com.mdvns.mdvn.template.domain.entity.IterationTemplate;
 import com.mdvns.mdvn.template.domain.entity.Template;
-import com.mdvns.mdvn.template.repository.LabelRepository;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.service.CreateService;
 import com.mdvns.mdvn.template.service.DeliveryService;
@@ -24,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,7 +31,7 @@ public class CreateServiceImpl implements CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateServiceImpl.class);
 
-    @Autowired
+    @Resource
     private TemplateRepository tmplRepository;
 
     @Resource
@@ -108,16 +108,18 @@ public class CreateServiceImpl implements CreateService {
 
     /**
      * 创建过程方法
-     *
-     * @param creatorId    创建人id
+     *  @param creatorId    创建人id
      * @param hostSerialNo 上层对象编号
-     * @param labels       模板集合
+     * @param labelRequest 模板集合
      */
-    private void createLabels(Long creatorId, String hostSerialNo, List<FunctionLabel> labels) throws BusinessException {
+    private List<FunctionLabel> createLabels(Long creatorId, String hostSerialNo, List<CreateLabelRequest> labelRequest) throws BusinessException {
         //遍历labels
-        for (FunctionLabel label : labels) {
-            this.labelService.create(creatorId, hostSerialNo, label);
+        List<FunctionLabel> labels = new ArrayList<>();
+        for (CreateLabelRequest request : labelRequest) {
+            FunctionLabel label = this.labelService.create(creatorId, hostSerialNo, request);
+            labels.add(label);
         }
+        return labels;
     }
 
     /**

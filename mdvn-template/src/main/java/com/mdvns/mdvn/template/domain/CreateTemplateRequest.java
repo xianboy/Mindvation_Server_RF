@@ -38,7 +38,7 @@ public class CreateTemplateRequest {
     //过程方法模块
     @NotEmpty(message = "如果要添加FunctionLabel, labels必须有元素")
     @NotNull(message = "labels不能为空")
-    private List<FunctionLabel> labels;
+    private List<CreateLabelRequest> labels;
 
     /*模板角色*/
     @NotEmpty(message = "如果要添加role, roleNames必须有元素")

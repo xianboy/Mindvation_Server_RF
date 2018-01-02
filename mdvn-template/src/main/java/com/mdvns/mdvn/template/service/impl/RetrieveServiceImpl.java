@@ -15,9 +15,9 @@ import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import com.mdvns.mdvn.template.domain.entity.Industry;
 import com.mdvns.mdvn.template.domain.entity.Template;
 import com.mdvns.mdvn.template.repository.IndustryRepository;
-import com.mdvns.mdvn.template.repository.LabelRepository;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.repository.TemplateRoleRepository;
+import com.mdvns.mdvn.template.service.LabelService;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     private TemplateRoleRepository roleRepository;
 
     @Resource
-    private LabelRepository labelRepository;
+    private LabelService labelService;
 
     @Resource
     private IndustryRepository industryRepository;
@@ -94,10 +94,6 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     public RestResponse<?> retrieveTerseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest) {
-        //根据request获取id集合
-        /*List<Long> ids = retrieveTerseInfoRequest.getIds();
-        List<Object[]> resultSet = this.templateRepository.findTerseInfoById(ids);
-        List<TerseInfo> templates = ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);*/
         return RestResponseUtil.success(getTerseTemplate(retrieveTerseInfoRequest.getIds()));
     }
 
@@ -135,17 +131,16 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id集合的模板角色
-     *
      * @param ids ids
      * @return List
+     * @throws BusinessException exception
      */
     private List<TerseInfo> getRoles(List<Long> ids) throws BusinessException {
         LOG.info("获取角色信息开始...");
         List<Object[]> resultSet = this.roleRepository.findTerseInfoById(ids);
         MdvnCommonUtil.emptyList(resultSet, ErrorEnum.TEMPLATE_ROLE_NOT_EXISTS, "模板角色不存在.");
         LOG.info("获取角色信息成功...");
-        List<TerseInfo> labels = ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);
-        return labels;
+        return ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);
     }
 
     /**
@@ -156,27 +151,9 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     public RestResponse<?> retrieveLabel(RetrieveTerseInfoRequest retrieveTerseInfoRequest) throws BusinessException {
-        return RestResponseUtil.success(getLabels(retrieveTerseInfoRequest.getIds()));
+        List<TerseInfo> labels = this.labelService.getLabels(retrieveTerseInfoRequest.getIds());
+        return RestResponseUtil.success(labels);
     }
-
-    /**
-     * 获取指定id集合的过程方法
-     *
-     * @param ids ids
-     * @return List
-     * @throws BusinessException Exception
-     */
-    private List<TerseInfo> getLabels(List<Long> ids) throws BusinessException {
-        LOG.info("获取过程方法信息开始...");
-        //查询id、serialNo和name
-        List<Object[]> resultSet = this.labelRepository.findTerseInfoById(ids);
-        MdvnCommonUtil.emptyList(resultSet, ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "id为【" + ids.toString() + "】的functionLabel不存在...");
-        LOG.info("获取过程方法信息成功...");
-        //结果集转换
-        List<TerseInfo> labels = ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);
-        return labels;
-    }
-
 
     /**
      * 根据name和hostSerialNo查询过程方法
@@ -186,7 +163,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     public RestResponse<?> retrieveByNameAndHost(RetrieveByNameAndHostRequest retrieveRequest) {
-        List<FunctionLabel> functionLabels = this.labelRepository.findByHostSerialNoAndIsDeleted(retrieveRequest.getHostSerialNo(), MdvnConstant.ZERO);
+        List<FunctionLabel> functionLabels = this.labelService.findByHostSerialNoAndIsDeleted(retrieveRequest.getHostSerialNo(), MdvnConstant.ZERO);
         return RestResponseUtil.success(functionLabels.get(MdvnConstant.ZERO));
     }
 
@@ -208,18 +185,46 @@ public class RetrieveServiceImpl implements RetrieveService {
         Template template = this.templateRepository.findOne(id);
         MdvnCommonUtil.notExistingError(template, ErrorEnum.TEMPLATE_NOT_EXISTS, "id为【" + id + "】的模板不存在.");
         //获取模板下的过程方法模块
-        List<Long> idList = this.labelRepository.findIdByHostSerialNoAndIsDeleted(template.getSerialNo(), isDeleted);
-        if (!idList.isEmpty()) {
-            List<TerseInfo> labels = getLabels(idList);
-            template.setFunctionLabels(labels);
-        }
+        template.setFunctionLabels(this.labelService.getTemplateLabel(template.getSerialNo(), isDeleted));
         //获取模板的角色
-        idList = this.roleRepository.findIdByHostSerialNoAndIsDeleted(template.getSerialNo(), isDeleted);
+        List<Long> idList = this.roleRepository.findIdByHostSerialNoAndIsDeleted(template.getSerialNo(), isDeleted);
         if (!idList.isEmpty()) {
             List<TerseInfo> roles = getRoles(idList);
             template.setRoles(roles);
         }
         return RestResponseUtil.success(template);
+    }
+
+    /**
+     * 获取指定id的过程方法及其子方法
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveLabelDetail(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        Long id = Long.valueOf(retrieveRequest.getCriterion());
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        FunctionLabel label = this.labelService.retrieveLabelDetail(id, isDeleted);
+        if (null == label) {
+            LOG.error("ID为【{}】的FunctionLabel不存在.", id);
+            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
+        }
+        return RestResponseUtil.success(label);
+    }
+
+    @Override
+    public RestResponse<?> retrieveHostLabelAndSubLabel(RetrieveHostLabelAndSublabelRequest retrieveRequest) throws BusinessException {
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        //查询指定ID的过程方法的子过程方法
+        FunctionLabel label = this.labelService.retrieveLabelDetail(retrieveRequest.getHostLabelId(), isDeleted);
+        if (null==label) {
+            return null;
+        }
+        //查询指定hostSerialNo的过程方法
+        List<TerseInfo> labels = this.labelService.retrieveSubLabel(retrieveRequest.getHostLabelId(), isDeleted);
+        labels.addAll(label.getSubLabels());
+        label.setSubLabels(labels);
+        return RestResponseUtil.success(label);
     }
 
 }

@@ -24,6 +24,7 @@ public enum ErrorEnum {
     THE_SAME_DATA("556"),
     /*数据不存在*/
     NOT_EXISTS("557"),
+
     /*数据已存在*/
     EXISTED("558"),
     /*获取id和name失败*/
@@ -46,8 +47,9 @@ public enum ErrorEnum {
 
     //template
     /*新建模板时, 子过程方法不能为空*/
-    TEMPLATE_SYSTEM_ERROR("30500"),
-
+    TEMPLATE_SYSTEM_ERROR("30499"),
+    RETRIEVE_LABEL_FAILD("30498"),
+    RETRIEVE_ROLEMEMBER_FAILD("30497"),
     //子过程方法为空
     SUB_LABEL_IS_NULL("30400"),
 

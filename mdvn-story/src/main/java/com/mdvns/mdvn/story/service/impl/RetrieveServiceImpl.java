@@ -1,11 +1,9 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RetrieveHostLabelAndSublabelRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.PageableCriteria;
-import com.mdvns.mdvn.common.bean.model.RoleMember;
-import com.mdvns.mdvn.common.bean.model.StoryDetail;
-import com.mdvns.mdvn.common.bean.model.TerseInfo;
+import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -21,12 +19,19 @@ import com.mdvns.mdvn.story.service.RetrieveService;
 import com.mdvns.mdvn.story.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -138,8 +143,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setPriority(story.getPriority());
         //设置过程方法
         detail.setLabel(getLabel(staffId, story.getFunctionLabelId()));
+        //设置修改时可选择的子过程方法(上层模块对应的子过程方法)
+        detail.setOptionalLabel(getOptionalLabels(staffId, story.getSerialNo(), story.getHostSerialNo()));
         //设置成员
         detail.setMembers(getRoleMembers(staffId, story.getId(), story.getTemplateId()));
+        //设置修改时可选的成员(上层模块的成员)
+        detail.setOptionalMembers(getOptionalMembers(staffId, story.getHostSerialNo()));
         //设置开始/结束日期
         detail.setStartDate(story.getStartDate().getTime());
         detail.setEndDate(story.getEndDate().getTime());
@@ -147,6 +156,68 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setStoryPoint(story.getStoryPoint());
         //设置附件
         return detail;
+    }
+
+    /**
+     * 获取指定编号的上层模块的角色成员
+     * @param staffId  staffId
+     * @param hostSerialNo hostSerialNo
+     * @return List
+     */
+    private List<RoleMember> getOptionalMembers(Long staffId, String hostSerialNo) throws BusinessException {
+        //获取上层模块的角色成员Url
+        String retrieveOptionalMemberUrl = webConfig.getRetrieveOptionalMemberUrl();
+        //实例化restTemplate对象
+        RestTemplate restTemplate = new RestTemplate();
+        //构建ParameterizedTypeReference
+        ParameterizedTypeReference<RestResponse<RoleMember[]>> typeRef = new ParameterizedTypeReference<RestResponse<RoleMember[]>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new SingleCriterionRequest(staffId, hostSerialNo));
+        //构建responseEntity
+        ResponseEntity<RestResponse<RoleMember[]>> responseEntity = restTemplate.exchange(retrieveOptionalMemberUrl,
+                HttpMethod.POST, requestEntity, typeRef);
+        //获取restResponse
+        RestResponse<RoleMember[]> restResponse = responseEntity.getBody();
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("获取上层模块的角色成员失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+        }
+        if (null==restResponse.getData()) {
+            return null;
+        }
+        return Arrays.asList(restResponse.getData());
+    }
+
+    /**
+     * 获取指定过程方法及其子过程方法失败.
+     * @param staffId staffId
+     * @param hostSerialNo hostSerialNo
+     * @return FunctionLabel
+     */
+    private FunctionLabel getOptionalLabels(Long staffId, String serialNo, String hostSerialNo) throws BusinessException {
+        String retrieveHostLabelIdUrl = webConfig.getRetrieveHostLabelIdUrl();
+        RestTemplate restTemplate = new RestTemplate();
+        Long labelId = restTemplate.postForObject(retrieveHostLabelIdUrl, new SingleCriterionRequest(staffId, hostSerialNo), Long.class);
+        return retrieveHostLabelAndSubLabel(staffId, labelId, serialNo);
+    }
+
+    private FunctionLabel retrieveHostLabelAndSubLabel(Long staffId, Long labelId, String serialNo) throws BusinessException {
+        RestTemplate restTemplate = new RestTemplate();
+        String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
+        ParameterizedTypeReference<RestResponse<FunctionLabel>> typeRef = new ParameterizedTypeReference<RestResponse<FunctionLabel>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveHostLabelAndSublabelRequest(staffId, labelId, serialNo));
+        //构建responseEntity
+        ResponseEntity<RestResponse<FunctionLabel>> responseEntity = restTemplate.exchange(retrieveLabelAndSubLabelUrl,
+                HttpMethod.POST, requestEntity, typeRef);
+        RestResponse<FunctionLabel> restResponse = responseEntity.getBody();
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("获取上层模块的角色成员失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+        }
+        return restResponse.getData();
     }
 
     /**

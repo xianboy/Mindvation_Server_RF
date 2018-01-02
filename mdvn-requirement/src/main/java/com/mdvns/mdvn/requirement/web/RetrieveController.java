@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.requirement.service.MemberService;
 import com.mdvns.mdvn.requirement.service.RetrieveService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -47,4 +48,39 @@ public class RetrieveController {
         return this.retrieveService.retrieveDetailBySerialNo(singleCriterionRequest);
     }
 
+    /**
+     * 获取指定编号需求的成员
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveMember")
+    public RestResponse<?> retrieveMember(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveMember(retrieveRequest);
+    }
+
+    /**
+     * 获取指定编号的需求的过程方法及其子模块
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveLabelAndSubLabel")
+    public RestResponse<?> retrieveLabel(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveLabelAndSubLabel(retrieveRequest);
+    }
+
+    /**
+     * 获取指定编号的需求的过程方法id
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveLabelIdBySerialNo")
+    public Long retrieveLabelIdBySerialNo(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveLabelIdBySerialNo(retrieveRequest);
+    }
 }

@@ -7,10 +7,7 @@ import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.PageableQueryUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.requirement.config.WebConfig;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
@@ -26,6 +23,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -96,6 +97,62 @@ public class RetrieveServiceImpl implements RetrieveService {
         LOG.info("获取指定id项目的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
+    }
+
+    /**
+     * 获取指定编号的需求的成员
+     *
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveMember(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        //赋值isDeleted
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        //根据编号查询requirement
+        Requirement requirement = this.repository.findBySerialNo(retrieveRequest.getCriterion());
+        //获取requirement的成员
+        List<RoleMember> members = this.memberService.getRoleMembers(retrieveRequest.getStaffId(), requirement.getId(), requirement.getTemplateId(), isDeleted);
+        //构建返回值
+        return RestResponseUtil.success(members);
+    }
+
+    /**
+     * 获取指定编号的需求的过程方法及其子模块
+     *
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveLabelAndSubLabel(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        LOG.info("获取指定编号需求的过程方法及其子过程方法开始...");
+        //赋值isDeleted
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        //根据编号查询requirement的id和functionLabelId
+        Long labelId = this.repository.findLabelIdBySerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
+        //获取requirement的过程方法
+        RestTemplate restTemplate = new RestTemplate();
+        //url
+        String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
+        LOG.info("获取编号为【{}】的需求的过程方法及其过程方法的url为{}.", retrieveRequest.getCriterion(), retrieveLabelAndSubLabelUrl);
+        RestResponse<FunctionLabel> restResponse = restTemplate.postForObject(retrieveLabelAndSubLabelUrl, new SingleCriterionRequest(retrieveRequest.getStaffId(), labelId.toString()), RestResponse.class );
+        if (!"000".equals(restResponse.getCode())) {
+            LOG.error("获取指定过程方法及其子过程方法失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_LABEL_FAILD, "获取指定过程方法及其子过程方法失败.");
+        }
+        LOG.info("获取指定编号需求的过程方法及其子过程方法成功...");
+        return RestResponseUtil.success(restResponse.getData());
+    }
+
+    /**
+     * 获取指定编号的需求的过程方法id
+     * @param retrieveRequest request
+     * @return Long
+     */
+    @Override
+    public Long retrieveLabelIdBySerialNo(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        return this.repository.findLabelIdBySerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
     }
 
     /**
@@ -230,5 +287,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         LOG.info("查询指定需求的标签成功.");
         return tags;
     }
+
+
 
 }
