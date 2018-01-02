@@ -6,10 +6,7 @@ import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.PageableQueryUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.story.config.WebConfig;
 import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.repository.StoryRepository;
@@ -160,6 +157,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置story point
         detail.setStoryPoint(story.getStoryPoint());
         //设置附件
+        detail.setAttchInfos(FileUtil.getAttaches(story.getSerialNo()));
         return detail;
     }
 

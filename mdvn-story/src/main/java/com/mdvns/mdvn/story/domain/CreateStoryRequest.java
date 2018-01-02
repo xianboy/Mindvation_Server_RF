@@ -59,8 +59,8 @@ public class CreateStoryRequest implements Serializable {
     @NotNull(message = "story point不能为空")
     private Double storyPoint;
 
-    /*附件*/
-    private Long attachId;
+    /*STORY附件: 多个附件的id*/
+    private List<Long> attaches;
 
 
 }

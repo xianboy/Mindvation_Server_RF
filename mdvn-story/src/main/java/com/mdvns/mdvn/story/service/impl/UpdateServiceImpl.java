@@ -1,12 +1,10 @@
 package com.mdvns.mdvn.story.service.impl;
 
-import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateOtherInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.FileUtil;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
@@ -98,6 +96,32 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException {
         buildByRequest(updateRequest);
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 更新STORY可选信息（附件）
+     *
+     * @param updateRequest
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    @Transactional
+    public RestResponse<?> updateOptionalInfo(UpdateOptionalInfoRequest updateRequest) throws BusinessException {
+        LOG.info("更新STORY附件信息开始...");
+        //STORYid
+        Long storyId = updateRequest.getHostId();
+        //根据id查询项目
+        Story story = this.repository.findOne(storyId);
+        //如果requirement不存在, 抛出异常
+        MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "Id为【" + storyId + "】的story不存在.");
+        //更新附件
+        if (null != updateRequest.getAttaches()) {
+            String serialNo = story.getSerialNo();
+            FileUtil.updateAttaches(updateRequest,serialNo);
+        }
+        LOG.info("更新STORY附件信息结束...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 

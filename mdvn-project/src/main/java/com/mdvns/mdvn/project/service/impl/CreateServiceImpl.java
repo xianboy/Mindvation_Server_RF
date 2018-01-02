@@ -7,10 +7,7 @@ import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.MdvnStringUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.CreateProjectRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
@@ -87,6 +84,28 @@ public class CreateServiceImpl implements CreateService {
         //项目保存成功，保存template: ManyToMany
         if (!(null == createRequest.getTemplates() || createRequest.getTemplates().isEmpty())) {
             this.projectTemplateService.createProjectTemplate(createRequest.getCreatorId(), project.getId(), createRequest.getTemplates());
+        }
+        //消息推送
+        /**
+         * 消息推送（创建项目）
+         */
+        try {
+            Long initiatorId = createRequest.getCreatorId();
+            String serialNo = project.getSerialNo();
+            String subjectType = "project";
+            String type = "create";
+            List<Long> staffIds = new ArrayList<>();
+            if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
+                staffIds = createRequest.getLeaders();
+                //接受者包括项目的创建者
+                if (!staffIds.contains(initiatorId)) {
+                    staffIds.add(initiatorId);
+                }
+            }
+            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
+            LOG.info("创建项目，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建项目)出现异常，异常信息：" + e);
         }
         return RestResponseUtil.success(project);
     }
