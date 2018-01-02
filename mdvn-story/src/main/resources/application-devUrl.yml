@@ -11,12 +11,11 @@ url:
   retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
   #获取
   retrieveLabelByNameAndHostUrl : http://localhost:20004/mdvn-template/templates/retrieveByNameAndHost
-  #获取上层模块的过程方法及其子过程方法
-  retrieveLabelAndSubLabelUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveLabelAndSubLabel
   #获取上层模块的角色成员Url
   retrieveOptionalMemberUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveMember
   #获取上层模块过程方法id的Url
   retrieveHostLabelIdUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveLabelIdBySerialNo
+  retrieveHostLabelAndSubLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveHostLabelAndSubLabel
 
 
 

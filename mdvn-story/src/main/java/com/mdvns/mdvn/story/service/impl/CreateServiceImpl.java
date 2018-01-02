@@ -2,7 +2,6 @@ package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.model.FunctionLabelModel;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.RestResponseUtil;

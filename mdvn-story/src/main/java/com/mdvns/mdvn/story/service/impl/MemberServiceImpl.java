@@ -33,7 +33,13 @@ public class MemberServiceImpl implements MemberService {
     @Resource
     private WebConfig webConfig;
 
-
+    /**
+     * 保存story成员映射
+     * @param creatorId creatorId
+     * @param storyId storyId
+     * @param members members
+     * @return Integer
+     */
     @Override
     public Integer buildMembers(Long creatorId, Long storyId, List<MemberRequest> members) {
 
@@ -78,7 +84,9 @@ public class MemberServiceImpl implements MemberService {
             //设置members
             roleMember.setMembers(members);
             //添加roleMember 到集合中
-            roleMembers.add(roleMember);
+            if (null!=members && members.size()>0) {
+                roleMembers.add(roleMember);
+            }
         }
         LOG.info("获取id为【{}】的Story的成员成功. 成员共【{}】个.", storyId, roleMembers.size());
         return roleMembers;

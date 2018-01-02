@@ -69,7 +69,7 @@ public class LabelServiceImpl implements LabelService {
             throw new BusinessException(ErrorEnum.SUB_LABEL_IS_NULL, "新建模板时, 子过程方法不能为空...");
         }
         //保存子过程方法
-        List<TerseInfo> subLabelList = createSubLabels(creatorId, label.getSerialNo(), subLabels);
+        List<FunctionLabel> subLabelList = createSubLabels(creatorId, label.getSerialNo(), subLabels);
         label.setSubLabels(subLabelList);
         return label;
     }
@@ -80,8 +80,8 @@ public class LabelServiceImpl implements LabelService {
      * @param hostSerialNo 编号
      * @param subLabels 子模块
      */
-    private List<TerseInfo> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
-        List<Long> subLabel = new ArrayList<>();
+    private List<FunctionLabel> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
+        List<FunctionLabel> subLabelList = new ArrayList<>();
         //遍历subLabels
         for (String name : subLabels) {
             FunctionLabel label = new FunctionLabel();
@@ -90,10 +90,10 @@ public class LabelServiceImpl implements LabelService {
             label.setHostSerialNo(hostSerialNo);
             label.setSerialNo(buildSerialNo());
             label = this.labelRepository.saveAndFlush(label);
-            subLabel.add(label.getId());
+            subLabelList.add(label);
         }
-        List<Object[]> labels = this.labelRepository.findTerseInfoByIdList(subLabel);
-        return ConvertObjectUtil.convertObjectArray2TerseInfo(labels);
+
+        return subLabelList;
     }
 
 
@@ -154,7 +154,7 @@ public class LabelServiceImpl implements LabelService {
             LOG.error("ID为【{}】的FunctionLabel不存在.", id);
             throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
         }
-        label.setSubLabels(retrieveSubLabel(label.getId(), isDeleted));
+        label.setSubLabels(findByHostSerialNoAndIsDeleted(label.getSerialNo(), isDeleted));
         return label;
     }
 

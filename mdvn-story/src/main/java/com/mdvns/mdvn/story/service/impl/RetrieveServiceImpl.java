@@ -24,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -123,6 +122,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         return RestResponseUtil.success(storyPage);
     }
 
+    /**
+     * 构建Story对象
+     * @param staffId staffId
+     * @param story story
+     * @return SotryDetail
+     * @throws BusinessException BusinessException
+     */
     private StoryDetail buildDetail(Long staffId, Story story) throws BusinessException {
         StoryDetail detail = new StoryDetail();
         //设置id
@@ -198,25 +204,40 @@ public class RetrieveServiceImpl implements RetrieveService {
     private FunctionLabel getOptionalLabels(Long staffId, String serialNo, String hostSerialNo) throws BusinessException {
         String retrieveHostLabelIdUrl = webConfig.getRetrieveHostLabelIdUrl();
         RestTemplate restTemplate = new RestTemplate();
+        //根据上一层模块的编号hostSerialNo获取其对应的过程方法的id
         Long labelId = restTemplate.postForObject(retrieveHostLabelIdUrl, new SingleCriterionRequest(staffId, hostSerialNo), Long.class);
+        //查询story自定义的过程方法以及其上层的过程方法对应的所有子过程方法
         return retrieveHostLabelAndSubLabel(staffId, labelId, serialNo);
     }
 
+    /**
+     * 获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法
+     * @param staffId staffId
+     * @param labelId 上层模块对应的过程方法id
+     * @param serialNo Story编号
+     * @return story上层过程方法及其子过程方法和Story自定义的过程方法
+     * @throws BusinessException BusinessException
+     */
     private FunctionLabel retrieveHostLabelAndSubLabel(Long staffId, Long labelId, String serialNo) throws BusinessException {
+        LOG.info("获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法开始...");
         RestTemplate restTemplate = new RestTemplate();
-        String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
+        //String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
+        String retrieveHostLabelAndSubLabelUrl = webConfig.getRetrieveHostLabelAndSubLabelUrl();
+        LOG.info("retrieveLabelAndSubLabelUrl:【{}】.", retrieveHostLabelAndSubLabelUrl);
         ParameterizedTypeReference<RestResponse<FunctionLabel>> typeRef = new ParameterizedTypeReference<RestResponse<FunctionLabel>>() {
         };
         //构建requestEntity
         HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveHostLabelAndSublabelRequest(staffId, labelId, serialNo));
         //构建responseEntity
-        ResponseEntity<RestResponse<FunctionLabel>> responseEntity = restTemplate.exchange(retrieveLabelAndSubLabelUrl,
+        ResponseEntity<RestResponse<FunctionLabel>> responseEntity = restTemplate.exchange(retrieveHostLabelAndSubLabelUrl,
                 HttpMethod.POST, requestEntity, typeRef);
         RestResponse<FunctionLabel> restResponse = responseEntity.getBody();
+        LOG.info("responseCode is【{}】.", restResponse.getCode());
         if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
-            LOG.error("获取上层模块的角色成员失败.");
-            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+            LOG.error("获取上层的过程方法对应的所有子过程方法失败.");
+            throw new BusinessException(restResponse.getCode(), "获取上层的过程方法对应的所有子过程方法失败."+restResponse.getMsg());
         }
+        LOG.info("获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法成功...");
         return restResponse.getData();
     }
 

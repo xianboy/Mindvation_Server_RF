@@ -35,7 +35,7 @@ public class Delivery implements Serializable {
     @Column(nullable = false)
     private String name;
 
-    /*类型*/
+    /*类型(三种):1.附件和进度;2.进度;3.附件*/
     @Column(nullable = false)
     private Integer typeId;
 

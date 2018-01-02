@@ -3,7 +3,6 @@ package com.mdvns.mdvn.story.exception;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

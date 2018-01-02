@@ -2,6 +2,7 @@ package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
+import com.mdvns.mdvn.common.bean.model.StaffTagScore;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -26,8 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class RetrieveServiceImpl implements RetrieveService {
@@ -212,6 +212,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         return RestResponseUtil.success(label);
     }
 
+    /**
+     *
+     * @param retrieveRequest
+     * @return
+     * @throws BusinessException
+     */
     @Override
     public RestResponse<?> retrieveHostLabelAndSubLabel(RetrieveHostLabelAndSublabelRequest retrieveRequest) throws BusinessException {
         Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
@@ -221,8 +227,12 @@ public class RetrieveServiceImpl implements RetrieveService {
             return null;
         }
         //查询指定hostSerialNo的过程方法
-        List<TerseInfo> labels = this.labelService.retrieveSubLabel(retrieveRequest.getHostLabelId(), isDeleted);
-        labels.addAll(label.getSubLabels());
+        List<FunctionLabel> labels = this.labelService.findByHostSerialNoAndIsDeleted(retrieveRequest.getLabelHostSerialNo(), isDeleted);
+        Set set = new HashSet(labels);
+        set.addAll(label.getSubLabels());
+        labels = new ArrayList<>(set);
+        Comparator<FunctionLabel> comparator = Comparator.comparing(FunctionLabel::getId);
+        labels.sort(comparator);
         label.setSubLabels(labels);
         return RestResponseUtil.success(label);
     }

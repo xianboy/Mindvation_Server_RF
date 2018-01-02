@@ -27,12 +27,12 @@ public class WebConfig {
     //获取TemplateRole的url
     private String retrieveRolesUrl;
 
-    //获取上层模块的过程方法及其子过程方法
-    private String retrieveLabelAndSubLabelUrl;
-
     //获取上层模块的角色成员Url
     private String retrieveOptionalMemberUrl;
 
     //获取上层模块过程方法id的Url
     private String retrieveHostLabelIdUrl;
+
+    //获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法Url
+    private String retrieveHostLabelAndSubLabelUrl;
 }

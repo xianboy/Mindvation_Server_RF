@@ -57,6 +57,6 @@ public class FunctionLabel {
 
     /*子模块名称*/
     @Transient//非持久化字段
-    private List<TerseInfo> subLabels;
+    private List<FunctionLabel> subLabels;
 
 }
