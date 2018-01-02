@@ -26,6 +26,7 @@ public class Task implements Serializable {
     private Long creatorId;
 
     /*被分配人id*/
+    @JsonIgnore
     private Long assigneeId;
 
     /*编号*/

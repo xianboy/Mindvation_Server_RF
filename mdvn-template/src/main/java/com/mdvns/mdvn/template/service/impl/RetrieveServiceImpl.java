@@ -11,9 +11,11 @@ import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.PageableQueryUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.template.domain.TerseTemplate;
+import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import com.mdvns.mdvn.template.domain.entity.Industry;
 import com.mdvns.mdvn.template.domain.entity.Template;
+import com.mdvns.mdvn.template.repository.DeliveryRepository;
 import com.mdvns.mdvn.template.repository.IndustryRepository;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.repository.TemplateRoleRepository;
@@ -45,6 +47,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Resource
     private IndustryRepository industryRepository;
+
+    @Resource
+    private DeliveryRepository deliveryRepository;
 
     /**
      * 根据industryId查询模板
@@ -218,6 +223,18 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
 
         return RestResponseUtil.success(label);
+    }
+
+    /**
+     * 获取指定id的交付件
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveDelivery(SingleCriterionRequest retrieveRequest) {
+        Long deliveryId = Long.valueOf(retrieveRequest.getCriterion());
+        Delivery delivery = this.deliveryRepository.findOne(deliveryId);
+        return RestResponseUtil.success(delivery);
     }
 
 }

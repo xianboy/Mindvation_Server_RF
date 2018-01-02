@@ -134,6 +134,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setId(story.getId());
         //设置编号
         detail.setSerialNo(story.getSerialNo());
+        //设置项目编号
+        detail.setProjSerialNo(story.getProjSerialNo());
         //设置状态
         detail.setStatus(story.getStatus());
         //设置进度
@@ -195,7 +197,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 获取指定过程方法及其子过程方法失败.
+     * 获取指定过程方法及其子过程方法.
      * @param staffId staffId
      * @param hostSerialNo hostSerialNo
      * @return FunctionLabel

@@ -76,8 +76,9 @@ public class CreateServiceImpl implements CreateService {
         Story story = new Story();
         story.setCreatorId(request.getCreatorId());
         story.setHostSerialNo(request.getHostSerialNo());
+        story.setProjSerialNo(request.getProjHostSerialNo());
         story.setTemplateId(request.getTemplateId());
-        String serialNo = buildSerialNo(request.getHostSerialNo());
+        String serialNo = buildSerialNo();
         story.setSerialNo(serialNo);
         story.setSummary(request.getSummary());
         story.setDescription(request.getDescription());
@@ -106,11 +107,10 @@ public class CreateServiceImpl implements CreateService {
      * 构建需求编号:
      * 1.查询表中的最大id  maxId
      * 2.serialNum = "R" + (maxId + 1)
-     * @param hostSerialNo
      * @return serialNo
      *
      */
-    private String buildSerialNo(String hostSerialNo) {
+    private String buildSerialNo() {
         //查询表中的最大id  maxId
         Long maxId = this.repository.getMaxId();
         //如果表中没有数据，则给maxId赋值为0
@@ -118,7 +118,7 @@ public class CreateServiceImpl implements CreateService {
             maxId = Long.valueOf(MdvnConstant.ZERO);
         }
         maxId += 1;
-        return hostSerialNo + MdvnConstant.DASH + MdvnConstant.S + maxId;
+        return MdvnConstant.S + maxId;
     }
 }
 

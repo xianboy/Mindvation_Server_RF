@@ -36,6 +36,10 @@ public class Story implements Serializable {
     @JsonIgnore
     private String hostSerialNo;
 
+    /*project编号*/
+    @Column(nullable = false)
+    private String projSerialNo;
+
     /*编号(serialNo)：Pxx-Rxx-Sxx */
     @NotBlank(message = "编号不能为空")
     @Column(nullable = false)

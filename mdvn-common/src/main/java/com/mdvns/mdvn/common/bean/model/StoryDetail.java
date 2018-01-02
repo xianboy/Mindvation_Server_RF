@@ -42,6 +42,9 @@ public class StoryDetail implements Serializable{
     /*过程方法*/
     private TerseInfo label;
 
+    /*项目编号*/
+    private String projSerialNo;
+
     /*上层过程方法及其子过程方法*/
     private FunctionLabel optionalLabel;
 

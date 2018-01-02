@@ -27,4 +27,7 @@ public interface RetrieveService {
 
     //获取指定id的过程方法及其子方法
     RestResponse<?> retrieveLabelDetail(SingleCriterionRequest retrieveRequest) throws BusinessException;
+
+    //获取指定id的交付件
+    RestResponse<?> retrieveDelivery(SingleCriterionRequest retrieveRequest);
 }

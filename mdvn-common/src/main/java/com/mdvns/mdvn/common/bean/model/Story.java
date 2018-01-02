@@ -18,6 +18,9 @@ public class Story implements Serializable {
     /*story所在需求的模板id*/
 //    private Long templateId;
 
+    /*项目编号*/
+    private String projSerialNo;
+
     /*编号(serialNo)：Pxx-Rxx-Sxx */
     private String serialNo;
 

@@ -21,6 +21,7 @@ public class Delivery implements Serializable {
 
     /*创建人*/
     @Column(nullable = false)
+    @JsonIgnore
     private Long creatorId;
 
     /*上层关联对象编号*/

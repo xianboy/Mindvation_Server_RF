@@ -3,6 +3,7 @@ package com.mdvns.mdvn.template.web;
 import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.validation.BindingResult;
@@ -126,4 +127,18 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveLabelDetail(retrieveRequest);
     }
+
+    /**
+     * 获取指定id的交付件
+     * @param retrieveRequest rqeuest
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveDelivery")
+    public RestResponse<?> retrieveDelivery(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveDelivery(retrieveRequest);
+    }
+
+
 }

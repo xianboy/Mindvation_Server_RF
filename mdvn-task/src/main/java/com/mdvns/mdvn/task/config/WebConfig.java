@@ -14,4 +14,7 @@ public class WebConfig {
 
     //获取创建人信息
     private String retrieveMembersUrl;
+
+    //获取交付件
+    private String retrieveDeliveryUrl;
 }

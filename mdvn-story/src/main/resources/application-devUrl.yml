@@ -1,23 +1,26 @@
 url:
   #自定义过程方法url
   customLabelUrl : http://localhost:20004/mdvn-template/templates/customLabel
+
   #获取标签url
   retrieveTagsUrl : http://localhost:20002/mdvn-tag/tags/retrieveTerseInfo
+
   #获取成员
   retrieveMembersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
+
   #获取角色
   retrieveRolesUrl : http://localhost:20004/mdvn-template/templates/retrieveTemplateRoles
+
   #获取过程方法
   retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
-  #获取
-  retrieveLabelByNameAndHostUrl : http://localhost:20004/mdvn-template/templates/retrieveByNameAndHost
+
   #获取上层模块的角色成员Url
   retrieveOptionalMemberUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveMember
+
   #获取上层模块过程方法id的Url
   retrieveHostLabelIdUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveLabelIdBySerialNo
+
   #获取指定id的过程方法及其子过程方法
   retrieveLabelDetailUrl : http://localhost:20004/mdvn-template/templates/retrieveLabelDetail
-
-
 
 
