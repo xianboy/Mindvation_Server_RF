@@ -1,4 +1,4 @@
-package com.mdvns.mdvn.project.domain;
+package com.mdvns.mdvn.common.bean;
 
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import lombok.Data;

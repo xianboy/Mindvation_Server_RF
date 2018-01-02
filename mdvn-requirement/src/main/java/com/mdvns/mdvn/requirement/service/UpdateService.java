@@ -1,10 +1,8 @@
 package com.mdvns.mdvn.requirement.service;
 
-import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateOtherInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface UpdateService {
     //状态更新
@@ -14,4 +12,7 @@ public interface UpdateService {
 
     //修改其它信息
     RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException;
+
+    @Transactional
+    RestResponse<?> updateOptionalInfo(UpdateOptionalInfoRequest updateRequest) throws BusinessException;
 }
