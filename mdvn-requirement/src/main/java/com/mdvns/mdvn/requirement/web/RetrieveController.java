@@ -61,18 +61,6 @@ public class RetrieveController {
     }
 
     /**
-     * 获取指定编号的需求的过程方法及其子模块
-     * @param retrieveRequest request
-     * @param bindingResult bindingResult
-     * @return RestResponse
-     */
-    @PostMapping(value = "/retrieveLabelAndSubLabel")
-    public RestResponse<?> retrieveLabel(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveLabelAndSubLabel(retrieveRequest);
-    }
-
-    /**
      * 获取指定编号的需求的过程方法id
      * @param retrieveRequest request
      * @param bindingResult bindingResult

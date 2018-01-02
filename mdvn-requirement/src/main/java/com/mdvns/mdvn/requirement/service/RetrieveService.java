@@ -19,9 +19,6 @@ public interface RetrieveService {
     //获取指定编号的需求的成员
     RestResponse<?> retrieveMember(SingleCriterionRequest retrieveRequest) throws BusinessException;
 
-    //获取指定编号的需求的过程方法及其子过程方法
-    RestResponse<?> retrieveLabelAndSubLabel(SingleCriterionRequest retrieveRequest) throws BusinessException;
-
     //获取指定编号的需求的过程方法id
     Long retrieveLabelIdBySerialNo(SingleCriterionRequest retrieveRequest);
 }

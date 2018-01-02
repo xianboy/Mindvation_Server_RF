@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.RetrieveHostLabelAndSublabelRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
@@ -150,7 +149,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置过程方法
         detail.setLabel(getLabel(staffId, story.getFunctionLabelId()));
         //设置修改时可选择的子过程方法(上层模块对应的子过程方法)
-        detail.setOptionalLabel(getOptionalLabels(staffId, story.getSerialNo(), story.getHostSerialNo()));
+        detail.setOptionalLabel(getOptionalLabels(staffId, story.getHostSerialNo()));
         //设置成员
         detail.setMembers(getRoleMembers(staffId, story.getId(), story.getTemplateId()));
         //设置修改时可选的成员(上层模块的成员)
@@ -201,35 +200,33 @@ public class RetrieveServiceImpl implements RetrieveService {
      * @param hostSerialNo hostSerialNo
      * @return FunctionLabel
      */
-    private FunctionLabel getOptionalLabels(Long staffId, String serialNo, String hostSerialNo) throws BusinessException {
+    private FunctionLabel getOptionalLabels(Long staffId, String hostSerialNo) throws BusinessException {
         String retrieveHostLabelIdUrl = webConfig.getRetrieveHostLabelIdUrl();
         RestTemplate restTemplate = new RestTemplate();
         //根据上一层模块的编号hostSerialNo获取其对应的过程方法的id
         Long labelId = restTemplate.postForObject(retrieveHostLabelIdUrl, new SingleCriterionRequest(staffId, hostSerialNo), Long.class);
         //查询story自定义的过程方法以及其上层的过程方法对应的所有子过程方法
-        return retrieveHostLabelAndSubLabel(staffId, labelId, serialNo);
+        return retrieveHostLabelAndSubLabel(staffId, labelId);
     }
 
     /**
-     * 获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法
+     * 获取指定编号的story上层的过程方法及其所有子过程方法
      * @param staffId staffId
      * @param labelId 上层模块对应的过程方法id
-     * @param serialNo Story编号
      * @return story上层过程方法及其子过程方法和Story自定义的过程方法
      * @throws BusinessException BusinessException
      */
-    private FunctionLabel retrieveHostLabelAndSubLabel(Long staffId, Long labelId, String serialNo) throws BusinessException {
+    private FunctionLabel retrieveHostLabelAndSubLabel(Long staffId, Long labelId) throws BusinessException {
         LOG.info("获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法开始...");
         RestTemplate restTemplate = new RestTemplate();
-        //String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
-        String retrieveHostLabelAndSubLabelUrl = webConfig.getRetrieveHostLabelAndSubLabelUrl();
-        LOG.info("retrieveLabelAndSubLabelUrl:【{}】.", retrieveHostLabelAndSubLabelUrl);
+        String retrieveLabelDetailUrl = webConfig.getRetrieveLabelDetailUrl();
+        LOG.info("retrieveLabelAndSubLabelUrl:【{}】.", retrieveLabelDetailUrl);
         ParameterizedTypeReference<RestResponse<FunctionLabel>> typeRef = new ParameterizedTypeReference<RestResponse<FunctionLabel>>() {
         };
         //构建requestEntity
-        HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveHostLabelAndSublabelRequest(staffId, labelId, serialNo));
+        HttpEntity<?> requestEntity = new HttpEntity<>(new SingleCriterionRequest(staffId, labelId.toString()));
         //构建responseEntity
-        ResponseEntity<RestResponse<FunctionLabel>> responseEntity = restTemplate.exchange(retrieveHostLabelAndSubLabelUrl,
+        ResponseEntity<RestResponse<FunctionLabel>> responseEntity = restTemplate.exchange(retrieveLabelDetailUrl,
                 HttpMethod.POST, requestEntity, typeRef);
         RestResponse<FunctionLabel> restResponse = responseEntity.getBody();
         LOG.info("responseCode is【{}】.", restResponse.getCode());

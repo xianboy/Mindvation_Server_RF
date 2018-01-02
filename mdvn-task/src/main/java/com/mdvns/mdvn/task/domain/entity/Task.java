@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.task.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.Delivery;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;
@@ -70,6 +71,8 @@ public class Task implements Serializable {
     @Transient//非持久化字段
     private TerseInfo creator;
 
+    @Transient//非持久化字段
+    private Delivery delivery;
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

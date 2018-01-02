@@ -18,5 +18,5 @@ public interface TagService {
     RestResponse<?> retrieveDetailByName(SingleCriterionRequest retrieveDetailRequest) throws BusinessException;
 
     //获取指定id集合的基本信息
-    RestResponse<?> retrieveBaseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
+        RestResponse<?> retrieveBaseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 }

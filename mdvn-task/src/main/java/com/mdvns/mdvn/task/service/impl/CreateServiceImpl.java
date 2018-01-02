@@ -54,7 +54,7 @@ public class CreateServiceImpl implements CreateService {
     private Task buildByRequest(CreateTaskRequest createRequest) {
         Task task = new Task();
         task.setCreatorId(createRequest.getCreatorId());
-        String serialNo = buildSerialNo();
+        String serialNo = buildSerialNo(createRequest.getHostSerialNo());
         task.setSerialNo(serialNo);
         task.setHostSerialNo(createRequest.getHostSerialNo());
         task.setDescription(createRequest.getDescription());
@@ -106,7 +106,7 @@ public class CreateServiceImpl implements CreateService {
      *
      * @return String
      */
-    private String buildSerialNo() {
+    private String buildSerialNo(String hostSerialNo) {
         //查询表中的最大id  maxId
         Long maxId = this.repository.getMaxId();
         //如果表中没有数据，则给maxId赋值为0
@@ -114,7 +114,7 @@ public class CreateServiceImpl implements CreateService {
             maxId = Long.valueOf(MdvnConstant.ZERO);
         }
         maxId += 1;
-        return MdvnConstant.T + maxId;
+        return hostSerialNo + MdvnConstant.DASH + MdvnConstant.T + maxId;
     }
 
 

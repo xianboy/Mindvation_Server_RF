@@ -33,6 +33,6 @@ public class WebConfig {
     //获取上层模块过程方法id的Url
     private String retrieveHostLabelIdUrl;
 
-    //获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法Url
-    private String retrieveHostLabelAndSubLabelUrl;
+    //获取指定id的过程方法及其子过程过程方法
+    private String retrieveLabelDetailUrl;
 }

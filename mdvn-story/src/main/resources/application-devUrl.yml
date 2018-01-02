@@ -15,7 +15,8 @@ url:
   retrieveOptionalMemberUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveMember
   #获取上层模块过程方法id的Url
   retrieveHostLabelIdUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveLabelIdBySerialNo
-  retrieveHostLabelAndSubLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveHostLabelAndSubLabel
+  #获取指定id的过程方法及其子过程方法
+  retrieveLabelDetailUrl : http://localhost:20004/mdvn-template/templates/retrieveLabelDetail
 
 
 

@@ -126,16 +126,4 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveLabelDetail(retrieveRequest);
     }
-
-    /**
-     * 查询指定id的过程方法的子过程方法
-     * @param retrieveRequest request
-     * @param bindingResult bindingResult
-     * @return RestResponse
-     */
-    @PostMapping(value = "/retrieveHostLabelAndSubLabel")
-    public RestResponse<?> retrieveHostLabelAndSubLabel(@RequestBody @Validated RetrieveHostLabelAndSublabelRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveHostLabelAndSubLabel(retrieveRequest);
-    }
 }

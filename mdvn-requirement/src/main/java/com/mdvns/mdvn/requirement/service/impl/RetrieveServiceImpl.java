@@ -118,33 +118,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 获取指定编号的需求的过程方法及其子模块
-     *
-     * @param retrieveRequest request
-     * @return RestResponse
-     */
-    @Override
-    public RestResponse<?> retrieveLabelAndSubLabel(SingleCriterionRequest retrieveRequest) throws BusinessException {
-        LOG.info("获取指定编号需求的过程方法及其子过程方法开始...");
-        //赋值isDeleted
-        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        //根据编号查询requirement的id和functionLabelId
-        Long labelId = this.repository.findLabelIdBySerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
-        //获取requirement的过程方法
-        RestTemplate restTemplate = new RestTemplate();
-        //url
-        String retrieveLabelAndSubLabelUrl = webConfig.getRetrieveLabelAndSubLabelUrl();
-        LOG.info("获取编号为【{}】的需求的过程方法及其过程方法的url为{}.", retrieveRequest.getCriterion(), retrieveLabelAndSubLabelUrl);
-        RestResponse<FunctionLabel> restResponse = restTemplate.postForObject(retrieveLabelAndSubLabelUrl, new SingleCriterionRequest(retrieveRequest.getStaffId(), labelId.toString()), RestResponse.class );
-        if (!"000".equals(restResponse.getCode())) {
-            LOG.error("获取指定过程方法及其子过程方法失败.");
-            throw new BusinessException(ErrorEnum.RETRIEVE_LABEL_FAILD, "获取指定过程方法及其子过程方法失败.");
-        }
-        LOG.info("获取指定编号需求的过程方法及其子过程方法成功...");
-        return RestResponseUtil.success(restResponse.getData());
-    }
-
-    /**
      * 获取指定编号的需求的过程方法id
      * @param retrieveRequest request
      * @return Long

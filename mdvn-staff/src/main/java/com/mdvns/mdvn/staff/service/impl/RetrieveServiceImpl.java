@@ -9,7 +9,6 @@ import com.mdvns.mdvn.common.bean.model.StaffTagScore;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.staff.config.WebConfig;
 import com.mdvns.mdvn.staff.domain.RetrieveStaffRequest;
@@ -285,7 +284,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     private List<StaffTagScore> topTenAtMost(List<StaffTagScore> stsList) {
         LOG.info("排序前的StaffTagScore：{}", stsList.toString());
         //对StaffTagScore 按照tagScore排序，从高到底
-        //Comparator<StaffTagScore> comparator = (h1, h2) -> h1.getTagScore().compareTo(h2.getTagScore());
         Comparator<StaffTagScore> comparator = Comparator.comparing(StaffTagScore::getTagScore);
         stsList.sort(comparator.reversed());
         LOG.info("排序后的StaffTagScore：{}", stsList.toString());

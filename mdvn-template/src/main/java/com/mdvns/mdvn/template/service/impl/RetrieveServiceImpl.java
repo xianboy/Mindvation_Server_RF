@@ -2,7 +2,6 @@ package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
-import com.mdvns.mdvn.common.bean.model.StaffTagScore;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -27,7 +26,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class RetrieveServiceImpl implements RetrieveService {
@@ -202,38 +202,21 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     public RestResponse<?> retrieveLabelDetail(SingleCriterionRequest retrieveRequest) throws BusinessException {
-        Long id = Long.valueOf(retrieveRequest.getCriterion());
         Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
-        FunctionLabel label = this.labelService.retrieveLabelDetail(id, isDeleted);
-        if (null == label) {
-            LOG.error("ID为【{}】的FunctionLabel不存在.", id);
-            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
-        }
-        return RestResponseUtil.success(label);
-    }
+        FunctionLabel label;
+        try {
+            Long id = Long.valueOf(retrieveRequest.getCriterion());
+            label = this.labelService.retrieveLabelDetailById(id, isDeleted);
+            if (null == label) {
+                LOG.error("ID为【{}】的FunctionLabel不存在.", id);
+                throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
+            }
+        } catch (Exception ex) {
+            label = this.labelService.retrieveLabelDetailByHostSerialNo(retrieveRequest.getCriterion(), isDeleted);
 
-    /**
-     *
-     * @param retrieveRequest
-     * @return
-     * @throws BusinessException
-     */
-    @Override
-    public RestResponse<?> retrieveHostLabelAndSubLabel(RetrieveHostLabelAndSublabelRequest retrieveRequest) throws BusinessException {
-        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
-        //查询指定ID的过程方法的子过程方法
-        FunctionLabel label = this.labelService.retrieveLabelDetail(retrieveRequest.getHostLabelId(), isDeleted);
-        if (null==label) {
-            return null;
+
         }
-        //查询指定hostSerialNo的过程方法
-        List<FunctionLabel> labels = this.labelService.findByHostSerialNoAndIsDeleted(retrieveRequest.getLabelHostSerialNo(), isDeleted);
-        Set set = new HashSet(labels);
-        set.addAll(label.getSubLabels());
-        labels = new ArrayList<>(set);
-        Comparator<FunctionLabel> comparator = Comparator.comparing(FunctionLabel::getId);
-        labels.sort(comparator);
-        label.setSubLabels(labels);
+
         return RestResponseUtil.success(label);
     }
 

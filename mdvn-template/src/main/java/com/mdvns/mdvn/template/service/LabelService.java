@@ -26,8 +26,11 @@ public interface LabelService {
     List<TerseInfo> getTemplateLabel(String serialNo, Integer isDeleted) throws BusinessException;
 
     //获取指定id的过程方法模块及其子模块
-    FunctionLabel retrieveLabelDetail(Long id, Integer isDeleted) throws BusinessException;
+    FunctionLabel retrieveLabelDetailById(Long id, Integer isDeleted) throws BusinessException;
+
+    //获取指定hostSerialNo的过程方法模块及其子模块
+    FunctionLabel retrieveLabelDetailByHostSerialNo(String criterion, Integer isDeleted) throws BusinessException;
 
 
-    List<TerseInfo> retrieveSubLabel(Long hostSerialNo, Integer isDeleted);
+//    List<TerseInfo> retrieveSubLabel(Long hostSerialNo, Integer isDeleted);
 }

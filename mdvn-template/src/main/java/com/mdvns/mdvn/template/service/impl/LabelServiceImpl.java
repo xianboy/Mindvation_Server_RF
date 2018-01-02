@@ -148,7 +148,7 @@ public class LabelServiceImpl implements LabelService {
      * @return FunctionLabel
      */
     @Override
-    public FunctionLabel retrieveLabelDetail(Long id, Integer isDeleted) throws BusinessException {
+    public FunctionLabel retrieveLabelDetailById(Long id, Integer isDeleted) throws BusinessException {
         FunctionLabel label = this.labelRepository.findOne(id);
         if (null == label) {
             LOG.error("ID为【{}】的FunctionLabel不存在.", id);
@@ -159,12 +159,30 @@ public class LabelServiceImpl implements LabelService {
     }
 
     /**
+     * 获取指定hostSerialNo的过程方法模块及其子模块
+     * @param hostSerialNo hostSerialNo
+     * @param isDeleted isDeleted
+     * @return FunctionLabel
+     */
+    @Override
+    public FunctionLabel retrieveLabelDetailByHostSerialNo(String hostSerialNo, Integer isDeleted) throws BusinessException {
+        List<FunctionLabel> labels = this.labelRepository.findByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
+        if (null == labels||labels.size()!=MdvnConstant.ONE) {
+            LOG.error("hostSerialNo为【{}】的FunctionLabel不存在.", hostSerialNo);
+            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "hostSerialNo为【"+hostSerialNo+"】的FunctionLabel不存在.");
+        }
+        FunctionLabel label = labels.get(MdvnConstant.ZERO);
+        label.setSubLabels(findByHostSerialNoAndIsDeleted(label.getSerialNo(), isDeleted));
+        return label;
+    }
+
+    /**
      * 获取指定id的过程方法的子过程方法
      * @param labelId labelId
      * @param isDeleted isDeleted
      * @return RestResponse
      */
-    @Override
+    /*@Override
     public List<TerseInfo> retrieveSubLabel(Long labelId, Integer isDeleted) {
         FunctionLabel label = this.labelRepository.findOne(labelId);
         if (null == label) {
@@ -173,7 +191,7 @@ public class LabelServiceImpl implements LabelService {
         }
         List<Object[]> subLabels = this.labelRepository.findTerseInfoByHostSerialNo(label.getSerialNo(), isDeleted);
         return ConvertObjectUtil.convertObjectArray2TerseInfo(subLabels);
-    }
+    }*/
 
     /**
      *给functionLabel构建编号
