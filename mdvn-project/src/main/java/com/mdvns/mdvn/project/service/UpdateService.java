@@ -4,7 +4,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
 import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.project.domain.UpdateOptionalInfoRequest;
+import com.mdvns.mdvn.common.bean.UpdateOptionalInfoRequest;
 import com.mdvns.mdvn.project.domain.UpdateOtherInfoRequest;
 
 public interface UpdateService {

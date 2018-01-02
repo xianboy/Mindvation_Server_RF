@@ -7,6 +7,7 @@ import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.FileUtil;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
@@ -21,6 +22,7 @@ import com.mdvns.mdvn.project.service.TemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -128,11 +130,15 @@ public class CreateServiceImpl implements CreateService {
         project.setCreatorId(request.getCreatorId());
         //附件
         if (!StringUtils.isEmpty(request.getAttaches())) {
-            this.buildProjAttaches(request, project);
+//            this.buildProjAttaches(request, project);
+            List<Long> attaches = request.getAttaches();
+            String serialNo = project.getSerialNo();
+            String aches = MdvnStringUtil.joinLong(attaches, ",");
+            project.setAttaches(aches);
+            FileUtil.buildAttaches(attaches,serialNo);
         }
         return project;
     }
-
     /**
      * 构建项目编号:
      * 1.查询表中的最大id  maxId
@@ -158,25 +164,49 @@ public class CreateServiceImpl implements CreateService {
      * @param project
      * @return
      */
-    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
-        List<Long> attaches = request.getAttaches();
-        String aches = MdvnStringUtil.joinLong(attaches, ",");
-        project.setAttaches(aches);
-        /**
-         * 更改附件的状态
-         */
-        BuildAttachesById buildAttachesById = new BuildAttachesById();
-        AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
-        addOrRemoveById.setAddList(attaches);
-        buildAttachesById.setAddOrRemoveById(addOrRemoveById);
-        buildAttachesById.setSubjectId(project.getSerialNo());
-        List<AttchInfo> attchInfos = new ArrayList<>();
-        try {
-            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), buildAttachesById, List.class);
-        } catch (Exception ex) {
-            LOG.error("创建项目添加附件信息失败");
-            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
-        }
-        return attchInfos;
-    }
+//    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
+//        List<Long> attaches = request.getAttaches();
+//        String aches = MdvnStringUtil.joinLong(attaches, ",");
+//        project.setAttaches(aches);
+//        /**
+//         * 更改附件的状态
+//         */
+//        BuildAttachesById buildAttachesById = new BuildAttachesById();
+//        AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
+//        addOrRemoveById.setAddList(attaches);
+//        buildAttachesById.setAddOrRemoveById(addOrRemoveById);
+//        buildAttachesById.setSubjectId(project.getSerialNo());
+//        List<AttchInfo> attchInfos = new ArrayList<>();
+//        try {
+//            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), buildAttachesById, List.class);
+//        } catch (Exception ex) {
+//            LOG.error("创建项目添加附件信息失败");
+//            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
+//        }
+//        return attchInfos;
+//    }
+//    /**
+//     * 构建项目附件
+//     *
+//     * @param request
+//     * @param project
+//     * @return
+//     */
+//    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
+//        List<Long> attaches = request.getAttaches();
+//        String serialNo = project.getSerialNo();
+//        String aches = MdvnStringUtil.joinLong(attaches, ",");
+//        project.setAttaches(aches);
+//        /**
+//         * 更改附件的状态
+//         */
+//        List<AttchInfo> attchInfos = new ArrayList<>();
+//        try {
+//            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), FileUtil.buildAttaches(attaches,serialNo), List.class);
+//        } catch (Exception ex) {
+//            LOG.error("创建项目添加附件信息失败");
+//            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
+//        }
+//        return attchInfos;
+//    }
 }

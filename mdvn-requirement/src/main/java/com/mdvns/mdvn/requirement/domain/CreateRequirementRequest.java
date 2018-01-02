@@ -57,7 +57,7 @@ public class CreateRequirementRequest {
     /*结束日期*/
     private Long endDate;
 
-    /*附件*/
-    private Long attachId;
+    /*需求附件: 多个附件的id*/
+    private List<Long> attaches;
 
 }

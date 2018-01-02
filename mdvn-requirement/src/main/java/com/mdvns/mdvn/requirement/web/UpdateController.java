@@ -1,9 +1,6 @@
 package com.mdvns.mdvn.requirement.web;
 
-import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateOtherInfoRequest;
-import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
+import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.requirement.service.UpdateService;
@@ -58,6 +55,21 @@ public class UpdateController {
         BindingResultUtil.brResolve(bindingResult);
         //调用更新service
         return this.updateService.updateOtherInfo(updateRequest);
+    }
+
+    /**
+     * 修改可选信息
+     * @param updateRequest request
+     * @param bindingResult bindingResult
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @PostMapping(value = "/updateOptionalInfo")
+    public RestResponse<?> updateOptionalInfo(@RequestBody @Validated UpdateOptionalInfoRequest updateRequest, BindingResult bindingResult) throws BusinessException{
+        //请求参数校验
+        BindingResultUtil.brResolve(bindingResult);
+        //调用更新service
+        return this.updateService.updateOptionalInfo(updateRequest);
     }
 
 }

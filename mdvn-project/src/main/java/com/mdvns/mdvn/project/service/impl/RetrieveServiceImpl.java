@@ -5,10 +5,7 @@ import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.PageableQueryUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.LeaderRepository;
@@ -160,7 +157,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置需求列表
 //        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
         //设置附件
-        detail.setAttchInfos(getAttaches(proj.getSerialNo()));
+        detail.setAttchInfos(FileUtil.getAttaches(proj.getSerialNo()));
         return detail;
     }
 
@@ -268,26 +265,26 @@ public class RetrieveServiceImpl implements RetrieveService {
         return restResponse.getData().getContent();
     }
 
-    /**
-     * 通过subjectId获取附件列表信息
-     *
-     * @param subjectId
-     * @return
-     * @throws BusinessException
-     */
-    private List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
-        //实例化restTem对象
-        RestTemplate restTemplate = new RestTemplate();
-        List<AttchInfo> attchInfos = new ArrayList<>();
-        try {
-            //构建rtrvAttsBySubjectIdUrl
-            String rtrvAttsBySubjectIdUrl = webConfig.getRtrvAttsBySubjectIdUrl();
-            attchInfos = restTemplate.postForObject(rtrvAttsBySubjectIdUrl, subjectId, List.class);
-        } catch (Exception ex) {
-            LOG.error("获取指定项目的附件列表失败");
-            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILD, "获取附件列表信息失败");
-        }
-        return attchInfos;
-    }
+//    /**
+//     * 通过subjectId获取附件列表信息
+//     *
+//     * @param subjectId
+//     * @return
+//     * @throws BusinessException
+//     */
+//    private List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
+//        //实例化restTem对象
+//        RestTemplate restTemplate = new RestTemplate();
+//        List<AttchInfo> attchInfos = new ArrayList<>();
+//        try {
+//            //构建rtrvAttsBySubjectIdUrl
+//            String rtrvAttsBySubjectIdUrl = webConfig.getRtrvAttsBySubjectIdUrl();
+//            attchInfos = restTemplate.postForObject(rtrvAttsBySubjectIdUrl, subjectId, List.class);
+//        } catch (Exception ex) {
+//            LOG.error("获取指定项目的附件列表失败");
+//            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILD, "获取附件列表信息失败");
+//        }
+//        return attchInfos;
+//    }
 
 }

@@ -55,7 +55,8 @@ public class RequirementDetail implements Serializable {
     /*其下的Story列表*/
     private PageableResponse<Story> stories;
 
-    /*附件*/
+    /*附件列表*/
+    private List<AttchInfo> attchInfos;
 
 
 

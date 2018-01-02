@@ -6,6 +6,8 @@ import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.FileUtil;
+import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
 import com.mdvns.mdvn.requirement.config.WebConfig;
@@ -19,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -121,6 +124,13 @@ public class CreateServiceImpl implements CreateService {
         reqmnt.setStartDate(request.getStartDate());
         //设置endDate
         reqmnt.setEndDate(request.getEndDate());
+        //附件
+        if (!StringUtils.isEmpty(request.getAttaches())) {
+            List<Long> attaches = request.getAttaches();
+            String aches = MdvnStringUtil.joinLong(attaches, ",");
+            reqmnt.setAttaches(aches);
+            FileUtil.buildAttaches(attaches,serialNo);
+        }
         return reqmnt;
 
     }
