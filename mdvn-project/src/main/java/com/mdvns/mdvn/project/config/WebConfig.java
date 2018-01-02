@@ -17,6 +17,10 @@ public class WebConfig {
     private String retrieveTagsUrl;
     //获取leader的url
     private String retrieveLeadersUrl;
+    //更新附件信息
+    private String updateAttachesUrl;
+    //通过subjectId获取附件列表信息
+    private String rtrvAttsBySubjectIdUrl;
 
 
 }

@@ -1,21 +1,17 @@
-package com.mdvns.mdvn.mdvnfile.domain.entity;
+package com.mdvns.mdvn.common.bean.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 
 
 @Component
-@Entity
 @Data
 @NoArgsConstructor
 public class AttchInfo {
 
-    @Id
-    @GeneratedValue
     private Long id;
 
     /*上传附件的人的Id*/

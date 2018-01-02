@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,6 +58,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 查询所有数据(只需要返回表数据就够了)：支持分页
+     *
      * @return restResponse
      */
     @Override
@@ -80,6 +82,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id的项目详情
+     *
      * @param retrieveDetailRequest request
      * @return restResponse
      */
@@ -104,7 +107,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      * 根据project构建ProjectDetail
      *
      * @param staffId staffId
-     * @param proj project
+     * @param proj    project
      * @return restResponse
      */
     private ProjectDetail buildDetail(Long staffId, Project proj) throws BusinessException {
@@ -155,16 +158,17 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置模板
         detail.setTemplates(getTemplates(staffId, proj.getId()));
         //设置需求列表
-        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
+//        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
         //设置附件
-
+        detail.setAttchInfos(getAttaches(proj.getSerialNo()));
         return detail;
     }
 
     /**
      * 查询指定项目的标签
+     *
      * @param staffId staff
-     * @param projId project
+     * @param projId  project
      * @return restResponse
      */
     private List<TerseInfo> getTags(Long staffId, Long projId) throws BusinessException {
@@ -179,8 +183,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定项目的模板
+     *
      * @param staffId staff
-     * @param projId project
+     * @param projId  project
      * @return restResponse
      */
     private List<TerseTemplate> getTemplates(Long staffId, Long projId) throws BusinessException {
@@ -215,8 +220,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定项目的负责人
+     *
      * @param staffId staff
-     * @param projId project
+     * @param projId  project
      * @return restResponse
      */
     private List<TerseInfo> getLeaders(Long staffId, Long projId) throws BusinessException {
@@ -235,11 +241,12 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定项目id的需求列表
-     * @param staffId staff
+     *
+     * @param staffId      staff
      * @param projSerialNo projSerialNo
      * @return restResponse
      */
-    private PageableResponse<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
+    private List<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         //构建retrieveRequirementsUrl
@@ -258,7 +265,29 @@ public class RetrieveServiceImpl implements RetrieveService {
             LOG.error("获取指定项目的需求列表失败: {}", restResponse.getMsg());
             throw new BusinessException(restResponse.getCode(), restResponse.getMsg());
         }
-        return restResponse.getData();
+        return restResponse.getData().getContent();
+    }
+
+    /**
+     * 通过subjectId获取附件列表信息
+     *
+     * @param subjectId
+     * @return
+     * @throws BusinessException
+     */
+    private List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        List<AttchInfo> attchInfos = new ArrayList<>();
+        try {
+            //构建rtrvAttsBySubjectIdUrl
+            String rtrvAttsBySubjectIdUrl = webConfig.getRtrvAttsBySubjectIdUrl();
+            attchInfos = restTemplate.postForObject(rtrvAttsBySubjectIdUrl, subjectId, List.class);
+        } catch (Exception ex) {
+            LOG.error("获取指定项目的附件列表失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILD, "获取附件列表信息失败");
+        }
+        return attchInfos;
     }
 
 }

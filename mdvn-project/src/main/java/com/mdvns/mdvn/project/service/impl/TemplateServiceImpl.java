@@ -54,7 +54,7 @@ public class TemplateServiceImpl implements TemplateService {
     }
 
     /**
-     * 更新项目标签映射
+     * 更新项目模板映射
      *
      * @param staffId   当前用户id
      * @param projId    当前项目id

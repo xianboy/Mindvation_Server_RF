@@ -3,3 +3,6 @@ url:
   retrieveTemplatesUrl : http://localhost:20004/mdvn-template/templates/retrieveTerseInfo
   retrieveTagsUrl : http://localhost:20002/mdvn-tag/tags/retrieveTerseInfo
   retrieveLeadersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
+#  更新附件状态
+  updateAttachesUrl : http://localhost:10019/mdvn-file/files/updateAttaches
+  rtrvAttsBySubjectIdUrl : http://localhost:10019/mdvn-file/files/rtrvAttsBySubjectId

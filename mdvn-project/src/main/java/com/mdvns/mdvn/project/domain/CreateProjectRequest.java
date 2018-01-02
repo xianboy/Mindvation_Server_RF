@@ -38,5 +38,5 @@ public class CreateProjectRequest {
     /*项目可调整系数:是否可用Integer*/
     private Double contingency;
     /*项目附件: 多个附件的id*/
-    private String attaches;
+    private List<Long> attaches;
 }
