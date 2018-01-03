@@ -82,7 +82,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //根据
         Story story = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
         //数据不存在，抛异常
-        MdvnCommonUtil.notExistingError(story, MdvnConstant.ID, singleCriterionRequest.getCriterion());
+        MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "编号为【"+singleCriterionRequest.getCriterion()+"】的story不存在");
         //设置
         StoryDetail detail = buildDetail(singleCriterionRequest.getStaffId(), story);
         LOG.info("获取指定serialNo的story的详情成功, 结束运行【retrieveDetailBySerialNo】service...");
