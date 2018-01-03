@@ -5,6 +5,7 @@ import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
+import com.mdvns.mdvn.task.domain.UpdateAttachRequest;
 import com.mdvns.mdvn.task.domain.UpdateProgressRequest;
 import com.mdvns.mdvn.task.service.CreateService;
 import com.mdvns.mdvn.task.service.RetrieveService;
@@ -76,6 +77,28 @@ public class TaskController {
     public RestResponse<?> retrieveList(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveList(retrieveRequest);
+    }
+
+    /**
+     * 给某个task添加附件
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/addAttachForTask")
+    private RestResponse<?> addAttachForTask(@RequestBody UpdateAttachRequest request) throws Exception, BusinessException {
+        return this.updateService.addAttachForTask(request);
+    }
+
+    /**
+     * 给某个task删除附件
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/deleteAttachForTask")
+    private RestResponse<?> deleteAttachForTask(@RequestBody UpdateAttachRequest request) throws Exception, BusinessException {
+        return this.updateService.deleteAttachForTask(request);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.task.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.bean.model.Delivery;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -64,6 +66,9 @@ public class Task implements Serializable {
     @Column(nullable = false)
     private Long deliveryId;
 
+    /*task附件：id*/
+    private String attaches;
+
     /*是否已删除*/
     @Column(nullable = false)
     @JsonIgnore
@@ -74,6 +79,9 @@ public class Task implements Serializable {
 
     @Transient//非持久化字段
     private Delivery delivery;
+
+    @Transient//非持久化字段
+    private List<AttchInfo> attchInfos;
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

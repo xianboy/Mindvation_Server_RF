@@ -7,6 +7,7 @@ import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.FileUtil;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
@@ -71,6 +72,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         task.setCreator(list.get(MdvnConstant.ZERO));
         //获取task的交付件
         task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
+        //获取task的附件
+        task.setAttchInfos(FileUtil.getAttaches(task.getSerialNo()));
         LOG.info("根据Id获取详情成功...");
         return task;
     }

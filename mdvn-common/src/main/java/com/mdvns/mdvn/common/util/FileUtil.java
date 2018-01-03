@@ -63,7 +63,7 @@ public class FileUtil {
     }
 
     /**
-     * 更新项目附件信息
+     * 更新附件信息
      *
      * @param updateRequest
      * @return

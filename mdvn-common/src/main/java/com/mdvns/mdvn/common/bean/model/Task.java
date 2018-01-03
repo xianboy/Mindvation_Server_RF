@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -40,4 +41,6 @@ public class Task implements Serializable {
 
     /*交付件*/
     private Delivery delivery;
+
+    private List<AttchInfo> attchInfos;
 }
