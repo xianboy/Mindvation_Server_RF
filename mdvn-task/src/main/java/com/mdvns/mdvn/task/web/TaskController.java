@@ -66,4 +66,16 @@ public class TaskController {
         return this.updateService.updateProgress(updateRequest);
     }
 
+    /**
+     * 获取指定hostSerialNo的task列表
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveList")
+    public RestResponse<?> retrieveList(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveList(retrieveRequest);
+    }
+
 }
