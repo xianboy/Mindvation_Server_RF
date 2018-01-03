@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.UpdateProgressRequest;
 import com.mdvns.mdvn.task.service.CreateService;
@@ -64,6 +65,30 @@ public class TaskController {
     public RestResponse<?> updateProgress(@RequestBody @Validated UpdateProgressRequest updateRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.updateService.updateProgress(updateRequest);
+    }
+
+    /**
+     * 获取指定hostSerialNo的task列表
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveList")
+    public RestResponse<?> retrieveList(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveList(retrieveRequest);
+    }
+
+    /**
+     * 获取历史记录
+     * @param retrieveRequest retrieveRequest
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveHistory")
+    public RestResponse<?> retrieveHistory(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveHistory(retrieveRequest);
     }
 
 }

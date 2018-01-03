@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
+
 public interface TaskRepository extends JpaRepository<Task, Long> {
     /*query*/
     @Query(value = "select max(id) from Task", nativeQuery = true)
@@ -17,6 +19,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     //更新进度
     @Modifying
-    @Query("update Task t set t.progress = ?1 where t.id = ?2 ")
-    void updateProgress(Integer progress, Long hostId);
+    @Query("update Task t set t.progress = ?1, t.status = ?2 where t.id = ?3 ")
+    void updateProgressAndStatus(Integer progress, String status, Long hostId);
+
+    //获取指定hostSerialNo的task的id
+    @Query("select t.id from Task t where t.hostSerialNo=?1 and t.isDeleted=?2")
+    List<Long> findIdByHostSerialNoAndIsDeleted(String hostSerialNo, Integer isDeleted);
+
 }

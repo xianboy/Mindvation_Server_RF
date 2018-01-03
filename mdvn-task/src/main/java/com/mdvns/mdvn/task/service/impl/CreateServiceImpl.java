@@ -5,23 +5,34 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
+import com.mdvns.mdvn.task.domain.entity.TaskHistory;
+import com.mdvns.mdvn.task.repository.HistoryRepository;
 import com.mdvns.mdvn.task.repository.TaskRepository;
 import com.mdvns.mdvn.task.service.CreateService;
 import com.mdvns.mdvn.task.service.RetrieveService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 
 @Service
 public class CreateServiceImpl implements CreateService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CreateServiceImpl.class);
+
     @Resource
     private TaskRepository repository;
+
+    @Resource
+    private HistoryRepository historyRepository;
 
     @Resource
     private WebConfig webConfig;
@@ -41,6 +52,8 @@ public class CreateServiceImpl implements CreateService {
         Task task = buildByRequest(createRequest);
         //保存
         task = this.repository.saveAndFlush(task);
+        //保存历史记录
+        createHistory(createRequest.getCreatorId(), task.getId());
         //根据id获取task详情
         return retrieveService.retrieveDetailById(new SingleCriterionRequest(createRequest.getCreatorId(), task.getId().toString()));
     }
@@ -51,7 +64,7 @@ public class CreateServiceImpl implements CreateService {
      * @param createRequest request
      * @return Task
      */
-    private Task buildByRequest(CreateTaskRequest createRequest) {
+    private Task buildByRequest(CreateTaskRequest createRequest) throws BusinessException {
         Task task = new Task();
         task.setCreatorId(createRequest.getCreatorId());
         String serialNo = buildSerialNo();
@@ -66,26 +79,32 @@ public class CreateServiceImpl implements CreateService {
 
     /**
      * 构建交付件
-     * @param delivery delivery
-     * @param creatorId creatorId
+     *
+     * @param delivery     delivery
+     * @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @return Long
      */
-    private Long buildDelivery(Object delivery, Long creatorId, String hostSerialNo) {
+    private Long buildDelivery(Object delivery, Long creatorId, String hostSerialNo) throws BusinessException {
         //如果是Integer类型, 就是已存在的交付件的id
         if (delivery instanceof Integer) {
             return Long.valueOf(delivery.toString());
         } else {
             //如果是CustomDeliverable类型, 则自定义交付件
-            return customDelivery(delivery, creatorId, hostSerialNo);
+            try {
+                return customDelivery(delivery, creatorId, hostSerialNo);
+            } catch (Exception ex) {
+                LOG.error("task交付件参数【{}】错误...", delivery.toString());
+                throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "task交付件参数错误.");
+            }
         }
-
     }
 
     /**
      * 自定义交付件
-     * @param delivery delivery
-     * @param creatorId creatorId
+     *
+     * @param delivery     delivery
+     * @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @return Long
      */
@@ -98,7 +117,30 @@ public class CreateServiceImpl implements CreateService {
         customDelivery.setHostSerialNo(hostSerialNo);
         RestTemplate restTemplate = new RestTemplate();
         String customDeliveryUrl = webConfig.getCustomDeliveryUrl();
+
         return restTemplate.postForObject(customDeliveryUrl, customDelivery, Long.class);
+    }
+
+    /**
+     * 记录task新建历史
+     *
+     * @param staffId staffId
+     * @param taskId  taskId
+     * @return TaskHistory
+     */
+    private TaskHistory createHistory(Long staffId, Long taskId) {
+        //历史记录
+        TaskHistory history = new TaskHistory();
+        try {
+            history.setTaskId(taskId);
+            history.setCreatorId(staffId);
+            history.setAction("create");
+            history.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+            history = this.historyRepository.saveAndFlush(history);
+        } catch (Exception ex) {
+            LOG.error("保存Task更新记录失败...");
+        }
+        return history;
     }
 
     /**
