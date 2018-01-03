@@ -19,4 +19,6 @@ public interface LeaderRepository extends JpaRepository<ProjectStaff, Long> {
     @Modifying
     @Query("update ProjectStaff ps set ps.isDeleted = ?1 where ps.projId=?2 and ps.staffId in ?3")
     Integer updateIsDeleted(Integer isDeleted, Long projId, List<Long> leaders);
+
+    List<ProjectStaff> findByProjIdAndIsDeleted(Long projId, Integer isDeleted);
 }
