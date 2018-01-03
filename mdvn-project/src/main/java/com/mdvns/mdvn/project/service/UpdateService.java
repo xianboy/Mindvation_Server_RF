@@ -11,7 +11,7 @@ public interface UpdateService {
     //状态更新
     RestResponse<?> updateStatus(UpdateStatusRequest updateStatusRequest);
     //更新名称和描述
-    RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateNameAndDescRequest);
+    RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateNameAndDescRequest) throws BusinessException;
     //更新其他信息
     RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException;
     //更新可选信息

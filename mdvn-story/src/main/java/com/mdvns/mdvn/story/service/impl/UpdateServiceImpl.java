@@ -4,10 +4,7 @@ import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.story.config.WebConfig;
 import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.repository.StoryRepository;
@@ -22,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 更新
@@ -67,7 +65,7 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     @Modifying
-    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) {
+    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) throws BusinessException {
         LOG.info("修改基础信息开始...");
         //获取更新对象的id
         Long storyId = updateBasicInfoRequest.getHostId();
@@ -84,6 +82,12 @@ public class UpdateServiceImpl implements UpdateService {
             //如果都不为空, 同时更新名称和描述
             this.repository.updateBoth(summary, description, storyId);
         }
+        /**
+         * 消息推送
+         */
+        //根据id查询story
+        Story story = this.repository.findOne(storyId);
+        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(),story);
         LOG.info("修改基础信息成功...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -121,6 +125,10 @@ public class UpdateServiceImpl implements UpdateService {
             String serialNo = story.getSerialNo();
             FileUtil.updateAttaches(updateRequest,serialNo);
         }
+        /**
+         * 消息推送
+         */
+        this.serverPushByUpdate(updateRequest.getStaffId(),story);
         LOG.info("更新STORY附件信息结束...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -168,6 +176,10 @@ public class UpdateServiceImpl implements UpdateService {
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), storyId, updateRequest.getMembers());
         }
+        /**
+         * 消息推送
+         */
+        this.serverPushByUpdate(updateRequest.getStaffId(),story);
         return story;
     }
 
@@ -181,5 +193,31 @@ public class UpdateServiceImpl implements UpdateService {
      */
     private Long buildLabel(Long creatorId, String hostSerialNo, Object functionLabel) throws BusinessException {
         return RestTemplateUtil.buildLabel(webConfig.getCustomLabelUrl(), creatorId, hostSerialNo, functionLabel);
+    }
+
+    /**
+     * 更改story的消息推送
+     *
+     * @param initiatorId
+     * @param story
+     * @throws BusinessException
+     */
+    private void serverPushByUpdate(Long initiatorId, Story story) throws BusinessException {
+        try {
+            String serialNo = story.getSerialNo();
+            String subjectType = "story";
+            String type = "update";
+            List<Long> staffIds = this.memberService.getStoryMembers(initiatorId,story);
+            if (!(null == staffIds || staffIds.isEmpty())) {
+                //接受者包括story的创建者
+                if (!staffIds.contains(story.getCreatorId())) {
+                    staffIds.add(story.getCreatorId());
+                }
+            }
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("更改story信息，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(更改story)出现异常，异常信息：" + e);
+        }
     }
 }

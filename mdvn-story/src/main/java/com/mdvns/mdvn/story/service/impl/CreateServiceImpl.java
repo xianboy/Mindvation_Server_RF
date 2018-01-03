@@ -3,10 +3,7 @@ package com.mdvns.mdvn.story.service.impl;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnStringUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.story.config.WebConfig;
 import com.mdvns.mdvn.story.domain.CreateStoryRequest;
 import com.mdvns.mdvn.story.domain.entity.Story;
@@ -130,5 +127,26 @@ public class CreateServiceImpl implements CreateService {
         maxId += 1;
         return MdvnConstant.S + maxId;
     }
+
+    /**
+     * 创建story的消息推送
+     * @param createRequest
+     * @param story
+     * @throws BusinessException
+     */
+    private void serverPushByCreate(CreateStoryRequest createRequest,Story story) throws BusinessException {
+        try {
+            Long initiatorId = createRequest.getCreatorId();
+            String serialNo = story.getSerialNo();
+            String subjectType = "story";
+            String type = "create";
+            List<Long> staffIds = this.memberService.getStoryMembers(initiatorId,story);
+            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
+            LOG.info("创建需求，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建需求)出现异常，异常信息：" + e);
+        }
+    }
+
 }
 

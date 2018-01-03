@@ -1,14 +1,9 @@
 package com.mdvns.mdvn.project.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
-import com.mdvns.mdvn.common.bean.model.AttchInfo;
-import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.*;
-import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.CreateProjectRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.ProjectRepository;
@@ -19,11 +14,9 @@ import com.mdvns.mdvn.project.service.TemplateService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -77,28 +70,11 @@ public class CreateServiceImpl implements CreateService {
         if (!(null == createRequest.getTemplates() || createRequest.getTemplates().isEmpty())) {
             this.projectTemplateService.createProjectTemplate(createRequest.getCreatorId(), project.getId(), createRequest.getTemplates());
         }
-        //消息推送
         /**
          * 消息推送（创建项目）
          */
-        try {
-            Long initiatorId = createRequest.getCreatorId();
-            String serialNo = project.getSerialNo();
-            String subjectType = "project";
-            String type = "create";
-            List<Long> staffIds = new ArrayList<>();
-            if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
-                staffIds = createRequest.getLeaders();
-                //接受者包括项目的创建者
-                if (!staffIds.contains(initiatorId)) {
-                    staffIds.add(initiatorId);
-                }
-            }
-            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
-            LOG.info("创建项目，消息推送成功");
-        } catch (Exception e) {
-            LOG.error("消息推送(创建项目)出现异常，异常信息：" + e);
-        }
+        this.serverPushByCreate(createRequest,project);
+
         return RestResponseUtil.success(project);
     }
 
@@ -169,55 +145,25 @@ public class CreateServiceImpl implements CreateService {
     }
 
     /**
-     * 构建项目附件
-     *
-     * @param request
+     * 创建项目的消息推送
+     * @param createRequest
      * @param project
-     * @return
+     * @throws BusinessException
      */
-//    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
-//        List<Long> attaches = request.getAttaches();
-//        String aches = MdvnStringUtil.joinLong(attaches, ",");
-//        project.setAttaches(aches);
-//        /**
-//         * 更改附件的状态
-//         */
-//        BuildAttachesById buildAttachesById = new BuildAttachesById();
-//        AddOrRemoveById addOrRemoveById = new AddOrRemoveById();
-//        addOrRemoveById.setAddList(attaches);
-//        buildAttachesById.setAddOrRemoveById(addOrRemoveById);
-//        buildAttachesById.setSubjectId(project.getSerialNo());
-//        List<AttchInfo> attchInfos = new ArrayList<>();
-//        try {
-//            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), buildAttachesById, List.class);
-//        } catch (Exception ex) {
-//            LOG.error("创建项目添加附件信息失败");
-//            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
-//        }
-//        return attchInfos;
-//    }
-//    /**
-//     * 构建项目附件
-//     *
-//     * @param request
-//     * @param project
-//     * @return
-//     */
-//    private List<AttchInfo> buildProjAttaches(CreateProjectRequest request, Project project) throws BusinessException {
-//        List<Long> attaches = request.getAttaches();
-//        String serialNo = project.getSerialNo();
-//        String aches = MdvnStringUtil.joinLong(attaches, ",");
-//        project.setAttaches(aches);
-//        /**
-//         * 更改附件的状态
-//         */
-//        List<AttchInfo> attchInfos = new ArrayList<>();
-//        try {
-//            attchInfos = this.restTemplate.postForObject(webConfig.getUpdateAttachesUrl(), FileUtil.buildAttaches(attaches,serialNo), List.class);
-//        } catch (Exception ex) {
-//            LOG.error("创建项目添加附件信息失败");
-//            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
-//        }
-//        return attchInfos;
-//    }
+    private void serverPushByCreate(CreateProjectRequest createRequest,Project project) throws BusinessException {
+        try {
+            Long initiatorId = createRequest.getCreatorId();
+            String serialNo = project.getSerialNo();
+            String subjectType = "project";
+            String type = "create";
+            List<Long> staffIds = new ArrayList<>();
+            if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
+                staffIds = createRequest.getLeaders();
+            }
+            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
+            LOG.info("创建项目，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建项目)出现异常，异常信息：" + e);
+        }
+    }
 }

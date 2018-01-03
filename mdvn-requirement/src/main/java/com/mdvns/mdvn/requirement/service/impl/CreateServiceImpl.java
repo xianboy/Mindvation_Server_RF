@@ -6,10 +6,7 @@ import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnStringUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.requirement.config.WebConfig;
 import com.mdvns.mdvn.requirement.domain.CreateRequirementRequest;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
@@ -71,6 +68,10 @@ public class CreateServiceImpl implements CreateService {
         }
         //构建创建人信息
         requirement.setCreator(buildCreator(createRequest.getCreatorId()));
+        /**
+         * 消息推送
+         */
+        this.serverPushByCreate(createRequest,requirement);
         LOG.debug("id为【{}】的需求创建成功...", requirement.getId());
         return RestResponseUtil.success(requirement);
     }
@@ -176,6 +177,26 @@ public class CreateServiceImpl implements CreateService {
         }
         maxId += 1;
         return MdvnConstant.R + maxId;
+    }
+
+    /**
+     * 创建需求的消息推送
+     * @param createRequest
+     * @param requirement
+     * @throws BusinessException
+     */
+    private void serverPushByCreate(CreateRequirementRequest createRequest,Requirement requirement) throws BusinessException {
+        try {
+            Long initiatorId = createRequest.getCreatorId();
+            String serialNo = requirement.getSerialNo();
+            String subjectType = "requirement";
+            String type = "create";
+            List<Long> staffIds = this.memberService.getReqMembers(initiatorId,requirement);
+            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
+            LOG.info("创建需求，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建需求)出现异常，异常信息：" + e);
+        }
     }
 
 

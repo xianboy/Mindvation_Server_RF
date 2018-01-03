@@ -5,6 +5,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.RoleMember;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 
 import java.util.List;
 
@@ -19,4 +20,5 @@ public interface MemberService {
     void updateRoleMembers(Long staffId, Long requirementId, List<MemberRequest> roleMembers);
 
 
+    List<Long> getReqMembers(Long staffId, Requirement requirement) throws BusinessException;
 }

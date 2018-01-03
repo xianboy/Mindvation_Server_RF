@@ -9,6 +9,7 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
 import com.mdvns.mdvn.story.config.WebConfig;
+import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.domain.entity.StoryMember;
 import com.mdvns.mdvn.story.repository.MemberRepository;
 import com.mdvns.mdvn.story.service.MemberService;
@@ -214,6 +215,32 @@ public class MemberServiceImpl implements MemberService {
     @Modifying
     private void updateIsDeleted(Long storyId, Long roleId, List<Long> updateMembers, Integer isDeleted) {
         this.memberRepository.updateIsDeleted(storyId, roleId, updateMembers, isDeleted);
+    }
+
+    /**
+     * 获取一个story下所有不重复的人员Id
+     * @param staffId
+     * @param story
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public List<Long> getStoryMembers(Long staffId, Story story) throws BusinessException {
+        Long storyId = story.getId();
+        Long templateId = story.getTemplateId();
+        List<RoleMember> roleMembers = this.getRoleMembers(staffId, storyId, templateId, 0);
+        List<Long> memberIds = new ArrayList<>();
+        for (int i = 0; i < roleMembers.size(); i++) {
+            List<TerseInfo> members = roleMembers.get(i).getMembers();
+            for (int j = 0; j < members.size(); j++) {
+                Long memberId = members.get(j).getId();
+                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                    continue;
+                }
+                memberIds.add(memberId);
+            }
+        }
+        return memberIds;
     }
 }
 

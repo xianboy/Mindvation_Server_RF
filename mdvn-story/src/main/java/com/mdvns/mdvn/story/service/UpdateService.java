@@ -8,7 +8,7 @@ public interface UpdateService {
     //修改状态
     RestResponse<?> updateStatus(UpdateStatusRequest updateStatusRequest);
     //修改基础信息
-    RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateRequest);
+    RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateRequest) throws BusinessException;
     //修改其他信息
     RestResponse<?> updateOtherInfo(UpdateOtherInfoRequest updateRequest) throws BusinessException;
 

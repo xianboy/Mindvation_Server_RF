@@ -4,7 +4,8 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,9 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 public class ServerPushUtil {
+
+    /*实例化LOG常量*/
+    private static final Logger LOG = LoggerFactory.getLogger(ServerPushUtil.class);
     /**
      * 消息推送
      * @param initiatorId 发起者Id(也是登录者Id)
@@ -52,11 +56,13 @@ public class ServerPushUtil {
             sendMessageRequest.setInitiatorId(initiatorId);
             sendMessageRequest.setStaffIds(staffIds);
             sendMessageRequest.setServerPushResponse(serverPush);
-            String sendMessageUrl = "http://localhost:10027/mdvn-websocket/websocket/sendMessage";
+            String sendMessageUrl = "http://localhost:20009/mdvn-websocket/websocket/sendMessage";
             Boolean flag = restTemplate.postForObject(sendMessageUrl, sendMessageRequest, Boolean.class);
             System.out.println(flag);
         } catch (Exception e) {
-            throw new BusinessException(ErrorEnum.SERVER_PUSH_FAILD, "消息推送" + type + serialNo + "失败");
+            LOG.error("消息推送" + type + serialNo + "失败;"+"异常信息：" + e);
+            //消息推送不能影响其他service的运行
+//            throw new BusinessException(ErrorEnum.SERVER_PUSH_FAILD, "消息推送" + type + serialNo + "失败");
         }
         return true;
     }

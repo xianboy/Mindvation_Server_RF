@@ -21,7 +21,7 @@ public class FileUtil {
      * @return
      */
     public static List<AttchInfo> buildAttaches(List<Long> attaches, String serialNo) throws BusinessException {
-        String updateAttachesUrl = "http://localhost:10019/mdvn-file/files/updateAttaches";
+        String updateAttachesUrl = "http://localhost:20011/mdvn-file/files/updateAttaches";
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         /**
@@ -49,7 +49,7 @@ public class FileUtil {
      * @throws BusinessException
      */
     public static List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
-        String rtrvAttsBySubjectIdUrl = "http://localhost:10019/mdvn-file/files/rtrvAttsBySubjectId";
+        String rtrvAttsBySubjectIdUrl = "http://localhost:20011/mdvn-file/files/rtrvAttsBySubjectId";
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         List<AttchInfo> attchInfos = new ArrayList<>();
@@ -69,7 +69,7 @@ public class FileUtil {
      * @return
      */
     public static List<AttchInfo> updateAttaches(UpdateOptionalInfoRequest updateRequest, String serialNo) throws BusinessException {
-        String updateAttachesUrl = "http://localhost:10019/mdvn-file/files/updateAttaches";
+        String updateAttachesUrl = "http://localhost:20011/mdvn-file/files/updateAttaches";
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         List<Long> addList = updateRequest.getAttaches().getAddList();

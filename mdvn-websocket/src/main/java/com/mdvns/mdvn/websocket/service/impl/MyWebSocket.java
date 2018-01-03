@@ -109,7 +109,7 @@ public class MyWebSocket implements WebSocketService {
 
         WebSocketUtils.add(id, session);
         logger.info("[WebSocketServer] Connected : userId = " + id);
-        session.setMaxIdleTimeout(10*60*1000);//毫秒算的（设置session过期时间）
+        session.setMaxIdleTimeout(30*60*1000);//毫秒算的（设置session过期时间）
         sessionMap.put(id, session);
         webSocketSet.add(this);    //加入set中
         addOnlineCount();           //在线数加1

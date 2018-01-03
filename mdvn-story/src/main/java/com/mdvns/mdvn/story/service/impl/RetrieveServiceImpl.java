@@ -277,7 +277,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 获取指定reqmntId 的角色成员
+     * 获取指定storyId 的角色成员
      *
      * @return list
      */

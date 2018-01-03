@@ -265,26 +265,4 @@ public class RetrieveServiceImpl implements RetrieveService {
         return restResponse.getData().getContent();
     }
 
-//    /**
-//     * 通过subjectId获取附件列表信息
-//     *
-//     * @param subjectId
-//     * @return
-//     * @throws BusinessException
-//     */
-//    private List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
-//        //实例化restTem对象
-//        RestTemplate restTemplate = new RestTemplate();
-//        List<AttchInfo> attchInfos = new ArrayList<>();
-//        try {
-//            //构建rtrvAttsBySubjectIdUrl
-//            String rtrvAttsBySubjectIdUrl = webConfig.getRtrvAttsBySubjectIdUrl();
-//            attchInfos = restTemplate.postForObject(rtrvAttsBySubjectIdUrl, subjectId, List.class);
-//        } catch (Exception ex) {
-//            LOG.error("获取指定项目的附件列表失败");
-//            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILD, "获取附件列表信息失败");
-//        }
-//        return attchInfos;
-//    }
-
 }

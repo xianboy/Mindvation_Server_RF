@@ -34,7 +34,7 @@ public class UpdateController {
      * @return restResponse
      */
     @PostMapping(value = "/updateBasicInfo")
-    public RestResponse<?> updateBaseInfo(@RequestBody @Validated UpdateBasicInfoRequest updateRequest, BindingResult bindingResult) {
+    public RestResponse<?> updateBaseInfo(@RequestBody @Validated UpdateBasicInfoRequest updateRequest, BindingResult bindingResult) throws BusinessException {
         //请求参数校验
         BindingResultUtil.brResolve(bindingResult);
         //调用更新service

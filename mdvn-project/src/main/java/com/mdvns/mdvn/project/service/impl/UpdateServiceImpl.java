@@ -90,7 +90,7 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     @Transactional
     @Modifying
-    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) {
+    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) throws BusinessException {
         LOG.info("更新项目基础信息开始...");
         //获取更新对象的id
         Long projId = updateBasicInfoRequest.getHostId();
@@ -107,6 +107,14 @@ public class UpdateServiceImpl implements UpdateService {
             //如果都不为空, 同时更新名称和描述
             this.projectRepository.updateBasicInfo(name, desc, projId);
         }
+        /**
+         * 消息推送（更改项目基础信息）
+         */
+        Long initiatorId = updateBasicInfoRequest.getStaffId();
+        //根据id查询项目
+        Project project = this.projectRepository.findOne(projId);
+        this.serverPushByUpdate(initiatorId,project);
+
         LOG.info("更新项目基础信息成功...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -172,6 +180,13 @@ public class UpdateServiceImpl implements UpdateService {
             this.projectTemplateService.updateProjectTemplate(updateRequest.getStaffId(), projId, updateRequest.getTemplates());
         }
         LOG.info("更新项目其它信息结束...");
+
+        /**
+         * 消息推送（更改项目其他信息）
+         */
+        Long initiatorId = updateRequest.getStaffId();
+        this.serverPushByUpdate(initiatorId,project);
+
         return project;
     }
 
@@ -195,38 +210,50 @@ public class UpdateServiceImpl implements UpdateService {
         //更新附件
         if (null != updateRequest.getAttaches()) {
             String serialNo = project.getSerialNo();
-//            this.updateAttaches(updateRequest, project);
-            FileUtil.updateAttaches(updateRequest,serialNo);
+            FileUtil.updateAttaches(updateRequest, serialNo);
         }
         /**
          * 消息推送（更改项目可选信息）
          */
+        Long initiatorId = updateRequest.getStaffId();
+        this.serverPushByUpdate(initiatorId,project);
+
+        LOG.info("更新项目附件信息结束...");
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 更改项目的消息推送
+     *
+     * @param initiatorId
+     * @param project
+     * @throws BusinessException
+     */
+    private void serverPushByUpdate(Long initiatorId, Project project) throws BusinessException {
         try {
-            Long initiatorId = updateRequest.getStaffId();
             String serialNo = project.getSerialNo();
             String subjectType = "project";
             String type = "update";
             List<Long> staffIds = this.getStaffIds(project);
-            ServerPushUtil.serverPush(initiatorId,serialNo,subjectType,type,staffIds);
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
             LOG.info("更改项目可选信息，消息推送成功");
         } catch (Exception e) {
             LOG.error("消息推送(更改项目)出现异常，异常信息：" + e);
         }
-        LOG.info("更新项目附件信息结束...");
-        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
 
     /**
      * 获取项目的负责人和创建者
+     *
      * @param project
      * @return
      */
-    private List<Long> getStaffIds(Project project){
+    private List<Long> getStaffIds(Project project) {
         //项目id
         Long projId = project.getId();
         //查询project的负责人和创建者
-        List<ProjectStaff> projectStaffs = this.projectStaffRepository.findByProjIdAndIsDeleted(projId,0);
+        List<ProjectStaff> projectStaffs = this.projectStaffRepository.findByProjIdAndIsDeleted(projId, 0);
         List<Long> staffIds = new ArrayList<>();
         for (int i = 0; i < projectStaffs.size(); i++) {
             staffIds.add(projectStaffs.get(i).getStaffId());

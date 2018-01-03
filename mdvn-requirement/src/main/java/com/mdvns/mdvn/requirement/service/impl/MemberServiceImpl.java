@@ -11,6 +11,7 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
 import com.mdvns.mdvn.requirement.config.WebConfig;
+import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.domain.entity.RequirementMember;
 import com.mdvns.mdvn.requirement.repository.MemberRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
@@ -44,9 +45,9 @@ public class MemberServiceImpl implements MemberService {
     /**
      * 保存需求成员映射
      *
-     * @param creatorId creatorId
+     * @param creatorId     creatorId
      * @param requirementId requirementId
-     * @param members members
+     * @param members       members
      */
     @Override
     public Integer handleMembers(Long creatorId, Long requirementId, List<MemberRequest> members) {
@@ -85,7 +86,7 @@ public class MemberServiceImpl implements MemberService {
      *
      * @param staffId       staffId
      * @param requirementId requirementId
-     * @param templateId  templateId
+     * @param templateId    templateId
      * @return list
      */
     @Override
@@ -119,7 +120,8 @@ public class MemberServiceImpl implements MemberService {
 
     /**
      * 查询指定模板的所有角色
-     * @param staffId staffId
+     *
+     * @param staffId    staffId
      * @param templateId templateId
      * @return List
      */
@@ -180,11 +182,11 @@ public class MemberServiceImpl implements MemberService {
             }
         }
         //更新已存在映射的isDeleted为0
-        if (updateMembers.size()>0) {
+        if (updateMembers.size() > 0) {
             updateIsDeleted(requirementId, roleId, updateMembers, MdvnConstant.ZERO);
         }
         //添加新映射
-        if (addMembers.size()>0) {
+        if (addMembers.size() > 0) {
             saveRoleMembers(staffId, requirementId, roleId, addMembers);
         }
         LOG.info("添加ID为【{}】的角色下ID为【{}】的成员成功...", roleId, addList);
@@ -227,5 +229,33 @@ public class MemberServiceImpl implements MemberService {
         LOG.info("获取requirement的成员信息成功...");
         return members;
     }
+
+
+    /**
+     * 获取一个requirement下所有不重复的人员Id
+     * @param staffId
+     * @param requirement
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    public List<Long> getReqMembers(Long staffId, Requirement requirement) throws BusinessException {
+        Long requirementId = requirement.getId();
+        Long templateId = requirement.getTemplateId();
+        List<RoleMember> roleMembers = this.getRoleMembers(staffId, requirementId, templateId, 0);
+        List<Long> memberIds = new ArrayList<>();
+        for (int i = 0; i < roleMembers.size(); i++) {
+            List<TerseInfo> members = roleMembers.get(i).getMembers();
+            for (int j = 0; j < members.size(); j++) {
+                Long memberId = members.get(j).getId();
+                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                    continue;
+                }
+                memberIds.add(memberId);
+            }
+        }
+        return memberIds;
+    }
+
 
 }

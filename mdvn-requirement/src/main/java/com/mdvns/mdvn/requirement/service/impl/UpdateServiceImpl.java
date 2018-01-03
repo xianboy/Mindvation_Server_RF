@@ -7,6 +7,7 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.FileUtil;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @Service
 @Transactional
@@ -63,7 +65,7 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     @Transactional
     @Modifying
-    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) {
+    public RestResponse<?> updateBasicInfo(UpdateBasicInfoRequest updateBasicInfoRequest) throws BusinessException {
         LOG.info("修改基础信息开始...");
         //获取更新对象的id
         Long requirementId = updateBasicInfoRequest.getHostId();
@@ -80,6 +82,12 @@ public class UpdateServiceImpl implements UpdateService {
             //如果都不为空, 同时更新summary和描述
             this.requirementRepository.updateBoth(summary, desc, requirementId);
         }
+        /**
+         * 消息推送
+         */
+        //根据id查询项目
+        Requirement requirement = this.requirementRepository.findOne(requirementId);
+        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(),requirement);
         LOG.info("修改基础信息成功...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -121,6 +129,10 @@ public class UpdateServiceImpl implements UpdateService {
             String serialNo = requirement.getSerialNo();
             FileUtil.updateAttaches(updateRequest,serialNo);
         }
+        /**
+         * 消息推送
+         */
+        this.serverPushByUpdate(updateRequest.getStaffId(),requirement);
         LOG.info("更新需求附件信息结束...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -159,7 +171,37 @@ public class UpdateServiceImpl implements UpdateService {
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getMembers());
         }
+        /**
+         * 消息推送
+         */
+        this.serverPushByUpdate(updateRequest.getStaffId(),requirement);
         return requirement;
+    }
+
+    /**
+     * 更改需求的消息推送
+     *
+     * @param initiatorId
+     * @param requirement
+     * @throws BusinessException
+     */
+    private void serverPushByUpdate(Long initiatorId, Requirement requirement) throws BusinessException {
+        try {
+            String serialNo = requirement.getSerialNo();
+            String subjectType = "requirement";
+            String type = "update";
+            List<Long> staffIds = this.memberService.getReqMembers(initiatorId,requirement);
+            if (!(null == staffIds || staffIds.isEmpty())) {
+                //接受者包括项目的创建者
+                if (!staffIds.contains(requirement.getCreatorId())) {
+                    staffIds.add(requirement.getCreatorId());
+                }
+            }
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("更改需求信息，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(更改需求)出现异常，异常信息：" + e);
+        }
     }
 
 
