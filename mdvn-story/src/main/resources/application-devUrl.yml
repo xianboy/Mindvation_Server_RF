@@ -23,4 +23,5 @@ url:
   #获取指定id的过程方法及其子过程方法
   retrieveLabelDetailUrl : http://localhost:20004/mdvn-template/templates/retrieveLabelDetail
 
+  retrieveTaskListUrl : http://localhost:20008/mdvn-task/tasks/retrieveList
 

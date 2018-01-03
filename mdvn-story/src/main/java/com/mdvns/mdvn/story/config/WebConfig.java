@@ -35,4 +35,7 @@ public class WebConfig {
 
     //获取指定id的过程方法及其子过程过程方法
     private String retrieveLabelDetailUrl;
+
+    //获取Story的task
+    private String retrieveTaskListUrl;
 }

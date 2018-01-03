@@ -162,9 +162,43 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setEndDate(story.getEndDate().getTime());
         //设置story point
         detail.setStoryPoint(story.getStoryPoint());
+        //设置task列表
+        detail.setTasks(getTasks(staffId, story.getSerialNo()));
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(story.getSerialNo()));
         return detail;
+    }
+
+    /**
+     * 获取Story下的task列表
+     * @param staffId staffId
+     * @param serialNo serialNo
+     * @return List<Task>
+     */
+    private List<Task> getTasks(Long staffId, String serialNo) throws BusinessException {
+        LOG.info("获取serialNo为【{}】的Story的taskList开始...", serialNo);
+        String retrieveTaskListUrl = webConfig.getRetrieveTaskListUrl();
+        //实例化restTemplate对象
+        RestTemplate restTemplate = new RestTemplate();
+        //构建ParameterizedTypeReference
+        ParameterizedTypeReference<RestResponse<Task[]>> typeRef = new ParameterizedTypeReference<RestResponse<Task[]>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new SingleCriterionRequest(staffId, serialNo));
+        //构建responseEntity
+        ResponseEntity<RestResponse<Task[]>> responseEntity = restTemplate.exchange(retrieveTaskListUrl,
+                HttpMethod.POST, requestEntity, typeRef);
+        //获取restResponse
+        RestResponse<Task[]> restResponse = responseEntity.getBody();
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("获取上层模块的角色成员失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+        }
+        if (null==restResponse.getData()) {
+            return null;
+        }
+        LOG.info("获取serialNo为【{}】的Story的taskList成功...", serialNo);
+        return Arrays.asList(restResponse.getData());
     }
 
     /**
