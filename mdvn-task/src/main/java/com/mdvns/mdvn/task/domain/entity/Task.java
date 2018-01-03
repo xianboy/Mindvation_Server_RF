@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.task.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.Delivery;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;

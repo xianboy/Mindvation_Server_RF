@@ -5,10 +5,8 @@ import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
-import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
@@ -106,4 +104,6 @@ public class Story implements Serializable {
     public void setEndDate(Long endDate) {
         this.endDate = new Timestamp(endDate);
     }
+
+
 }

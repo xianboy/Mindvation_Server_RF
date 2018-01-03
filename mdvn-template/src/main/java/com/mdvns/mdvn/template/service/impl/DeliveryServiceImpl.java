@@ -35,7 +35,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         for (Delivery delivery : deliveries) {
             delivery.setCreatorId(creatorId);
             delivery.setHostSerialNo(hostSerialNo);
-            delivery.setSerialNo(buildSerialNo(hostSerialNo));
+            delivery.setSerialNo(buildSerialNo());
             list.add(delivery);
         }
         list = this.deliveryRepository.save(list);
@@ -57,7 +57,7 @@ public class DeliveryServiceImpl implements DeliveryService {
         Delivery delivery = new Delivery();
         delivery.setCreatorId(customRequest.getCreatorId());
         delivery.setHostSerialNo(customRequest.getHostSerialNo());
-        delivery.setSerialNo(buildSerialNo(customRequest.getHostSerialNo()));
+        delivery.setSerialNo(buildSerialNo());
         delivery.setName(customRequest.getName());
         delivery.setTypeId(customRequest.getTypeId());
         delivery = this.deliveryRepository.saveAndFlush(delivery);
@@ -72,10 +72,9 @@ public class DeliveryServiceImpl implements DeliveryService {
     /**
      * 构建template编号
      *
-     * @param hostSerialNo 上一层关联对象编号
      * @return 编号
      */
-    private String buildSerialNo(String hostSerialNo) {
+    private String buildSerialNo() {
         //查询表中的最大id  maxId
         Long maxId = this.deliveryRepository.getMaxId();
         //如果表中没有数据，则给maxId赋值为0
@@ -83,7 +82,7 @@ public class DeliveryServiceImpl implements DeliveryService {
             maxId = Long.valueOf(MdvnConstant.ZERO);
         }
         maxId += MdvnConstant.ONE;
-        return hostSerialNo + MdvnConstant.DASH + MdvnConstant.D + maxId;
+        return MdvnConstant.D + maxId;
     }
 
 

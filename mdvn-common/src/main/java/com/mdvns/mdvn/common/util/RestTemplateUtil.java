@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.Delivery;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -112,5 +113,27 @@ public class RestTemplateUtil {
         } else {
             return Arrays.asList(restResponse.getData());
         }
+    }
+
+    /**
+     * 获取指定id的交付件
+     * @param url url
+     * @param retrieveRequest request
+     * @return Delivery
+     * @throws BusinessException BusinessException
+     */
+    public static Delivery getDeliveryById(String url, SingleCriterionRequest retrieveRequest) throws BusinessException {
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<RestResponse<Delivery>> typeRef = new ParameterizedTypeReference<RestResponse<Delivery>>() {
+        };
+        ResponseEntity<RestResponse<Delivery>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<Object>(retrieveRequest), typeRef, RestResponse.class);
+        RestResponse<Delivery> restResponse = responseEntity.getBody();
+        if (!"000".equals(restResponse.getCode())) {
+            LOG.error("获取ID为【】的交付件失败.", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.DELIVERY_NOT_EXIST, "获取id为【"+retrieveRequest.getCriterion()+"】的交付件失败.");
+        } else {
+            return restResponse.getData();
+        }
+
     }
 }

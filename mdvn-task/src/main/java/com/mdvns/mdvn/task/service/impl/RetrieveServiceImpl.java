@@ -2,6 +2,7 @@ package com.mdvns.mdvn.task.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.Delivery;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -52,7 +53,19 @@ public class RetrieveServiceImpl implements RetrieveService {
         List<TerseInfo> list = RestTemplateUtil.retrieveTerseInfo(retrieveRequest.getStaffId(), ids, retrieveMembersUrl);
         MdvnCommonUtil.emptyList(list, ErrorEnum.STAFF_NOT_EXISTS, "id为【" + task.getCreatorId() + "】的Staff不存在.");
         task.setCreator(list.get(MdvnConstant.ZERO));
+        //获取task的交付件
+        task.setDelivery(getDeliveryById(retrieveRequest.getStaffId(), task.getDeliveryId()));
         LOG.info("根据Id获取详情成功...");
         return RestResponseUtil.success(task);
+    }
+
+    /**
+     * 获取指定id的交付件
+     * @param deliveryId deliveryId
+     * @return Delivery
+     */
+    private Delivery getDeliveryById(Long staffId, Long deliveryId) throws BusinessException {
+        String retrieveDeliveryUrl = webConfig.getRetrieveDeliveryUrl();
+        return RestTemplateUtil.getDeliveryById(retrieveDeliveryUrl, new SingleCriterionRequest(staffId, deliveryId.toString()));
     }
 }

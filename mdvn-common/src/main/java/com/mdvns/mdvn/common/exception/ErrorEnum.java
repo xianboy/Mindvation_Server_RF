@@ -66,7 +66,7 @@ public enum ErrorEnum {
 
     /*模板不存在*/
     TEMPLATE_NOT_EXISTS("30404"),
-
+    DELIVERY_NOT_EXIST("30405"),
 
     //requirement
     /*需求对象不存在*/

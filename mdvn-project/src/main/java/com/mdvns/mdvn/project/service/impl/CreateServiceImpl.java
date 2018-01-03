@@ -47,14 +47,6 @@ public class CreateServiceImpl implements CreateService {
     @Autowired
     private TemplateService projectTemplateService;
 
-    /* 注入RestTemplate*/
-    @Autowired
-    private RestTemplate restTemplate;
-
-    /*注入WebConfig*/
-    @Autowired
-    private WebConfig webConfig;
-
     /**
      * 新建项目
      *

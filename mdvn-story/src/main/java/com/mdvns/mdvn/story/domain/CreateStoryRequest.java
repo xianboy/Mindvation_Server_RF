@@ -23,8 +23,8 @@ public class CreateStoryRequest implements Serializable {
     private String hostSerialNo;
 
     /*项目编号*/
-    @NotBlank(message = "hostSerialNo 不能为空")
-    private String projHostSerialNo;
+    @NotBlank(message = "projSerialNo 不能为空")
+    private String projSerialNo;
 
     /*模板id*/
     @NotNull(message = "模板id不能为空")
