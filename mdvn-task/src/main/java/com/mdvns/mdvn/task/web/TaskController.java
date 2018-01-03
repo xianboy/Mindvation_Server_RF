@@ -101,4 +101,16 @@ public class TaskController {
         return this.updateService.deleteAttachForTask(request);
     }
 
+    /**
+     * 获取历史记录
+     * @param retrieveRequest retrieveRequest
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveHistory")
+    public RestResponse<?> retrieveHistory(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveHistory(retrieveRequest);
+    }
+
 }

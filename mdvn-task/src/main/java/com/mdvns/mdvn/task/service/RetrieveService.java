@@ -9,4 +9,6 @@ public interface RetrieveService {
     RestResponse<?> retrieveDetailById(SingleCriterionRequest retrieveRequest) throws BusinessException;
     //获取指定hostSerialNo的task集合
     RestResponse<?> retrieveList(SingleCriterionRequest retrieveRequest) throws BusinessException;
+
+    RestResponse<?> retrieveHistory(SingleCriterionRequest retrieveRequest) throws BusinessException;
 }

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.websocket.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.SendMessageRequest;
 import com.mdvns.mdvn.common.bean.model.Staff;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
@@ -15,6 +16,9 @@ import net.sf.json.JSONObject;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -68,7 +72,7 @@ public class MyWebSocket implements WebSocketService {
 
     private final String CLASS = this.getClass().getName();
 
-    static Map<String, Session> sessionMap = new Hashtable<String, Session>();
+    static Map<Long, Session> sessionMap = new Hashtable<Long, Session>();
 
     /**
      * 收到客户端消息后调用的方法
@@ -80,11 +84,11 @@ public class MyWebSocket implements WebSocketService {
     public void onMessage(String message, Session session, @PathParam("id") String id)
             throws IOException, InterruptedException {
 
-        Set<Map.Entry<String, Session>> set = sessionMap.entrySet();
+        Set<Map.Entry<Long, Session>> set = sessionMap.entrySet();
 
-        for (Map.Entry<String, Session> i : set) {
+        for (Map.Entry<Long, Session> i : set) {
             try {
-                String key = i.getKey();//用户的staffId
+                Long key = i.getKey();//用户的staffId
                 Session value = i.getValue();
                 i.getValue().getAsyncRemote().sendText(message);//发信息给所有人
                 if (key.equals("123")) {//发信息给部分人
@@ -104,7 +108,7 @@ public class MyWebSocket implements WebSocketService {
      * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("id") String id) {
+    public void onOpen(Session session, @PathParam("id") Long id) {
         this.session = session;
 
         WebSocketUtils.add(id, session);
@@ -120,7 +124,7 @@ public class MyWebSocket implements WebSocketService {
 
 
     @OnClose
-    public void onClose(@PathParam("id") String id) {
+    public void onClose(@PathParam("id") Long id) {
         sessionMap.remove(id);
         webSocketSet.remove(this);  //从set中删除
         subOnlineCount();           //在线数减1
@@ -138,7 +142,7 @@ public class MyWebSocket implements WebSocketService {
      * @param error
      */
     @OnError
-    public void onError(Session session, Throwable error, @PathParam("id") String id) {
+    public void onError(Session session, Throwable error, @PathParam("id") Long id) {
         System.out.println("发生错误");
         error.printStackTrace();
 
@@ -164,12 +168,12 @@ public class MyWebSocket implements WebSocketService {
         String message = json.toString();
         Long initiatorId = request.getInitiatorId();//发起人Id
         List<Long> staffIds = request.getStaffIds();
-        Set<Map.Entry<String, Session>> set = sessionMap.entrySet();
+        Set<Map.Entry<Long, Session>> set = sessionMap.entrySet();
 
-        List<String> keyStaffIds = new ArrayList<>();
-        for (Map.Entry<String, Session> i : set) {
+        List<Long> keyStaffIds = new ArrayList<>();
+        for (Map.Entry<Long, Session> i : set) {
             try {
-                String key = i.getKey();//用户的staffId
+                Long key = i.getKey();//用户的staffId
                 Session value = i.getValue();
 //                i.getValue().getAsyncRemote().sendText(message);//发信息给所有人
                 for (int j = 0; j < staffIds.size(); j++) {
@@ -241,8 +245,17 @@ public class MyWebSocket implements WebSocketService {
                 BeanUtils.copyProperties(serverPush, serverPushInfo);
                 serverPushInfo.setCreateTime(serverPush.getCreateTime().getTime());
                 Long initiatorId = serverPush.getInitiatorId();//发起人
-                Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
-                serverPushInfo.setInitiator(initiator);
+                /**
+                 * 查询发起者详细信息
+                 */
+                SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+                singleCriterionRequest.setCriterion(String.valueOf(initiatorId));
+                singleCriterionRequest.setStaffId(initiatorId);
+                ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
+                };
+                ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(webConfig.getRetrieveByIdUrl(), HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
+                RestResponse<Staff> restResponse = responseEntity.getBody();
+                serverPushInfo.setInitiator(restResponse.getData());
                 serverPushInfos.add(serverPushInfo);
             }
             rtrvServerPushResponse.setServerPushes(serverPushInfos);
@@ -297,8 +310,8 @@ public class MyWebSocket implements WebSocketService {
      * @param message
      */
     public static void broadcastAll(String message) {
-        Set<Map.Entry<String, Session>> set = sessionMap.entrySet();
-        for (Map.Entry<String, Session> i : set) {
+        Set<Map.Entry<Long, Session>> set = sessionMap.entrySet();
+        for (Map.Entry<Long, Session> i : set) {
             try {
                 i.getValue().getBasicRemote().sendText("'text:'" + message + "'}");
             } catch (Exception e) {

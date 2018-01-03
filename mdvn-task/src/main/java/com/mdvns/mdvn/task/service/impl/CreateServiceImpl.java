@@ -9,6 +9,8 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
+import com.mdvns.mdvn.task.domain.entity.TaskHistory;
+import com.mdvns.mdvn.task.repository.HistoryRepository;
 import com.mdvns.mdvn.task.repository.TaskRepository;
 import com.mdvns.mdvn.task.service.CreateService;
 import com.mdvns.mdvn.task.service.RetrieveService;
@@ -18,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 
 @Service
@@ -33,6 +36,9 @@ public class CreateServiceImpl implements CreateService {
 
     @Resource
     private RetrieveService retrieveService;
+
+    @Resource
+    private HistoryRepository historyRepository;
 
     /**
      * 创建task
@@ -110,6 +116,28 @@ public class CreateServiceImpl implements CreateService {
         RestTemplate restTemplate = new RestTemplate();
         String customDeliveryUrl = webConfig.getCustomDeliveryUrl();
         return restTemplate.postForObject(customDeliveryUrl, customDelivery, Long.class);
+    }
+
+    /**
+     * 记录task新建历史
+     *
+     * @param staffId staffId
+     * @param taskId  taskId
+     * @return TaskHistory
+     */
+    private TaskHistory createHistory(Long staffId, Long taskId) {
+        //历史记录
+        TaskHistory history = new TaskHistory();
+        try {
+            history.setTaskId(taskId);
+            history.setCreatorId(staffId);
+            history.setAction("create");
+            history.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+            history = this.historyRepository.saveAndFlush(history);
+        } catch (Exception ex) {
+            LOG.error("保存Task更新记录失败...");
+        }
+        return history;
     }
 
     /**

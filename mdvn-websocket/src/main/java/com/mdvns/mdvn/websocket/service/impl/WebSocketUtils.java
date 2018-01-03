@@ -12,12 +12,12 @@ public class WebSocketUtils {
 
     private static Logger log = Logger.getLogger(WebSocketUtils.class);
 
-    public static Map<String, Session> clients = new ConcurrentHashMap<String, Session>();
+    public static Map<Long, Session> clients = new ConcurrentHashMap<Long, Session>();
 
     /*
     Add Session
      */
-    public static void add(String userId, Session session) {
+    public static void add(Long userId, Session session) {
         clients.put(userId,session);
         log.info("当前连接数 = " + clients.size());
 
@@ -26,7 +26,7 @@ public class WebSocketUtils {
     /*
     Receive Message
      */
-    public static void receive(String userId, String message) {
+    public static void receive(Long userId, String message) {
         log.info("收到消息 : UserId = " + userId + " , Message = " + message);
         log.info("当前连接数 = " + clients.size());
     }
@@ -34,7 +34,7 @@ public class WebSocketUtils {
     /*
     Remove Session
      */
-    public static void remove(String userId) {
+    public static void remove(Long userId) {
         clients.remove(userId);
         log.info("当前连接数 = " + clients.size());
 
@@ -43,7 +43,7 @@ public class WebSocketUtils {
     /*
     Get Session
      */
-    public static boolean sendMessage(String userId , String message) {
+    public static boolean sendMessage(Long userId , String message) {
         log.info("当前连接数 = " + clients.size());
         if(clients.get(userId) == null){
             return false;

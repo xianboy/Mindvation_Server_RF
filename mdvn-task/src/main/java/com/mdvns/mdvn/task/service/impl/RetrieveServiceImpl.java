@@ -3,21 +3,24 @@ package com.mdvns.mdvn.task.service.impl;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.Delivery;
+import com.mdvns.mdvn.common.bean.model.PageableCriteria;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.entity.Task;
+import com.mdvns.mdvn.task.domain.entity.TaskHistory;
+import com.mdvns.mdvn.task.repository.HistoryRepository;
 import com.mdvns.mdvn.task.repository.TaskRepository;
 import com.mdvns.mdvn.task.service.RetrieveService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -33,6 +36,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Resource
     private WebConfig webConfig;
+
+    @Resource
+    private HistoryRepository historyRepository;
 
     /**
      * 根据Id获取详情
@@ -104,6 +110,31 @@ public class RetrieveServiceImpl implements RetrieveService {
     private Delivery getDeliveryById(Long staffId, Long deliveryId) throws BusinessException {
         String retrieveDeliveryUrl = webConfig.getRetrieveDeliveryUrl();
         return RestTemplateUtil.getDeliveryById(retrieveDeliveryUrl, new SingleCriterionRequest(staffId, deliveryId.toString()));
+    }
+
+    /**
+     * 获取指定id的task的历史记录
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveHistory(SingleCriterionRequest retrieveRequest) throws BusinessException {
+
+        if (StringUtils.isEmpty(retrieveRequest.getCriterion())) {
+            LOG.error("值为【{}】的查询参数错误.", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "查询参数错误");
+        }
+        PageableCriteria pageableCriteria = retrieveRequest.getPageableCriteria();
+        PageRequest pageRequest;
+        //构建分页对象
+        if (pageableCriteria == null) {
+            pageRequest = PageableQueryUtil.defaultPageReqestBuilder();
+        } else {
+            pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
+        }
+        Page<TaskHistory> historyPage = this.historyRepository.findByTaskId(17L, pageRequest);
+
+        return RestResponseUtil.success(historyPage);
     }
 
 }

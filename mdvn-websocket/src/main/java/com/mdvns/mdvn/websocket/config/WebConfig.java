@@ -7,13 +7,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebConfig {
        /*获取staff*/
-    private String rtrvStaffInfoUrl;
+    private String retrieveByIdUrl;
 
-    public String getRtrvStaffInfoUrl() {
-        return rtrvStaffInfoUrl;
+    public String getRetrieveByIdUrl() {
+        return retrieveByIdUrl;
     }
 
-    public void setRtrvStaffInfoUrl(String rtrvStaffInfoUrl) {
-        this.rtrvStaffInfoUrl = rtrvStaffInfoUrl;
+    public void setRetrieveByIdUrl(String retrieveByIdUrl) {
+        this.retrieveByIdUrl = retrieveByIdUrl;
     }
 }
