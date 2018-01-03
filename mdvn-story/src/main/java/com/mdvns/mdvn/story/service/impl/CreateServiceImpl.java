@@ -79,7 +79,7 @@ public class CreateServiceImpl implements CreateService {
         Story story = new Story();
         story.setCreatorId(request.getCreatorId());
         story.setHostSerialNo(request.getHostSerialNo());
-        story.setProjSerialNo(request.getProjHostSerialNo());
+        story.setProjSerialNo(request.getProjSerialNo());
         story.setTemplateId(request.getTemplateId());
         String serialNo = buildSerialNo();
         story.setSerialNo(serialNo);

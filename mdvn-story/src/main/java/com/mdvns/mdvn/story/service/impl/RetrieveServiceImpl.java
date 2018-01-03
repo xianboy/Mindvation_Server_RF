@@ -131,6 +131,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setId(story.getId());
         //设置编号
         detail.setSerialNo(story.getSerialNo());
+        //设置需求编号
+        detail.setHostSerialNo(story.getHostSerialNo());
         //设置项目编号
         detail.setProjSerialNo(story.getProjSerialNo());
         //设置状态

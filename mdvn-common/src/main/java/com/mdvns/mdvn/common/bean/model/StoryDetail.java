@@ -15,6 +15,9 @@ public class StoryDetail implements Serializable{
     /*编号*/
     private String serialNo;
 
+    /*上一层模块(需求)编号*/
+    private String hostSerialNo;
+
     /*RAG status, ie. Red, Amber, Green*/
     private String ragStatus;
 
