@@ -5,12 +5,15 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
 import com.mdvns.mdvn.task.repository.TaskRepository;
 import com.mdvns.mdvn.task.service.CreateService;
 import com.mdvns.mdvn.task.service.RetrieveService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,6 +22,8 @@ import java.util.LinkedHashMap;
 
 @Service
 public class CreateServiceImpl implements CreateService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CreateServiceImpl.class);
 
     @Resource
     private TaskRepository repository;
@@ -51,7 +56,7 @@ public class CreateServiceImpl implements CreateService {
      * @param createRequest request
      * @return Task
      */
-    private Task buildByRequest(CreateTaskRequest createRequest) {
+    private Task buildByRequest(CreateTaskRequest createRequest) throws BusinessException {
         Task task = new Task();
         task.setCreatorId(createRequest.getCreatorId());
         String serialNo = buildSerialNo();
@@ -71,13 +76,19 @@ public class CreateServiceImpl implements CreateService {
      * @param hostSerialNo hostSerialNo
      * @return Long
      */
-    private Long buildDelivery(Object delivery, Long creatorId, String hostSerialNo) {
+    private Long buildDelivery(Object delivery, Long creatorId, String hostSerialNo) throws BusinessException {
         //如果是Integer类型, 就是已存在的交付件的id
         if (delivery instanceof Integer) {
             return Long.valueOf(delivery.toString());
         } else {
             //如果是CustomDeliverable类型, 则自定义交付件
-            return customDelivery(delivery, creatorId, hostSerialNo);
+            try {
+                return customDelivery(delivery, creatorId, hostSerialNo);
+            } catch (Exception ex) {
+                LOG.error("task交付件参数【{}】错误...", delivery.toString());
+                throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "task交付件参数错误.");
+            }
+
         }
 
     }

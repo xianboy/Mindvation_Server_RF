@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.CustomDeliveryRequest;
+import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.repository.DeliveryRepository;
@@ -65,8 +66,16 @@ public class DeliveryServiceImpl implements DeliveryService {
         return delivery.getId();
     }
 
-
-
+    /**
+     * 根据hostSerialNo和isDeleted获取交付件
+     * @param hostSerialNo hostSerialNo
+     * @param isDeleted isDeleted
+     * @return List<Delivery>
+     */
+    @Override
+    public List<Delivery> retrieveDeliveriesByHostSerialNo(String hostSerialNo, Integer isDeleted) {
+        return this.deliveryRepository.findByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
+    }
 
 
     /**

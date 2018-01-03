@@ -30,4 +30,7 @@ public interface RetrieveService {
 
     //获取指定id的交付件
     RestResponse<?> retrieveDelivery(SingleCriterionRequest retrieveRequest);
+
+    //获取指定id的模板的所有交付件
+    RestResponse<?> retrieveDeliveries(SingleCriterionRequest retrieveRequest) throws BusinessException;
 }

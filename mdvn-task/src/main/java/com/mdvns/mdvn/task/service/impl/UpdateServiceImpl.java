@@ -2,6 +2,7 @@ package com.mdvns.mdvn.task.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.task.domain.UpdateProgressRequest;
@@ -26,9 +27,6 @@ public class UpdateServiceImpl implements UpdateService {
     @Resource
     private TaskRepository repository;
 
-    @Resource
-    private RetrieveService retrieveService;
-
     /**
      * 更新进度
      * @param updateRequest request
@@ -47,6 +45,6 @@ public class UpdateServiceImpl implements UpdateService {
             this.repository.updateProgress(updateRequest.getProgress(), updateRequest.getHostId());
         }
         LOG.info("更新进度完成...");
-        return retrieveService.retrieveDetailById(new SingleCriterionRequest(updateRequest.getStaffId(), updateRequest.getHostId().toString()));
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 }

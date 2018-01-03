@@ -19,6 +19,7 @@ import com.mdvns.mdvn.template.repository.DeliveryRepository;
 import com.mdvns.mdvn.template.repository.IndustryRepository;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.repository.TemplateRoleRepository;
+import com.mdvns.mdvn.template.service.DeliveryService;
 import com.mdvns.mdvn.template.service.LabelService;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -50,6 +52,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Resource
     private DeliveryRepository deliveryRepository;
+
+    @Resource
+    private DeliveryService deliveryService;
 
     /**
      * 根据industryId查询模板
@@ -235,6 +240,23 @@ public class RetrieveServiceImpl implements RetrieveService {
         Long deliveryId = Long.valueOf(retrieveRequest.getCriterion());
         Delivery delivery = this.deliveryRepository.findOne(deliveryId);
         return RestResponseUtil.success(delivery);
+    }
+
+    /**
+     * 获取指定id的模板的交付件
+     * @param retrieveRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveDeliveries(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        String hostSerialNo = this.templateRepository.getSerialNoById(Long.valueOf(retrieveRequest.getCriterion()));
+        if (StringUtils.isEmpty(hostSerialNo)) {
+            LOG.error("ID为【{}】的模板不存在...", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.TEMPLATE_NOT_EXISTS, "ID为【"+retrieveRequest.getCriterion()+"】的模板不存在.");
+        }
+        List<Delivery> deliveries = this.deliveryService.retrieveDeliveriesByHostSerialNo(hostSerialNo, isDeleted);
+        return RestResponseUtil.success(deliveries);
     }
 
 }

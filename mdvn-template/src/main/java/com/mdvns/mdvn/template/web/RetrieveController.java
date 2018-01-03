@@ -140,5 +140,17 @@ public class RetrieveController {
         return this.retrieveService.retrieveDelivery(retrieveRequest);
     }
 
+    /**
+     * 获取指定id的模板的所有交付件
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveDeliveries")
+    public RestResponse<?> retrieveDeliveries(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveDeliveries(retrieveRequest);
+    }
+
 
 }
