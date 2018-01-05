@@ -1,13 +1,14 @@
 url:
-   rtrvCommentInfosUrl: http://localhost:10025/mdvn-comment-sapi/comments/rtrvCommentInfos
-   findTagInfoByIdUrl : http://localhost:10002/mdvn-tag-sapi/tags/{tagId}/tag
-   rtrvCreatorIdUrl: http://localhost:10025/mdvn-comment-sapi/comments/rtrvCreatorId
+   rtrvCommentInfosUrl: http://localhost:20012/mdvn-comment/comments/rtrvCommentInfos
+   rtrvCreatorIdUrl: http://localhost:20012/mdvn-comment/comments/rtrvCreatorId
 
    retrieveStoryMembersUrl : http://localhost:20007/mdvn-story/stories/retrieveStoryMembers
 
    retrieveReqMembersUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveReqMembers
 
    retrieveByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
+
+   findTagInfoByIdUrl : http://localhost:20002/mdvn-tag/tags/{tagId}/tag
 
 
 

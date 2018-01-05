@@ -8,6 +8,7 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.tag.domain.entity.Tag;
 import com.mdvns.mdvn.tag.service.TagService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -65,6 +66,16 @@ public class TagController {
     public RestResponse<?> retrieveTerseInfo(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
         BindingResultUtil.brResolve(bindingResult);
         return this.tagService.retrieveBaseInfo(retrieveTerseInfoRequest);
+    }
+
+    /**
+     * 根据Id查询tag
+     * @param tagId
+     * @return
+     */
+    @PostMapping(value = "/{tagId}/tag")
+    public ResponseEntity<?> findById(@PathVariable Long tagId) {
+        return this.tagService.findById(tagId);
     }
 
 }

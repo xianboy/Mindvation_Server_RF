@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,5 +129,17 @@ public class TagServiceImpl implements TagService {
         }
         maxId += MdvnConstant.ONE;
         return MdvnConstant.TG + maxId;
+    }
+
+    /**
+     * 获取指定Id的标签
+     *
+     * @param tagId
+     * @return
+     */
+    @Override
+    public ResponseEntity<?> findById(Long tagId) {
+        Tag tag = this.tagRepository.findOne(tagId);
+        return ResponseEntity.ok(tag);
     }
 }

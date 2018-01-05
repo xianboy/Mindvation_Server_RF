@@ -94,7 +94,7 @@ public class CommentServiceImpl implements CommentService {
             comment.setIsDeleted(0);
             List<Long> passiveAtList = request.getPassiveAts();
             if (passiveAtList != null && passiveAtList.size() > 0) {
-                String passiveAts = MdvnStringUtil.join(passiveAtList, ",");
+                String passiveAts = MdvnStringUtil.joinLong(passiveAtList, ",");
                 comment.setPassiveAts(passiveAts);
             }
             //如果是回复
@@ -161,7 +161,7 @@ public class CommentServiceImpl implements CommentService {
         try {
             String remark = request.getRemark();
             String commentId = request.getCommentId();
-            Long creatorId = request.getCreatorId();
+            String creatorId = String.valueOf(request.getCreatorId());
             Comment comment = this.commentRepository.findByCommentId(commentId);
             if (remark.equals("like")) {
                 //对于点赞这边
@@ -340,7 +340,7 @@ public class CommentServiceImpl implements CommentService {
             //查询所评论的需求或者story的创建者
             List<Long> staffIds = new ArrayList<>();
             String createId = rtrvCreatorId(serialNo);
-            if (passiveAts.size() > 0) {//回复
+            if (null != passiveAts && passiveAts.size() > 0) {//回复
                 staffIds = passiveAts;
             } else {//不@人
                 staffIds.add(Long.valueOf(createId));
