@@ -2,8 +2,7 @@ package com.mdvns.mdvn.template.domain;
 
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
-import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
-import com.mdvns.mdvn.template.domain.entity.IterationTemplate;
+import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.NotBlank;
@@ -47,7 +46,7 @@ public class CreateTemplateRequest {
     /*迭代模板*/
     @NotEmpty(message = "如果要添加IterationTemplate, itTemplates必须有元素")
     @NotNull(message = "itTemplates不能为空")
-    private List<IterationTemplate> itTemplates;
+    private List<MvpTemplate> itTemplates;
 
     /*交付件*/
     @NotEmpty(message = "如果要添加Deliverable, deliverables必须有元素")

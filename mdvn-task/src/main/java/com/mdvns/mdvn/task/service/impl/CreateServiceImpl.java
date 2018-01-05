@@ -54,6 +54,7 @@ public class CreateServiceImpl implements CreateService {
         Task task = buildByRequest(createRequest);
         //保存
         task = this.repository.saveAndFlush(task);
+        createHistory(createRequest.getCreatorId(), task.getId());
         //根据id获取task详情
         /**
          * 消息推送
@@ -83,8 +84,9 @@ public class CreateServiceImpl implements CreateService {
 
     /**
      * 构建交付件
-     * @param delivery delivery
-     * @param creatorId creatorId
+     *
+     * @param delivery     delivery
+     * @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @return Long
      */
@@ -100,15 +102,14 @@ public class CreateServiceImpl implements CreateService {
                 LOG.error("task交付件参数【{}】错误...", delivery.toString());
                 throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "task交付件参数错误.");
             }
-
         }
-
     }
 
     /**
      * 自定义交付件
-     * @param delivery delivery
-     * @param creatorId creatorId
+     *
+     * @param delivery     delivery
+     * @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @return Long
      */
@@ -132,14 +133,16 @@ public class CreateServiceImpl implements CreateService {
      * @return TaskHistory
      */
     private TaskHistory createHistory(Long staffId, Long taskId) {
+        LOG.info("记录ID为【{}】的task创建历史开始...", taskId);
         //历史记录
         TaskHistory history = new TaskHistory();
         try {
             history.setTaskId(taskId);
             history.setCreatorId(staffId);
-            history.setAction("create");
+            history.setAction(MdvnConstant.CREATE);
             history.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             history = this.historyRepository.saveAndFlush(history);
+            LOG.info("记录ID为【{}】的task创建历史成功", taskId);
         } catch (Exception ex) {
             LOG.error("保存Task更新记录失败...");
         }

@@ -41,6 +41,8 @@ public enum ErrorEnum {
     //staff
     /*用户不存在*/
     STAFF_NOT_EXISTS("30100"),
+    REMOVE_AUTH_FAILED("30198"),
+    ASSIGN_AUTH_FAILED("30199"),
 
 
     //tag
@@ -51,13 +53,13 @@ public enum ErrorEnum {
     //template
     /*新建模板时, 子过程方法不能为空*/
     TEMPLATE_SYSTEM_ERROR("30499"),
-    RETRIEVE_LABEL_FAILD("30498"),
-    RETRIEVE_ROLEMEMBER_FAILD("30497"),
+    RETRIEVE_LABEL_FAILED("30498"),
+    RETRIEVE_ROLEMEMBER_FAILED("30497"),
     //子过程方法为空
     SUB_LABEL_IS_NULL("30400"),
 
     /*自定义过程方法失败*/
-    CUSTOM_LABEL_FAILD("30401"),
+    CUSTOM_LABEL_FAILED("30401"),
 
     /*模板角色不存在*/
     TEMPLATE_ROLE_NOT_EXISTS("30402"),
@@ -83,17 +85,17 @@ public enum ErrorEnum {
 
     //attach
     /*获取附件列表信息失败*/
-    ATTACHES_RTRV_FAILD("30900"),
-    ATTACHES_UPDATE_FAILD("30901"),
-    ATTACHES_CREATE_FAILD("30902"),
+    ATTACHES_RTRV_FAILED("30900"),
+    ATTACHES_UPDATE_FAILED("30901"),
+    ATTACHES_CREATE_FAILED("30902"),
 
     //websocket
-    SERVER_PUSH_FAILD("31100"),
+    SERVER_PUSH_FAILED("31100"),
 
     //comment
-    COMMENT_CREATE_FAILD("31200"),
-    LIKEORDISLIKE_COMMENT_FAILD("31201"),
-    RTRV_COMMENTINFO_FAILD("31202"),
+    COMMENT_CREATE_FAILED("31200"),
+    LIKEORDISLIKE_COMMENT_FAILED("31201"),
+    RTRV_COMMENTINFO_FAILED("31202"),
     ;
 
 

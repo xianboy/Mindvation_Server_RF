@@ -1,11 +1,11 @@
 package com.mdvns.mdvn.mdvnfile.servicce.impl;
 
 
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.mdvnfile.domain.UpdateAttchRequest;
 import com.mdvns.mdvn.mdvnfile.domain.entity.AttchInfo;
@@ -158,7 +158,7 @@ public class FileServiceImpl implements FileService {
             }
         } catch (Exception ex) {
             LOG.error("更新附件失败");
-            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILD, "更新附件失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILED, "更新附件失败");
         }
         /*查出有效的附件*/
         List<AttchInfo> attches = this.attchRepository.findBySubjectIdAndIsDeleted(subjectId, 0);
@@ -195,12 +195,12 @@ public class FileServiceImpl implements FileService {
     /**
      * 根据Id获取附件信息
      *
-     * @param id
+     * @param retrieveRequest
      * @return
      */
     @Override
-    public AttchInfo rtrvAttachInfo(Long id) {
-        attchInfo = this.attchRepository.findOne(id);
+    public AttchInfo rtrvAttachInfo(SingleCriterionRequest retrieveRequest) {
+        attchInfo = this.attchRepository.findOne(Long.valueOf(retrieveRequest.getCriterion()));
         LOG.info("查询到的AttchInfo 是： {}", attchInfo.getId());
         return attchInfo;
     }

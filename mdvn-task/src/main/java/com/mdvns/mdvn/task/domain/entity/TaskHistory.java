@@ -1,14 +1,14 @@
 package com.mdvns.mdvn.task.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
+import com.mdvns.mdvn.common.bean.model.Staff;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity
@@ -20,6 +20,7 @@ public class TaskHistory {
     private Long id;
 
     /*创建人*/
+    @JsonIgnore
     private Long creatorId;
 
     /*当前taskId*/
@@ -43,8 +44,21 @@ public class TaskHistory {
     @Column(columnDefinition = "text")
     private String nowRemarks;
 
-    private Integer deleteAttachId;
+    @JsonIgnore
+    private Long deleteAttachId;
 
-    private Integer addAttachId;
+    @JsonIgnore
+    private Long addAttachId;
 
+    /*创建人*/
+    @Transient//非持久化字段
+    private Staff creator;
+
+    /*新增附件*/
+    @Transient//非持久化字段
+    private AttchInfo addAttchInfo;
+
+    /*删除的附件*/
+    @Transient//非持久化字段
+    private AttchInfo deleteAttchInfo;
 }

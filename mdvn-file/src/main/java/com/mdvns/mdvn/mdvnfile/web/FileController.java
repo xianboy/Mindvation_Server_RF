@@ -1,9 +1,11 @@
 package com.mdvns.mdvn.mdvnfile.web;
 
 
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.mdvnfile.domain.UpdateAttchRequest;
 import com.mdvns.mdvn.mdvnfile.domain.entity.AttchInfo;
 import com.mdvns.mdvn.mdvnfile.servicce.FileService;
@@ -11,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,8 +95,9 @@ public class FileController {
      * @return
      */
     @PostMapping(value = "/rtrvAttachInfo")
-    public AttchInfo rtrvAttachInfo(@RequestBody Long id) {
-        return this.fileService.rtrvAttachInfo(id);
+    public AttchInfo rtrvAttachInfo(@RequestBody SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.fileService.rtrvAttachInfo(retrieveRequest);
     }
 
 

@@ -4,13 +4,16 @@ import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.bean.model.Delivery;
+import com.mdvns.mdvn.common.bean.model.Staff;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -27,9 +30,9 @@ public class RestTemplateUtil {
     /**
      * 获取指定id集合的id和name
      *
-     * @param url 查询id和name的url
+     * @param url     查询id和name的url
      * @param staffId 当前用户id
-     * @param ids 需要查询的id集合
+     * @param ids     需要查询的id集合
      * @return list
      */
     public static List<TerseInfo> retrieveTerseInfo(Long staffId, List<Long> ids, String url) throws BusinessException {
@@ -69,10 +72,11 @@ public class RestTemplateUtil {
 
     /**
      * 处理过程方法: 如果FunctionLabel 为Long,返回; 如果为字符串, 则自定义
+     *
      * @param customLabelUrl customLabelUrl
-     * @param creatorId creatorId
-     * @param hostSerialNo hostSerialNo
-     * @param functionLabel functionLabel
+     * @param creatorId      creatorId
+     * @param hostSerialNo   hostSerialNo
+     * @param functionLabel  functionLabel
      * @return Long
      * @throws BusinessException BusinessException
      */
@@ -94,8 +98,9 @@ public class RestTemplateUtil {
 
     /**
      * 根据模板id获取模板对应的所有角色
-     * @param staffId staffId
-     * @param templateId templateId
+     *
+     * @param staffId          staffId
+     * @param templateId       templateId
      * @param retrieveRolesUrl retrieveRolesUrl
      * @return List
      * @throws BusinessException exception
@@ -117,23 +122,57 @@ public class RestTemplateUtil {
 
     /**
      * 获取指定id的交付件
-     * @param url url
+     *
+     * @param url             url
      * @param retrieveRequest request
      * @return Delivery
      * @throws BusinessException BusinessException
      */
     public static Delivery getDeliveryById(String url, SingleCriterionRequest retrieveRequest) throws BusinessException {
+        LOG.info("获取ID为【{}】的交付件开始, Url为【{}】...", retrieveRequest.getCriterion(), url);
         RestTemplate restTemplate = new RestTemplate();
         ParameterizedTypeReference<RestResponse<Delivery>> typeRef = new ParameterizedTypeReference<RestResponse<Delivery>>() {
         };
         ResponseEntity<RestResponse<Delivery>> responseEntity = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<Object>(retrieveRequest), typeRef, RestResponse.class);
         RestResponse<Delivery> restResponse = responseEntity.getBody();
         if (!"000".equals(restResponse.getCode())) {
-            LOG.error("获取ID为【】的交付件失败.", retrieveRequest.getCriterion());
-            throw new BusinessException(ErrorEnum.DELIVERY_NOT_EXIST, "获取id为【"+retrieveRequest.getCriterion()+"】的交付件失败.");
+            LOG.error("获取ID为【{}】的交付件失败.", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.DELIVERY_NOT_EXIST, "获取id为【" + retrieveRequest.getCriterion() + "】的交付件失败.");
         } else {
+            LOG.info("获取ID为【{}】的交付件成功...");
             return restResponse.getData();
         }
 
     }
+
+    /**
+     * 获取指定id的Staff
+     *
+     * @param retrieveRequest request
+     * @return Staff
+     */
+    public static Staff retrieveCreator(String retrieveUrl, SingleCriterionRequest retrieveRequest) throws BusinessException {
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
+        };
+        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveUrl, HttpMethod.POST, new HttpEntity<Object>(retrieveRequest), typeRef, RestResponse.class);
+        RestResponse<Staff> restResponse = responseEntity.getBody();
+        if (!"000".equals(restResponse.getCode())) {
+            LOG.error("获取ID为【{}】的Staff失败.", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.STAFF_NOT_EXISTS, "获取id为【" + retrieveRequest.getCriterion() + "】的staff失败.");
+        } else {
+            return restResponse.getData();
+        }
+    }
+
+    /**
+     *
+     * @param retrieveUrl
+     * @param retrieveRequest
+     * @return
+     * @throws BusinessException
+     */
+    public static AttchInfo retrieveAttach(String retrieveUrl, SingleCriterionRequest retrieveRequest) throws BusinessException {
+        RestTemplate restTemplate = new RestTemplate();
+        return restTemplate.postForObject(retrieveUrl, retrieveRequest, AttchInfo.class);    }
 }

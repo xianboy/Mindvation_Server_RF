@@ -86,7 +86,7 @@ public class UpdateServiceImpl implements UpdateService {
         try {
             history.setTaskId(updateRequest.getHostId());
             history.setCreatorId(updateRequest.getStaffId());
-            history.setAction("update");
+            history.setAction(MdvnConstant.UPDATE);
             history.setUpdateTime(new Timestamp(System.currentTimeMillis()));
             this.historyRepository.saveAndFlush(history);
         } catch (Exception ex) {
@@ -136,14 +136,23 @@ public class UpdateServiceImpl implements UpdateService {
                 task.setAttaches(attaches);
             }
         }
-        this.updateAttach(request, task.getSerialNo(), 0);
+        this.updateAttach(request, task.getSerialNo(), MdvnConstant.ZERO);
         task = this.repository.saveAndFlush(task);
+
+        //记录附件添加历史失败
+        try {
+            attachHistory(request.getStaffId(), task.getId(), request.getAttachId(), MdvnConstant.REMOVE_ATTACH);
+        } catch (Exception ex) {
+            LOG.error("记录附件添加历史失败：【{}】...", ex.getMessage());
+        }
+
 
         /**
          * 消息推送（添加task附件）
          */
         Long initiatorId = request.getStaffId();
         this.serverPushByUpdate(initiatorId, task);
+
         LOG.info("添加附件完成...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -169,8 +178,15 @@ public class UpdateServiceImpl implements UpdateService {
             attIds.remove(request.getAttachId().toString());
             attaches = MdvnStringUtil.join(attIds, ",");
             task.setAttaches(attaches);
-            this.updateAttach(request, task.getSerialNo(), 1);
+            this.updateAttach(request, task.getSerialNo(), MdvnConstant.ONE);
             task = this.repository.saveAndFlush(task);
+        }
+
+        //记录附件删除历史失败
+        try {
+            attachHistory(request.getStaffId(), request.getHostId(), request.getAttachId(), MdvnConstant.REMOVE_ATTACH);
+        } catch (Exception ex) {
+            LOG.error("记录附件删除历史失败：【{}】...", ex.getMessage());
         }
 
         /**
@@ -186,19 +202,23 @@ public class UpdateServiceImpl implements UpdateService {
      * 更新task附件
      *
      * @param request
-     * @param integer
+     * @param flag
      * @return
      * @throws BusinessException
      */
+
+    public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer flag) throws BusinessException {
+
     public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer integer) throws
             BusinessException {
+
         LOG.info("更新task附件信息开始...");
         UpdateOptionalInfoRequest updateRequest = new UpdateOptionalInfoRequest();
         Long attachId = request.getAttachId();
         AddOrRemoveById attaches = new AddOrRemoveById();
         List<Long> attachIds = new ArrayList<>();
         attachIds.add(attachId);
-        if (integer == 0) {
+        if (flag == MdvnConstant.ZERO) {
             attaches.setAddList(attachIds);
         } else {
             attaches.setRemoveList(attachIds);
@@ -217,7 +237,36 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     /**
-     * 更改task的消息推送
+     * 记录附件更新历史
+     * @param creatorId  creatorId
+     * @param taskId taskId
+     * @param attachId attachId
+     * @param action action
+     * @return TaskHistory
+     */
+    private TaskHistory attachHistory(Long creatorId, Long taskId, Long attachId, String action) {
+        //删除附件历史记录
+        TaskHistory history = new TaskHistory();
+        try {
+            history.setTaskId(taskId);
+            history.setCreatorId(creatorId);
+            if (MdvnConstant.REMOVE_ATTACH.equals(action)) {
+                history.setDeleteAttachId(attachId);
+                history.setAction(action);
+                LOG.error("保存Task删除附件历史成功...");
+            } else {
+                history.setAddAttachId(attachId);
+                history.setAction(action);
+                LOG.error("保存Task添加附件历史成功...");
+            }
+            history.setUpdateTime(new Timestamp(System.currentTimeMillis()));
+            history = this.historyRepository.saveAndFlush(history);
+        } catch (Exception ex) {
+            LOG.error("保存Task附件更新记录失败...");
+        }
+        return history;
+	}
+     /** 更改task的消息推送
      *
      * @param initiatorId
      * @param task

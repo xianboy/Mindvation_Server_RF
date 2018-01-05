@@ -17,39 +17,37 @@ import java.sql.Timestamp;
 @Entity
 @Data
 @NoArgsConstructor
-public class IterationTemplate {
+public class MvpTemplate {
 
     @Id
     @GeneratedValue
     private Long id;
 
     /*标签创建人id*/
-    @NotNull(message = "创建人的id不能为空")
-    @Min(value = 1, message = "id的值不能小于1")
+    @Column(nullable = false)
     private Long creatorId;
 
-    /*标签名称*/
-    @NotBlank(message = "标签名称不能为空")
+    /*上层模块(模板/项目)编号*/
     @Column(nullable = false)
-    private String name;
+    private String hostSerialNo;
+
+    /*顺序*/
+    @Column(nullable = false)
+    private Integer index;
 
     /*被引用的次数*/
+    @JsonIgnore
     private Integer quoteCnt = MdvnConstant.ZERO;
 
-
     /*标签创建时间*/
-    @Column(name = "create_time", columnDefinition = "timestamp default current_timestamp", nullable = false)
+    @Column(nullable = false)
     private Timestamp createTime = new Timestamp(System.currentTimeMillis());
 
     /*后加的字段，1~7随机给一个数字*/
-    @NotNull(message = "style不能为空")
-    @Min(value = 1, message = "style的值不能小于1")
     private Integer style = MdvnConstant.ONE;
 
     /*是否已删除*/
     @JsonIgnore
     private Integer isDeleted = MdvnConstant.ZERO;
 
-    /*模板id*/
-    private Long templateId;
 }

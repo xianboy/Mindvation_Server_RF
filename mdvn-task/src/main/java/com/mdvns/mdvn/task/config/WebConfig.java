@@ -18,6 +18,15 @@ public class WebConfig {
     //获取交付件
     private String retrieveDeliveryUrl;
 
+    //根据id获取staff(创建人)
+    private String retrieveCreatorUrl;
+
+    //根据id获取附件信息
+    private String retrieveAttachUrl;
+
     //获取story成员及负责人
     private String retrieveStoryMembersUrl;
+
 }
+
+
