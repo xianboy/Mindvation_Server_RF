@@ -58,6 +58,7 @@ public class RequirementDetail implements Serializable {
     /*附件列表*/
     private List<AttchInfo> attchInfos;
 
-
+    /*评论列表*/
+    private List<CommentDetail> commentDetails;
 
 }

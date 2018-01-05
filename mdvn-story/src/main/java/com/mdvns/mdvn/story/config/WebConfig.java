@@ -38,4 +38,8 @@ public class WebConfig {
 
     //获取Story的task
     private String retrieveTaskListUrl;
+
+    private String rtrvCommentInfosUrl;
+
+    private String rtrvStaffInfoByIdUrl;
 }

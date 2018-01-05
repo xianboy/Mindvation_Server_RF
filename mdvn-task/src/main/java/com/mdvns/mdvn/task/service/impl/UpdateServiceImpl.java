@@ -208,10 +208,6 @@ public class UpdateServiceImpl implements UpdateService {
      */
 
     public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer flag) throws BusinessException {
-
-    public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer integer) throws
-            BusinessException {
-
         LOG.info("更新task附件信息开始...");
         UpdateOptionalInfoRequest updateRequest = new UpdateOptionalInfoRequest();
         Long attachId = request.getAttachId();

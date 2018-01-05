@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.mdvncomment.domain;
 
+import com.mdvns.mdvn.common.bean.model.CommentInfo;
 import org.springframework.stereotype.Component;
 
 

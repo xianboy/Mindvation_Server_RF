@@ -1,26 +1,15 @@
 package com.mdvns.mdvn.common.bean.model;
 
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@Data
+@NoArgsConstructor
 public class CommentDetail {
-    private Comment comment;
-    private Comment replyDetail;
+    private CommentInfo commentInfo;
+    private CommentInfo replyDetail;
 
-    public Comment getComment() {
-        return comment;
-    }
-
-    public void setComment(Comment comment) {
-        this.comment = comment;
-    }
-
-    public Comment getReplyDetail() {
-        return replyDetail;
-    }
-
-    public void setReplyDetail(Comment replyDetail) {
-        this.replyDetail = replyDetail;
-    }
 }

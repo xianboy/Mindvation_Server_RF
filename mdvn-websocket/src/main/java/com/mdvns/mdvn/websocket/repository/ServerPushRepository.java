@@ -12,6 +12,6 @@ public interface ServerPushRepository extends JpaRepository<ServerPush, Integer>
     List<ServerPush> findByRecipientId(Long recipientId);
 
     //按staffId查询(先按状态排序，再按时间排序，最后按优先级排序)
-    @Query(value="SELECT * FROM server_push WHERE recipient_id = ?1 LIMIT ?2,?3", nativeQuery = true)
+    @Query(value="SELECT * FROM server_push WHERE recipient_id = ?1 ORDER BY uu_id DESC  LIMIT ?2,?3", nativeQuery = true)
     List<ServerPush> findByRecipientId(Long staffId, Integer m, Integer n);
 }

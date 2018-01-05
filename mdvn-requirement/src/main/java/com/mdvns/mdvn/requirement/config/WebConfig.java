@@ -25,4 +25,8 @@ public class WebConfig {
 
     //获取指定编号的requirement下的Story列表
     private String retrieveStoriesUrl;
+
+    private String rtrvCommentInfosUrl;
+
+    private String rtrvStaffInfoByIdUrl;
 }
