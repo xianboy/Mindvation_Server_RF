@@ -1,10 +1,13 @@
 package com.mdvns.mdvn.issue.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
+import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.FetchListUtil;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.issue.config.WebConfig;
 import com.mdvns.mdvn.issue.domain.*;
 import com.mdvns.mdvn.issue.domain.entity.Issue;
@@ -17,6 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
@@ -58,7 +64,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
-    public RestResponse<?> createIssueInfo(CreateIssueRequest request) {
+    public RestResponse<?> createIssueInfo(CreateIssueRequest request) throws BusinessException {
         LOG.info("开始执行{} createIssueInfo()方法.", this.CLASS);
 
         IssueInfo issueInfo = new IssueInfo();
@@ -87,7 +93,7 @@ public class IssueServiceImpl implements IssueService {
         issueInfo.setCreateTime(currentTime.getTime());
 
         //查询创建者对象信息
-        Staff creatorInfo = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), creatorId, Staff.class);
+        Staff creatorInfo = this.rtrvStaffInfoById(creatorId);
         issueInfo.setCreatorInfo(creatorInfo);
         if (!StringUtils.isEmpty(issue.getTagId())) {
             //查询tag对象信息
@@ -107,64 +113,10 @@ public class IssueServiceImpl implements IssueService {
         /**
          * 消息推送(创建issue)
          */
-        try {
-            SendMessageRequest sendMessageRequest = new SendMessageRequest();
-            ServerPush serverPush = new ServerPush();
-            Long initiatorId = request.getCreatorId();
-//            String subjectId = request.getSubjectId();
-            Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
-            serverPush.setInitiator(initiator);
-            serverPush.setSubjectType("issue");
-            serverPush.setSubjectId(subjectId);
-            serverPush.setType("create");
-            //查询所评论的需求或者story的创建者
-            String createId = this.restTemplate.postForObject(webConfig.getRtrvCreatorIdUrl(), subjectId, String.class);
-            if (subjectId.substring(0, 1).equals("R")) {
-                // call reqmnt sapi
-                ParameterizedTypeReference parameterizedTypeReference = new ParameterizedTypeReference<List<RequirementMember>>() {
-                };
-                List<RequirementMember> data = FetchListUtil.fetch(restTemplate, webConfig.getRtrvReqmntMembersUrl(), subjectId, parameterizedTypeReference);
-                List<RequirementMember> reqmntMembers = data;
-                List<Long> memberIds = new ArrayList<>();
-                for (int i = 0; i < reqmntMembers.size(); i++) {
-                    Long id = reqmntMembers.get(i).getMemberId();
-                    if (!memberIds.isEmpty() && memberIds.contains(id)) {
-                        continue;
-                    }
-                    memberIds.add(id);
-                }
-                sendMessageRequest.setStaffIds(memberIds);
-            }
-            if (subjectId.substring(0, 1).equals("S")) {
-                RtrvStoryDetailRequest rtrvStoryDetailRequest = new RtrvStoryDetailRequest();
-                rtrvStoryDetailRequest.setStoryId(subjectId);
-                rtrvStoryDetailRequest.setStaffId(initiatorId);
-                // call story sapi
-                ParameterizedTypeReference reqmntTagTypeReference = new ParameterizedTypeReference<List<StoryMember>>() {
-                };
-                List<StoryMember> storyRoleMembers = FetchListUtil.fetch(restTemplate, webConfig.getRtrvSRoleMembersUrl(), rtrvStoryDetailRequest, reqmntTagTypeReference);
-                //选出不同的角色
-                List<Long> staffIds = new ArrayList<>();
-                for (int i = 0; i < storyRoleMembers.size(); i++) {
-                    Long id = storyRoleMembers.get(i).getMemberId();
-                    if (!staffIds.isEmpty() && staffIds.contains(id)) {
-                        continue;
-                    }
-                    staffIds.add(id);
-                }
-                sendMessageRequest.setStaffIds(staffIds);
-            }
-            sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setServerPushResponse(serverPush);
-            Boolean flag = this.restTemplate.postForObject(webConfig.getSendMessageUrl(), sendMessageRequest, Boolean.class);
-            System.out.println(flag);
-        } catch (Exception e) {
-            LOG.error("消息推送(创建issue)出现异常，异常信息：" + e);
-        }
+        this.serverPushByCreateIssue(request);
 
         LOG.info("结束执行{} createIssueInfo()方法.", this.CLASS);
 //        return rtrvIssueDetail(rtrvRequest);
-
         return RestResponseUtil.success(rtrvIssueDetail(rtrvRequest));
     }
 
@@ -176,7 +128,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
-    public RestResponse<?> createIssueAnswerInfo(CreateIssueAnswerRequest request) {
+    public RestResponse<?> createIssueAnswerInfo(CreateIssueAnswerRequest request) throws BusinessException {
         LOG.info("开始执行{} createIssueAnswerInfo()方法.", this.CLASS);
         IssueAnswerInfo issueAnswerInfo = new IssueAnswerInfo();
         Timestamp currentTime = new Timestamp(System.currentTimeMillis());
@@ -202,35 +154,15 @@ public class IssueServiceImpl implements IssueService {
         BeanUtils.copyProperties(issueAnswer, issueAnswerInfo);
         issueAnswerInfo.setCreateTime(curTime);
         //查询创建者对象信息
-        Staff creatorInfo = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), creatorId, Staff.class);
+        Staff creatorInfo = this.rtrvStaffInfoById(creatorId);
         issueAnswerInfo.setCreatorInfo(creatorInfo);
 
         /**
          * 消息推送(创建answer)
          */
-        try {
-            SendMessageRequest sendMessageRequest = new SendMessageRequest();
-            ServerPush serverPush = new ServerPush();
-            Issue issue = this.issueRepository.findByIssueId(issueId);
-            Long initiatorId = request.getCreatorId();
-            String subjectId = issue.getSubjectId();
-            Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
-            serverPush.setInitiator(initiator);
-            serverPush.setSubjectType("answer");
-            serverPush.setSubjectId(subjectId);
-            serverPush.setType("create");
-            //查询issue的创建者
-            Long createId = issue.getCreatorId();
-            List<Long> staffIds = new ArrayList<>();
-            staffIds.add(createId);
-            sendMessageRequest.setStaffIds(staffIds);
-            sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setServerPushResponse(serverPush);
-            Boolean flag = this.restTemplate.postForObject(webConfig.getSendMessageUrl(), sendMessageRequest, Boolean.class);
-            System.out.println(flag);
-        } catch (Exception e) {
-            LOG.error("消息推送(创建answer)出现异常，异常信息：" + e);
-        }
+        Issue issue = this.issueRepository.findByIssueId(issueId);
+        this.serverPushByCreateAnswer(request,issue);
+
         LOG.info("结束执行{} createIssueAnswerInfo()方法.", this.CLASS);
         return RestResponseUtil.success(issueAnswerInfo);
     }
@@ -373,7 +305,7 @@ public class IssueServiceImpl implements IssueService {
             BeanUtils.copyProperties(issue, issueInfo);
             issueInfo.setCreateTime(issue.getCreateTime().getTime());
             //查询创建者对象信息
-            Staff creatorInfo = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), issue.getCreatorId(), Staff.class);
+            Staff creatorInfo = this.rtrvStaffInfoById(issue.getCreatorId());
             issueInfo.setCreatorInfo(creatorInfo);
             if (!StringUtils.isEmpty(issue.getTagId())) {
                 //查询tag对象信息
@@ -400,7 +332,7 @@ public class IssueServiceImpl implements IssueService {
                 BeanUtils.copyProperties(issueAnswer, issueAnswerInfo);
                 issueAnswerInfo.setCreateTime(issueAnswer.getCreateTime().getTime());
                 //查询创建者对象信息
-                Staff answerCreatorInfo = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), issueAnswer.getCreatorId(), Staff.class);
+                Staff answerCreatorInfo = this.rtrvStaffInfoById(issue.getCreatorId());
                 issueAnswerInfo.setCreatorInfo(answerCreatorInfo);
                 /**
                  * 3.comments
@@ -415,14 +347,13 @@ public class IssueServiceImpl implements IssueService {
                 List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
                 for (int j = 0; j < comDetails.size(); j++) {
                     //创建者返回对象
-                    String staffUrl = webConfig.getRtrvStaffInfoUrl();
-                    String creatorId = comDetails.get(j).getComment().getCreatorId();
-                    Staff staff = restTemplate.postForObject(staffUrl, creatorId, Staff.class);
+                    Long creatorId = comDetails.get(j).getComment().getCreatorId();
+                    Staff staff = this.rtrvStaffInfoById(creatorId);
                     comDetails.get(j).getComment().setCreatorInfo(staff);
                     //被@的人返回对象
                     if (comDetails.get(j).getComment().getReplyId() != null) {
-                        String passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
-                        Staff passiveAtInfo = restTemplate.postForObject(staffUrl, passiveAt, Staff.class);
+                        Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
+                        Staff passiveAtInfo = this.rtrvStaffInfoById(passiveAt);
                         comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
                     }
                 }
@@ -457,7 +388,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
-    public RestResponse<?> adoptAnswer(adoptAnswerRequest request) {
+    public RestResponse<?> adoptAnswer(adoptAnswerRequest request) throws BusinessException {
         LOG.info("开始执行{} adoptAnswer()方法.", this.CLASS);
         Long creatorId = request.getCreatorId();
         String issueId = request.getIssueId();
@@ -492,32 +423,113 @@ public class IssueServiceImpl implements IssueService {
         /**
          * 消息推送(采纳)
          */
-        try {
-            SendMessageRequest sendMessageRequest = new SendMessageRequest();
-            ServerPush serverPush = new ServerPush();
-            Long initiatorId = request.getCreatorId();
-            String subjectId = issue.getSubjectId();
-            Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
-            serverPush.setInitiator(initiator);
-            serverPush.setSubjectType("issue");
-            serverPush.setSubjectId(subjectId);
-            serverPush.setType("adopt");
-            //查询issueAnswer的创建者
-            Long createId = issueAnswer.getCreatorId();
-            List<Long> staffIds = new ArrayList<>();
-            staffIds.add(createId);
-            sendMessageRequest.setStaffIds(staffIds);
-            sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setServerPushResponse(serverPush);
-            Boolean flag = this.restTemplate.postForObject(webConfig.getSendMessageUrl(), sendMessageRequest, Boolean.class);
-            System.out.println(flag);
-        } catch (Exception e) {
-            LOG.error("消息推送(采纳)出现异常，异常信息：" + e);
-        }
+        this.serverPushByAdoptAnswer(request,issueAnswer);
 
         LOG.info("结束执行{} adoptAnswer()方法.", this.CLASS);
         return rtrvIssueDetail(rtrvRequest);
     }
 
+    /**
+     * 创建issue的消息推送
+     *
+     * @param request
+     * @throws BusinessException
+     */
+    private void serverPushByCreateIssue(CreateIssueRequest request) throws BusinessException {
+        try {
+            Long initiatorId = request.getCreatorId();
+            String serialNo = request.getSubjectId();
+            String subjectType = "issue";
+            String type = "create";
+            List<Long> staffIds = new ArrayList<>();
+            if (serialNo.substring(0, 1).equals("R")) {
+                // call reqmnt sapi
+                //实例化restTemplate对象
+                RestTemplate restTemplate = new RestTemplate();
+                SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+                singleCriterionRequest.setStaffId(initiatorId);
+                singleCriterionRequest.setCriterion(serialNo);
+                staffIds = restTemplate.patchForObject(webConfig.getRetrieveReqMembersUrl(), singleCriterionRequest, List.class);
+            }
+            if (serialNo.substring(0, 1).equals("S")) {
+                //实例化restTemplate对象
+                RestTemplate restTemplate = new RestTemplate();
+                SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+                singleCriterionRequest.setStaffId(initiatorId);
+                singleCriterionRequest.setCriterion(serialNo);
+                staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+            }
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("创建issue，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建issue)出现异常，异常信息：" + e);
+        }
+    }
+
+    /**
+     * 创建answer的消息推送
+     *
+     * @param request
+     * @throws BusinessException
+     */
+    private void serverPushByCreateAnswer(CreateIssueAnswerRequest request,Issue issue) throws BusinessException {
+        try {
+            Long initiatorId = request.getCreatorId();
+            String serialNo = request.getIssueId();
+            String subjectType = "answer";
+            String type = "create";
+            List<Long> staffIds = new ArrayList<>();
+            //查询issue的创建者
+            Long createId = issue.getCreatorId();
+            staffIds.add(createId);
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("创建answer，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建answer)出现异常，异常信息：" + e);
+        }
+    }
+
+    /**
+     * 采纳answer的消息推送
+     *
+     * @param request
+     * @throws BusinessException
+     */
+    private void serverPushByAdoptAnswer(adoptAnswerRequest request,IssueAnswer issueAnswer) throws BusinessException {
+        try {
+            Long initiatorId = request.getCreatorId();
+            String serialNo = request.getIssueId();
+            String subjectType = "issue";
+            String type = "adopt";
+            List<Long> staffIds = new ArrayList<>();
+            //查询answer的创建者
+            Long createId = issueAnswer.getCreatorId();
+            staffIds.add(createId);
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("采纳answer，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(采纳answer)出现异常，异常信息：" + e);
+        }
+    }
+
+    /**
+     * 通过staffId获取staff详情
+     *
+     * @param id
+     * @return
+     */
+    public Staff rtrvStaffInfoById(Long id) {
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        String retrieveByIdUrl = webConfig.getRetrieveByIdUrl();
+        SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+        singleCriterionRequest.setCriterion(String.valueOf(id));
+        singleCriterionRequest.setStaffId(id);
+        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
+        };
+        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveByIdUrl, HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
+        RestResponse<Staff> restResponse = responseEntity.getBody();
+        return restResponse.getData();
+    }
 
 }

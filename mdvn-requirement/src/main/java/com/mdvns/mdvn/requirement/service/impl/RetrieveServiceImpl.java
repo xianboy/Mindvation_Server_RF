@@ -262,6 +262,38 @@ public class RetrieveServiceImpl implements RetrieveService {
         return tags;
     }
 
+    /**
+     * 获取指定serialNo的requirement的不重复成员Id,以及创建者
+     * @param singleCriterionRequest request
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @Override
+    public List<Long> retrieveReqMembersBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException {
+        //根据编号查询requirement
+        Requirement requirement = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
+        Long staffId = singleCriterionRequest.getStaffId();
+        Long creatorId = requirement.getCreatorId();
+        Long requirementId = requirement.getId();
+        Long templateId = requirement.getTemplateId();
+        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, requirementId, templateId, 0);
+        List<Long> memberIds = new ArrayList<>();
+        for (int i = 0; i < roleMembers.size(); i++) {
+            List<TerseInfo> members = roleMembers.get(i).getMembers();
+            for (int j = 0; j < members.size(); j++) {
+                Long memberId = members.get(j).getId();
+                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                    continue;
+                }
+                memberIds.add(memberId);
+            }
+        }
+        if (!memberIds.contains(creatorId)) {
+            memberIds.add(creatorId);
+        }
+        return memberIds;
+    }
+
 
 
 }

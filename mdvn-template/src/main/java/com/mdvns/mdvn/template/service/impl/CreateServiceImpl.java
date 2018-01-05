@@ -9,7 +9,7 @@ import com.mdvns.mdvn.template.domain.CreateLabelRequest;
 import com.mdvns.mdvn.template.domain.CreateTemplateRequest;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
-import com.mdvns.mdvn.template.domain.entity.IterationTemplate;
+import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
 import com.mdvns.mdvn.template.domain.entity.Template;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.service.CreateService;
@@ -18,7 +18,6 @@ import com.mdvns.mdvn.template.service.LabelService;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,8 +87,8 @@ public class CreateServiceImpl implements CreateService {
      * @param templateId  templateId
      * @param itTemplates itTemplates
      */
-    private void handleItTemplates(Long creatorId, Long templateId, List<IterationTemplate> itTemplates) {
-        for (IterationTemplate itTemplate : itTemplates) {
+    private void handleItTemplates(Long creatorId, Long templateId, List<MvpTemplate> itTemplates) {
+        for (MvpTemplate itTemplate : itTemplates) {
             itTemplate.setCreatorId(creatorId);
             itTemplate.setTemplateId(templateId);
         }

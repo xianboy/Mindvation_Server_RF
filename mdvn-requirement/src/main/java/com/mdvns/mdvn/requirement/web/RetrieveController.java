@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * Requirement查询Controller
@@ -70,5 +71,18 @@ public class RetrieveController {
     public Long retrieveLabelIdBySerialNo(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveLabelIdBySerialNo(retrieveRequest);
+    }
+
+    /**
+     * 获取指定serialNo的Story的不重复成员Id,以及创建者
+     * @param singleCriterionRequest request
+     * @param bindingResult bindingResult
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @PostMapping(value = "/retrieveReqMembers")
+    public List<Long> retrieveReqMembersBySerialNo(@RequestBody  @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveReqMembersBySerialNo(singleCriterionRequest);
     }
 }

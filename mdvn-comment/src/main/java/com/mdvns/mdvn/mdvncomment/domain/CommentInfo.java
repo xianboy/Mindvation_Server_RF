@@ -22,7 +22,7 @@ public class CommentInfo {
     //回复的时哪条评论的Id(可为空)
     private String replyId;
     //发起@的人(创建这条评论的人)
-    private String creatorId;
+    private Long creatorId;
     //被@的人(可以是多个人)
     private String passiveAts;
     //评论的内容
@@ -39,8 +39,6 @@ public class CommentInfo {
     private Long createTime;
     //回复上一次被@的差值(间隔时间)
     private Long intervalTime;
-//    //是否已删除
-//    private Integer isDeleted;
 
     private Staff creatorInfo;
 }

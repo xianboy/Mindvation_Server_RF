@@ -1,7 +1,5 @@
 url:
-  rtrvStaffInfoUrl: http://localhost:8080/mdvn-staff-sapi/rtrvStaffInfo
-#  websocket推送信息测试
-  sendMessageUrl: http://localhost:8080/mdvn-websocket/websocket/sendMessage
+  retrieveByIdUrl: http://localhost:8080/mdvn-staff/staff/retrieveById
 
 
 

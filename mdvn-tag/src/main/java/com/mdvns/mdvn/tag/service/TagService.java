@@ -6,6 +6,7 @@ import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.tag.domain.entity.Tag;
+import org.springframework.http.ResponseEntity;
 
 public interface TagService {
     //新建tag
@@ -19,4 +20,6 @@ public interface TagService {
 
     //获取指定id集合的基本信息
         RestResponse<?> retrieveBaseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
+
+    ResponseEntity<?> findById(Long tagId);
 }

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.mdvncomment.web;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.mdvncomment.domain.*;
 import com.mdvns.mdvn.mdvncomment.domain.entity.Comment;
 import com.mdvns.mdvn.mdvncomment.service.CommentService;
@@ -34,7 +35,7 @@ public class CommentController {
      * @return
      */
     @PostMapping(value = "/createCommentInfo")
-    public RestResponse<?> createCommentInfo(@RequestBody CreateCommentInfoRequest request) {
+    public RestResponse<?> createCommentInfo(@RequestBody CreateCommentInfoRequest request) throws BusinessException {
         LOG.info("开始执行{} createCommentInfo()方法.", this.CLASS);
         return this.commentService.createCommentInfo(request);
     }
@@ -45,7 +46,7 @@ public class CommentController {
      * @return
      */
     @PostMapping(value = "/rtrvCommentInfos")
-    public List<CommentDetail> rtrvCommentInfos(@RequestBody RtrvCommentInfosRequest request) {
+    public List<CommentDetail> rtrvCommentInfos(@RequestBody RtrvCommentInfosRequest request) throws BusinessException {
         LOG.info("开始执行{} rtrvCommentInfos()方法.", this.CLASS);
         return this.commentService.rtrvCommentInfos(request);
     }
@@ -56,7 +57,7 @@ public class CommentController {
      * @return
      */
     @PostMapping(value = "/likeOrDislike")
-    public RestResponse<?> likeOrDislike(@RequestBody LikeCommentRequest request) {
+    public RestResponse<?> likeOrDislike(@RequestBody LikeCommentRequest request) throws BusinessException {
         LOG.info("开始执行{} likeComment()方法.", this.CLASS);
         return this.commentService.likeOrDislike(request);
     }

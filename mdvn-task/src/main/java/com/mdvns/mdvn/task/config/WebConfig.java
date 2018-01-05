@@ -23,6 +23,10 @@ public class WebConfig {
 
     //根据id获取附件信息
     private String retrieveAttachUrl;
+
+    //获取story成员及负责人
+    private String retrieveStoryMembersUrl;
+
 }
 
 
