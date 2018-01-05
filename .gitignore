@@ -25,6 +25,7 @@
 *.cmd
 */mvnw
 *.iml
+.idea/*
 */.idea/*
 */.mvn/*
 */target/*

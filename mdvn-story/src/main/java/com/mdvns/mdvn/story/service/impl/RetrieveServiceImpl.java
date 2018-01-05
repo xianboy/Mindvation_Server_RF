@@ -192,7 +192,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         RestResponse<Task[]> restResponse = responseEntity.getBody();
         if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
             LOG.error("获取上层模块的角色成员失败.");
-            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILED, "获取上层模块的角色成员失败.");
         }
         if (null==restResponse.getData()) {
             return null;
@@ -224,7 +224,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         RestResponse<RoleMember[]> restResponse = responseEntity.getBody();
         if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
             LOG.error("获取上层模块的角色成员失败.");
-            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
+            throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILED, "获取上层模块的角色成员失败.");
         }
         if (null==restResponse.getData()) {
             return null;

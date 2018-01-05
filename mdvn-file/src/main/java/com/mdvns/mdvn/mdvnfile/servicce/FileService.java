@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.mdvnfile.servicce;
 
 
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -25,7 +26,7 @@ public interface FileService {
 
     ResponseEntity<?> retrieve(String ids);
 
-    AttchInfo rtrvAttachInfo(Long id);
+    AttchInfo rtrvAttachInfo(SingleCriterionRequest retrieveRequest);
 
     ResponseEntity<?> uploadFiles(HttpServletRequest request, List<MultipartFile> mFiles, Long creatorId) throws IOException, BusinessException;
 

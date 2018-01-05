@@ -2,9 +2,7 @@ package com.mdvns.mdvn.task.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.Delivery;
-import com.mdvns.mdvn.common.bean.model.PageableCriteria;
-import com.mdvns.mdvn.common.bean.model.TerseInfo;
+import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -59,12 +57,13 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id的task详情
+     *
      * @param staffId 当前用户Id
-     * @param id task的id
+     * @param id      task的id
      * @return task
      * @throws BusinessException BusinessException
      */
-    public Task getTaskById(Long staffId, Long id) throws BusinessException {
+    private Task getTaskById(Long staffId, Long id) throws BusinessException {
         LOG.info("根据Id获取task详情开始...");
         //根据id获取task
         Task task = this.repository.findOne(id);
@@ -87,6 +86,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定hostSerialNo的task列表
+     *
      * @param retrieveRequest request
      * @return RestResponse
      */
@@ -95,7 +95,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
         List<Long> taskIdList = this.repository.findIdByHostSerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
         List<Task> tasks = new ArrayList<>();
-        for (Long taskId:taskIdList) {
+        for (Long taskId : taskIdList) {
             Task task = getTaskById(retrieveRequest.getStaffId(), taskId);
             tasks.add(task);
         }
@@ -104,6 +104,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id的交付件
+     *
      * @param deliveryId deliveryId
      * @return Delivery
      */
@@ -114,27 +115,47 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id的task的历史记录
+     *
      * @param retrieveRequest request
      * @return RestResponse
      */
     @Override
     public RestResponse<?> retrieveHistory(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        LOG.info("获取ID为【{}】的task的历史记录开始...", retrieveRequest.getCriterion());
+        Long taskId = Long.valueOf(retrieveRequest.getCriterion());
 
         if (StringUtils.isEmpty(retrieveRequest.getCriterion())) {
             LOG.error("值为【{}】的查询参数错误.", retrieveRequest.getCriterion());
             throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "查询参数错误");
         }
         PageableCriteria pageableCriteria = retrieveRequest.getPageableCriteria();
-        PageRequest pageRequest;
         //构建分页对象
-        if (pageableCriteria == null) {
-            pageRequest = PageableQueryUtil.defaultPageReqestBuilder();
-        } else {
-            pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
+        if (pageableCriteria != null) {
+            PageRequest pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
+            Page<TaskHistory> historyPage = this.historyRepository.findByTaskId(taskId, pageRequest);
+            return RestResponseUtil.success(historyPage);
         }
-        Page<TaskHistory> historyPage = this.historyRepository.findByTaskId(17L, pageRequest);
-
-        return RestResponseUtil.success(historyPage);
+        List<TaskHistory> list = this.historyRepository.findByTaskId(taskId);
+        List<TaskHistory> historyList = new ArrayList<>();
+        for (TaskHistory history: list) {
+            String retrieveCreatorUrl = webConfig.getRetrieveCreatorUrl();
+            //获取创建人
+            Staff creator = RestTemplateUtil.retrieveCreator(retrieveCreatorUrl, new SingleCriterionRequest(retrieveRequest.getStaffId(), history.getCreatorId().toString()));
+            history.setCreator(creator);
+            String retrieveAttachUrl = webConfig.getRetrieveAttachUrl();
+            //获取附件信息
+            if (null!=history.getAddAttachId()) {
+                AttchInfo attachAdded = RestTemplateUtil.retrieveAttach(retrieveAttachUrl, new SingleCriterionRequest(retrieveRequest.getStaffId(), history.getAddAttachId().toString()));
+                history.setAddAttchInfo(attachAdded);
+            }
+            if (null!=history.getDeleteAttachId()) {
+                AttchInfo attachRemoved = RestTemplateUtil.retrieveAttach(retrieveAttachUrl, new SingleCriterionRequest(retrieveRequest.getStaffId(), history.getDeleteAttachId().toString()));
+                history.setDeleteAttchInfo(attachRemoved);
+            }
+            historyList.add(history);
+        }
+        LOG.info("获取task的历史记录成功...");
+        return RestResponseUtil.success(historyList);
     }
 
 }

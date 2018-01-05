@@ -6,12 +6,16 @@ import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class FileUtil {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
     /**
      * 构建附件
@@ -36,7 +40,7 @@ public class FileUtil {
         try {
             attchInfos = restTemplate.postForObject(updateAttachesUrl, buildAttachesById, List.class);
         } catch (Exception ex) {
-            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILD, "添加附件信息失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_CREATE_FAILED, "添加附件信息失败");
         }
         return attchInfos;
     }
@@ -50,6 +54,7 @@ public class FileUtil {
      */
     public static List<AttchInfo> getAttaches(String subjectId) throws BusinessException {
         String rtrvAttsBySubjectIdUrl = "http://localhost:20011/mdvn-file/files/rtrvAttsBySubjectId";
+        LOG.info("获取编号为【{}】的模块的附件列表开始, Url为【{}】.", subjectId, rtrvAttsBySubjectIdUrl);
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         List<AttchInfo> attchInfos = new ArrayList<>();
@@ -57,7 +62,7 @@ public class FileUtil {
             //构建rtrvAttsBySubjectIdUrl
             attchInfos = restTemplate.postForObject(rtrvAttsBySubjectIdUrl, subjectId, List.class);
         } catch (Exception ex) {
-            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILD, "获取附件列表信息失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_RTRV_FAILED, "获取附件列表信息失败");
         }
         return attchInfos;
     }
@@ -88,7 +93,7 @@ public class FileUtil {
         try {
             attchInfos = restTemplate.postForObject(updateAttachesUrl, buildAttachesById, List.class);
         } catch (Exception ex) {
-            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILD, "更改附件列表信息失败");
+            throw new BusinessException(ErrorEnum.ATTACHES_UPDATE_FAILED, "更改附件列表信息失败");
         }
         return attchInfos;
     }

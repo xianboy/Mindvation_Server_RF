@@ -49,6 +49,16 @@ public interface MdvnConstant {
     String CLOSE = "close";
     String DONE = "done";
 
+
+    //history action of task
+    /*添加附件*/
+    String ADD_ATTACH ="upload";
+    /*删除附件*/
+    String REMOVE_ATTACH ="remove";
+
+    String CREATE = "create";
+    String UPDATE = "update";
+
     //special character
     String COMMA = ",";
     String DASH = "-";
@@ -65,7 +75,6 @@ public interface MdvnConstant {
     Integer NINE = 9;
     Integer TEN = 10;
     Double ONE_HALF = 0.5;
-
 
 
 }
