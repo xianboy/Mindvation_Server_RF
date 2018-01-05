@@ -1,4 +1,4 @@
-package com.mdvns.mdvn.mdvncomment.domain;
+package com.mdvns.mdvn.common.bean;
 
 import org.springframework.stereotype.Component;
 
