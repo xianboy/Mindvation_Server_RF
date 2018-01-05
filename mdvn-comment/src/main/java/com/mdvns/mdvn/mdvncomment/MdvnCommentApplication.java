@@ -9,12 +9,6 @@ import org.springframework.web.client.RestTemplate;
 @SpringBootApplication
 public class MdvnCommentApplication {
 
-	@Bean
-	public RestTemplate restTemplate(RestTemplateBuilder builder) {
-		// Do any additional configuration here
-		return builder.build();
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(MdvnCommentApplication.class, args);
 	}

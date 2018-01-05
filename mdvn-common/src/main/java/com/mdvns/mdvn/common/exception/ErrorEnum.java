@@ -16,6 +16,7 @@ import lombok.*;
  * task:30800~30900
  * attach:30900~31000
  * websocket:31100~31200
+ * comment: 31200~31300
  */
 public enum ErrorEnum {
 
@@ -86,9 +87,13 @@ public enum ErrorEnum {
     ATTACHES_UPDATE_FAILD("30901"),
     ATTACHES_CREATE_FAILD("30902"),
 
-
     //websocket
     SERVER_PUSH_FAILD("31100"),
+
+    //comment
+    COMMENT_CREATE_FAILD("31200"),
+    LIKEORDISLIKE_COMMENT_FAILD("31201"),
+    RTRV_COMMENTINFO_FAILD("31202"),
     ;
 
 

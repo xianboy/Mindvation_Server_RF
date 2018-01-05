@@ -1,11 +1,13 @@
 package com.mdvns.mdvn.mdvncomment.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.model.SendMessageRequest;
-import com.mdvns.mdvn.common.bean.model.ServerPush;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.Staff;
+import com.mdvns.mdvn.common.exception.BusinessException;
+import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.mdvncomment.config.WebConfig;
 import com.mdvns.mdvn.mdvncomment.domain.*;
 import com.mdvns.mdvn.mdvncomment.domain.entity.Comment;
@@ -15,10 +17,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,17 +48,14 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     private CommentRepository commentRepository;
 
-    /* 注入RestTemplate*/
-    @Autowired
-    private RestTemplate restTemplate;
-
     /*注入WebConfig*/
-    @Autowired
+    @Resource
     private WebConfig webConfig;
 
     @Override
-    public RestResponse<?> createCommentInfo(CreateCommentInfoRequest request) {
-        LOG.info("开始执行{} createCommentInfo()方法.",this.CLASS);
+    @Transactional
+    public RestResponse<?> createCommentInfo(CreateCommentInfoRequest request) throws BusinessException {
+        LOG.info("开始执行{} createCommentInfo()方法.", this.CLASS);
         if (request == null || request.getProjId() == null || request.getSubjectId() == null || request.getCreatorId() == null) {
             throw new NullPointerException("createCommentInfo 或项目Id/subjectId/登录者Id不能为空");
         }
@@ -120,51 +125,24 @@ public class CommentServiceImpl implements CommentService {
             createCommentInfoResponse.setCommentInfo(commentInfo);
         } catch (Exception ex) {
             LOG.info("创建或者回复评论失败");
-            return RestResponseUtil.error("2201","评论未创建成功");
+            throw new BusinessException(ErrorEnum.COMMENT_CREATE_FAILD, "创建或者回复评论失败");
         }
 
         //创建者返回对象
-        String staffUrl = webConfig.getRtrvStaffInfoUrl();
-        String creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
-        Staff staff = restTemplate.postForObject(staffUrl, creatorId, Staff.class);
-        createCommentInfoResponse.getCommentInfo().setCreatorInfo(staff);
+        Long creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
+        Staff staffInfo = this.rtrvStaffInfoById(creatorId);
+        createCommentInfoResponse.getCommentInfo().setCreatorInfo(staffInfo);
 
         //被@的人返回对象
         if (request.getReplyId() != null) {
-            String passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
-            Staff passiveAtInfo = restTemplate.postForObject(staffUrl, passiveAt, Staff.class);
-            createCommentInfoResponse.getReplyDetail().setCreatorInfo(passiveAtInfo);
+            Long passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
+            createCommentInfoResponse.getReplyDetail().setCreatorInfo(this.rtrvStaffInfoById(passiveAt));
         }
 
         /**
          * 消息推送(创建comment)
          */
-        try {
-            SendMessageRequest sendMessageRequest = new SendMessageRequest();
-            ServerPush serverPush = new ServerPush();
-            Long initiatorId = request.getCreatorId();
-            String subjectId = request.getSubjectId();
-            Staff initiator = this.restTemplate.postForObject(webConfig.getRtrvStaffInfoUrl(), initiatorId, Staff.class);
-            serverPush.setInitiator(initiator);
-            serverPush.setSubjectType("comment");
-            serverPush.setSubjectId(subjectId);
-            serverPush.setType("at");
-            //查询所评论的需求或者story的创建者
-            String createId = rtrvCreatorId(subjectId);
-            if (request.getPassiveAts().size() > 0) {//回复
-                sendMessageRequest.setStaffIds(request.getPassiveAts());
-            } else {//不@人
-                List<Long> staffIds = new ArrayList<>();
-                staffIds.add(Long.valueOf(createId));
-                sendMessageRequest.setStaffIds(staffIds);
-            }
-            sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setServerPushResponse(serverPush);
-            Boolean flag = this.restTemplate.postForObject(webConfig.getSendMessageUrl(), sendMessageRequest, Boolean.class);
-            System.out.println(flag);
-        } catch (Exception e) {
-            LOG.error("消息推送(创建comment)出现异常，异常信息：" + e);
-        }
+        this.serverPushByCreate(request);
         LOG.info("结束执行{} createCommentInfo()方法.", this.CLASS);
 
         return RestResponseUtil.success(createCommentInfoResponse);
@@ -172,11 +150,12 @@ public class CommentServiceImpl implements CommentService {
 
     /**
      * 点赞或踩
+     *
      * @param request
      * @return
      */
     @Override
-    public RestResponse likeOrDislike(LikeCommentRequest request) {
+    public RestResponse likeOrDislike(LikeCommentRequest request) throws BusinessException {
         LOG.info("开始执行{} likeOrDislikeUrl()方法.", this.CLASS);
         CreateCommentInfoResponse createCommentInfoResponse = new CreateCommentInfoResponse();
         try {
@@ -284,19 +263,16 @@ public class CommentServiceImpl implements CommentService {
             }
         } catch (Exception ex) {
             LOG.info("点赞或者踩评论失败");
-            return RestResponseUtil.error("2203", "评论点赞或者踩失败");
+            throw new BusinessException(ErrorEnum.LIKEORDISLIKE_COMMENT_FAILD, "点赞或者踩评论失败");
         }
         //创建者返回对象
-        String staffUrl = webConfig.getRtrvStaffInfoUrl();
-        String creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
-        Staff staff = restTemplate.postForObject(staffUrl, creatorId, Staff.class);
-        createCommentInfoResponse.getCommentInfo().setCreatorInfo(staff);
+        Long creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
+        createCommentInfoResponse.getCommentInfo().setCreatorInfo(this.rtrvStaffInfoById(creatorId));
         //被@的人返回对象
         String replyId = createCommentInfoResponse.getCommentInfo().getReplyId();
         if (!StringUtils.isEmpty(replyId)) {
-            String passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
-            Staff passiveAtInfo = restTemplate.postForObject(staffUrl, passiveAt, Staff.class);
-            createCommentInfoResponse.getReplyDetail().setCreatorInfo(passiveAtInfo);
+            Long passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
+            createCommentInfoResponse.getReplyDetail().setCreatorInfo(this.rtrvStaffInfoById(passiveAt));
         }
         LOG.info("结束执行{} likeOrDislike()方法.", this.CLASS);
         return RestResponseUtil.success(createCommentInfoResponse);
@@ -309,22 +285,27 @@ public class CommentServiceImpl implements CommentService {
      * @return
      */
     @Override
-    public List<CommentDetail> rtrvCommentInfos(RtrvCommentInfosRequest request) {
+    public List<CommentDetail> rtrvCommentInfos(RtrvCommentInfosRequest request) throws BusinessException {
         LOG.info("开始执行{} rtrvCommentInfos()方法.", this.CLASS);
         List<CommentDetail> commentDetails = new ArrayList<>();
         String projId = request.getProjId();
         String subjectId = request.getSubjectId();
-        List<Comment> comments = this.commentRepository.findByProjIdAndSubjectIdAndIsDeleted(projId, subjectId, 0);
-        for (int i = 0; i < comments.size(); i++) {
-            CommentDetail commentDetail = new CommentDetail();
-            Comment comment = comments.get(i);
-            commentDetail.setComment(comment);
-            String replyId = comment.getReplyId();
-            if (!StringUtils.isEmpty(replyId)) {
-                Comment comm = this.commentRepository.findByCommentId(replyId);
-                commentDetail.setReplyDetail(comm);
+        try {
+            List<Comment> comments = this.commentRepository.findByProjIdAndSubjectIdAndIsDeleted(projId, subjectId, 0);
+            for (int i = 0; i < comments.size(); i++) {
+                CommentDetail commentDetail = new CommentDetail();
+                Comment comment = comments.get(i);
+                commentDetail.setComment(comment);
+                String replyId = comment.getReplyId();
+                if (!StringUtils.isEmpty(replyId)) {
+                    Comment comm = this.commentRepository.findByCommentId(replyId);
+                    commentDetail.setReplyDetail(comm);
+                }
+                commentDetails.add(commentDetail);
             }
-            commentDetails.add(commentDetail);
+        } catch (Exception ex) {
+            LOG.info("获取评论信息失败");
+            throw new BusinessException(ErrorEnum.RTRV_COMMENTINFO_FAILD, "获取评论信息失败");
         }
         LOG.info("结束执行{} rtrvCommentInfos()方法.", this.CLASS);
         return commentDetails;
@@ -341,4 +322,54 @@ public class CommentServiceImpl implements CommentService {
         Comment comm = this.commentRepository.findByCommentId(commentId);
         return comm;
     }
+
+    /**
+     * 创建comment的消息推送
+     *
+     * @param request
+     * @throws BusinessException
+     */
+    private void serverPushByCreate(CreateCommentInfoRequest request) throws BusinessException {
+        try {
+            Long initiatorId = request.getCreatorId();
+            String serialNo = request.getSubjectId();
+            String subjectType = "comment";
+            String type = "at";
+            //查找需要推送的人，有@就推送给@的人，无@推送给创建者
+            List<Long> passiveAts = request.getPassiveAts();
+            //查询所评论的需求或者story的创建者
+            List<Long> staffIds = new ArrayList<>();
+            String createId = rtrvCreatorId(serialNo);
+            if (passiveAts.size() > 0) {//回复
+                staffIds = passiveAts;
+            } else {//不@人
+                staffIds.add(Long.valueOf(createId));
+            }
+            ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
+            LOG.info("创建comment，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建comment)出现异常，异常信息：" + e);
+        }
+    }
+
+    /**
+     * 通过staffId获取staff详情
+     *
+     * @param id
+     * @return
+     */
+    public Staff rtrvStaffInfoById(Long id) {
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        String retrieveByIdUrl = webConfig.getRetrieveByIdUrl();
+        SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+        singleCriterionRequest.setCriterion(String.valueOf(id));
+        singleCriterionRequest.setStaffId(id);
+        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
+        };
+        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveByIdUrl, HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
+        RestResponse<Staff> restResponse = responseEntity.getBody();
+        return restResponse.getData();
+    }
+
 }

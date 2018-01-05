@@ -11,8 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 public class CreateCommentInfoRequest {
 
+    //回复
     private String replyId;
     private String projId;
+    //所属的需求或者story
     private String subjectId;
     private Long creatorId;
     private String content;
