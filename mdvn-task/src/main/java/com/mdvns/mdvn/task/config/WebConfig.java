@@ -17,4 +17,7 @@ public class WebConfig {
 
     //获取交付件
     private String retrieveDeliveryUrl;
+
+    //获取story成员及负责人
+    private String retrieveStoryMembersUrl;
 }

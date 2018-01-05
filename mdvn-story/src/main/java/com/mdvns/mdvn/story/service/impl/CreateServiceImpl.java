@@ -62,6 +62,10 @@ public class CreateServiceImpl implements CreateService {
         if (!(null == createRequest.getTags() || createRequest.getTags().isEmpty())) {
             this.tagService.buildTags(createRequest.getCreatorId(), story.getId(), createRequest.getTags());
         }
+        /**
+         * 消息推送
+         */
+        this.serverPushByCreate(createRequest,story);
         LOG.debug("id为【{}】的story创建成功...", story.getId());
         return RestResponseUtil.success(story);
     }

@@ -6,4 +6,6 @@ url:
   #获取交付件Url
   retrieveDeliveryUrl : http://localhost:20004/mdvn-template/templates/retrieveDelivery
 
+  retrieveStoryMembersUrl : http://localhost:20007/mdvn-story/stories/retrieveStoryMembers
+
 

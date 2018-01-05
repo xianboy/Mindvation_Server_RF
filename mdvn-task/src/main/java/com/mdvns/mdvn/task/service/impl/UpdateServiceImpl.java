@@ -7,10 +7,8 @@ import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.MdvnStringUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.*;
+import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.UpdateAttachRequest;
 import com.mdvns.mdvn.task.domain.UpdateProgressRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
@@ -25,6 +23,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
@@ -39,6 +38,9 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Resource
     private TaskRepository repository;
+
+    @Resource
+    private WebConfig webConfig;
 
     @Resource
     private HistoryRepository historyRepository;
@@ -58,6 +60,7 @@ public class UpdateServiceImpl implements UpdateService {
         //更新历史记录
         TaskHistory history = new TaskHistory();
         Task task = this.repository.findOne(updateRequest.getHostId());
+        Integer oldProgress = task.getProgress();
         MdvnCommonUtil.notExistingError(task, ErrorEnum.TASK_NOT_EXISTS, "ID为【" + updateRequest.getHostId() + "】的task不存在.");
         if (!StringUtils.isEmpty(updateRequest.getComment())) {
             task.setComment(updateRequest.getComment());
@@ -88,6 +91,20 @@ public class UpdateServiceImpl implements UpdateService {
             this.historyRepository.saveAndFlush(history);
         } catch (Exception ex) {
             LOG.error("保存Task更新记录失败...");
+        }
+        if (!StringUtils.isEmpty(updateRequest.getComment()) && (null == updateRequest.getProgress() || oldProgress == updateRequest.getProgress())) {
+            /**
+             * 消息推送（只更改task备注）
+             */
+            Long initiatorId = updateRequest.getStaffId();
+            this.serverPushByUpdate(initiatorId, task);
+        }
+        if (null != updateRequest.getProgress() && oldProgress != updateRequest.getProgress()) {
+            /**
+             * 消息推送（更改task进度）
+             */
+            Long initiatorId = updateRequest.getStaffId();
+            this.serverPushByUpdateProgress(initiatorId, task,oldProgress);
         }
         LOG.info("更新进度完成...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
@@ -121,6 +138,12 @@ public class UpdateServiceImpl implements UpdateService {
         }
         this.updateAttach(request, task.getSerialNo(), 0);
         task = this.repository.saveAndFlush(task);
+
+        /**
+         * 消息推送（添加task附件）
+         */
+        Long initiatorId = request.getStaffId();
+        this.serverPushByUpdate(initiatorId, task);
         LOG.info("添加附件完成...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -149,6 +172,12 @@ public class UpdateServiceImpl implements UpdateService {
             this.updateAttach(request, task.getSerialNo(), 1);
             task = this.repository.saveAndFlush(task);
         }
+
+        /**
+         * 消息推送（删除task附件）
+         */
+        Long initiatorId = request.getStaffId();
+        this.serverPushByUpdate(initiatorId, task);
         LOG.info("删除附件完成...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -161,7 +190,8 @@ public class UpdateServiceImpl implements UpdateService {
      * @return
      * @throws BusinessException
      */
-    public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer integer) throws BusinessException {
+    public RestResponse<?> updateAttach(UpdateAttachRequest request, String serialNo, Integer integer) throws
+            BusinessException {
         LOG.info("更新task附件信息开始...");
         UpdateOptionalInfoRequest updateRequest = new UpdateOptionalInfoRequest();
         Long attachId = request.getAttachId();
@@ -180,13 +210,64 @@ public class UpdateServiceImpl implements UpdateService {
         if (null != updateRequest.getAttaches()) {
             FileUtil.updateAttaches(updateRequest, serialNo);
         }
-//        /**
-//         * 消息推送（更改项目可选信息）
-//         */
-//        Long initiatorId = updateRequest.getStaffId();
-//        this.serverPushByUpdate(initiatorId,project);
+
 
         LOG.info("更新项目附件信息结束...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 更改task的消息推送
+     *
+     * @param initiatorId
+     * @param task
+     * @throws BusinessException
+     */
+
+    private void serverPushByUpdate(Long initiatorId, Task task) throws BusinessException {
+        try {
+            String serialNo = task.getSerialNo();
+            String subjectType = "task";
+            String type = "update";
+            String taskByStoryId = task.getHostSerialNo();
+            //实例化restTemplate对象
+            RestTemplate restTemplate = new RestTemplate();
+            SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+            singleCriterionRequest.setStaffId(initiatorId);
+            singleCriterionRequest.setCriterion(task.getHostSerialNo());
+            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+            ServerPushUtil.serverPushByTask(initiatorId, serialNo, subjectType, type, staffIds, taskByStoryId);
+            LOG.info("更改story信息，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(更改story)出现异常，异常信息：" + e);
+        }
+    }
+
+    /**
+     * 更改task的消息推送(进度)
+     *
+     * @param initiatorId
+     * @param task
+     * @throws BusinessException
+     */
+
+    private void serverPushByUpdateProgress(Long initiatorId, Task task,Integer oldProgress) throws BusinessException {
+        try {
+            String serialNo = task.getSerialNo();
+            String subjectType = "task";
+            String type = "update progress";
+            String taskByStoryId = task.getHostSerialNo();
+            Integer newProgress = task.getProgress();
+            //实例化restTemplate对象
+            RestTemplate restTemplate = new RestTemplate();
+            SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+            singleCriterionRequest.setStaffId(initiatorId);
+            singleCriterionRequest.setCriterion(task.getHostSerialNo());
+            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+            ServerPushUtil.serverPushByTaskProgress(initiatorId, serialNo, subjectType, type, staffIds, taskByStoryId,newProgress,oldProgress);
+            LOG.info("更改task进度信息，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(更改task进度)出现异常，异常信息：" + e);
+        }
     }
 }

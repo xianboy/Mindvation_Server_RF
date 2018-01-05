@@ -82,7 +82,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //根据
         Story story = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
         //数据不存在，抛异常
-        MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "编号为【"+singleCriterionRequest.getCriterion()+"】的story不存在");
+        MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "编号为【" + singleCriterionRequest.getCriterion() + "】的story不存在");
         //设置
         StoryDetail detail = buildDetail(singleCriterionRequest.getStaffId(), story);
         LOG.info("获取指定serialNo的story的详情成功, 结束运行【retrieveDetailBySerialNo】service...");
@@ -99,7 +99,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     public RestResponse<?> retrieveListByHostSerialNo(SingleCriterionRequest singleCriterionRequest) {
-        Integer isDeleted = (null==singleCriterionRequest.getIsDeleted())?MdvnConstant.ZERO:singleCriterionRequest.getIsDeleted();
+        Integer isDeleted = (null == singleCriterionRequest.getIsDeleted()) ? MdvnConstant.ZERO : singleCriterionRequest.getIsDeleted();
         //获取request中的hostSerialNo
         String hostSerialNo = singleCriterionRequest.getCriterion();
         LOG.info("获取hostSerialNo为【{}】的Story列表开始...", hostSerialNo);
@@ -120,8 +120,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 构建Story对象
+     *
      * @param staffId staffId
-     * @param story story
+     * @param story   story
      * @return SotryDetail
      * @throws BusinessException BusinessException
      */
@@ -171,7 +172,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取Story下的task列表
-     * @param staffId staffId
+     *
+     * @param staffId  staffId
      * @param serialNo serialNo
      * @return List<Task>
      */
@@ -194,7 +196,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             LOG.error("获取上层模块的角色成员失败.");
             throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
         }
-        if (null==restResponse.getData()) {
+        if (null == restResponse.getData()) {
             return null;
         }
         LOG.info("获取serialNo为【{}】的Story的taskList成功...", serialNo);
@@ -203,7 +205,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定编号的上层模块的角色成员
-     * @param staffId  staffId
+     *
+     * @param staffId      staffId
      * @param hostSerialNo hostSerialNo
      * @return List
      */
@@ -226,7 +229,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             LOG.error("获取上层模块的角色成员失败.");
             throw new BusinessException(ErrorEnum.RETRIEVE_ROLEMEMBER_FAILD, "获取上层模块的角色成员失败.");
         }
-        if (null==restResponse.getData()) {
+        if (null == restResponse.getData()) {
             return null;
         }
         return Arrays.asList(restResponse.getData());
@@ -234,7 +237,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定过程方法及其子过程方法.
-     * @param staffId staffId
+     *
+     * @param staffId      staffId
      * @param hostSerialNo hostSerialNo
      * @return FunctionLabel
      */
@@ -249,6 +253,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定编号的story上层的过程方法及其所有子过程方法
+     *
      * @param staffId staffId
      * @param labelId 上层模块对应的过程方法id
      * @return story上层过程方法及其子过程方法和Story自定义的过程方法
@@ -270,7 +275,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         LOG.info("responseCode is【{}】.", restResponse.getCode());
         if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
             LOG.error("获取上层的过程方法对应的所有子过程方法失败.");
-            throw new BusinessException(restResponse.getCode(), "获取上层的过程方法对应的所有子过程方法失败."+restResponse.getMsg());
+            throw new BusinessException(restResponse.getCode(), "获取上层的过程方法对应的所有子过程方法失败." + restResponse.getMsg());
         }
         LOG.info("获取指定编号的story自定义的过程方法以及其上层的过程方法对应的所有子过程方法成功...");
         return restResponse.getData();
@@ -331,5 +336,37 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.emptyList(tags, ErrorEnum.TAG_NOT_EXISTS, "id为【" + ids.toString() + "】的Tag不存在...");
         LOG.info("查询指定story的标签成功, 共有标签{}个. " + tags.size());
         return tags;
+    }
+
+    /**
+     * 获取指定serialNo的Story的不重复成员Id,以及创建者
+     * @param singleCriterionRequest request
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @Override
+    public List<Long> retrieveStoryMembersBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException {
+        //根据
+        Story story = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
+        Long staffId = singleCriterionRequest.getStaffId();
+        Long creatorId = story.getCreatorId();
+        Long storyId = story.getId();
+        Long templateId = story.getTemplateId();
+        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, storyId, templateId, 0);
+        List<Long> memberIds = new ArrayList<>();
+        for (int i = 0; i < roleMembers.size(); i++) {
+            List<TerseInfo> members = roleMembers.get(i).getMembers();
+            for (int j = 0; j < members.size(); j++) {
+                Long memberId = members.get(j).getId();
+                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                    continue;
+                }
+                memberIds.add(memberId);
+            }
+        }
+        if (!memberIds.contains(creatorId)) {
+            memberIds.add(creatorId);
+        }
+        return memberIds;
     }
 }

@@ -6,6 +6,7 @@ import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
@@ -22,6 +23,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 @Service
 public class CreateServiceImpl implements CreateService {
@@ -53,6 +55,10 @@ public class CreateServiceImpl implements CreateService {
         //保存
         task = this.repository.saveAndFlush(task);
         //根据id获取task详情
+        /**
+         * 消息推送
+         */
+        this.serverPushByCreate(createRequest,task);
         return retrieveService.retrieveDetailById(new SingleCriterionRequest(createRequest.getCreatorId(), task.getId().toString()));
     }
 
@@ -154,6 +160,32 @@ public class CreateServiceImpl implements CreateService {
         }
         maxId += 1;
         return MdvnConstant.T + maxId;
+    }
+
+    /**
+     * 创建task的消息推送
+     * @param createRequest
+     * @param task
+     * @throws BusinessException
+     */
+    private void serverPushByCreate(CreateTaskRequest createRequest,Task task) throws BusinessException {
+        try {
+            Long initiatorId = createRequest.getCreatorId();
+            String serialNo = task.getSerialNo();
+            String subjectType = "task";
+            String type = "create";
+            String taskByStoryId = task.getHostSerialNo();
+            //实例化restTemplate对象
+            RestTemplate restTemplate = new RestTemplate();
+            SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+            singleCriterionRequest.setStaffId(createRequest.getCreatorId());
+            singleCriterionRequest.setCriterion(taskByStoryId);
+            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(),singleCriterionRequest,List.class);
+            ServerPushUtil.serverPushByTask(initiatorId,serialNo,subjectType,type,staffIds,taskByStoryId);
+            LOG.info("创建task，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(创建task)出现异常，异常信息：" + e);
+        }
     }
 
 
