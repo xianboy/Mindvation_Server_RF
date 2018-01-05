@@ -235,7 +235,7 @@ public class UpdateServiceImpl implements UpdateService {
             SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
             singleCriterionRequest.setStaffId(initiatorId);
             singleCriterionRequest.setCriterion(task.getHostSerialNo());
-            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+            List<Long> staffIds = restTemplate.postForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
             ServerPushUtil.serverPushByTask(initiatorId, serialNo, subjectType, type, staffIds, taskByStoryId);
             LOG.info("更改story信息，消息推送成功");
         } catch (Exception e) {
@@ -263,7 +263,7 @@ public class UpdateServiceImpl implements UpdateService {
             SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
             singleCriterionRequest.setStaffId(initiatorId);
             singleCriterionRequest.setCriterion(task.getHostSerialNo());
-            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+            List<Long> staffIds = restTemplate.postForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
             ServerPushUtil.serverPushByTaskProgress(initiatorId, serialNo, subjectType, type, staffIds, taskByStoryId,newProgress,oldProgress);
             LOG.info("更改task进度信息，消息推送成功");
         } catch (Exception e) {
