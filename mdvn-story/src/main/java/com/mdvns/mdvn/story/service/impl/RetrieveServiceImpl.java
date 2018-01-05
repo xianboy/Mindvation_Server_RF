@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RtrvCommentInfosRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -167,6 +169,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setTasks(getTasks(staffId, story.getSerialNo()));
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(story.getSerialNo()));
+        //设置评论
+        detail.setCommentDetails(this.rtrvCommentInfos(story));
         return detail;
     }
 
@@ -340,6 +344,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定serialNo的Story的不重复成员Id,以及创建者
+     *
      * @param singleCriterionRequest request
      * @return restResponse
      * @throws BusinessException exception
@@ -356,17 +361,51 @@ public class RetrieveServiceImpl implements RetrieveService {
         List<Long> memberIds = new ArrayList<>();
         for (int i = 0; i < roleMembers.size(); i++) {
             List<TerseInfo> members = roleMembers.get(i).getMembers();
-            for (int j = 0; j < members.size(); j++) {
-                Long memberId = members.get(j).getId();
-                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
-                    continue;
+            if (!StringUtils.isEmpty(members)) {
+                for (int j = 0; j < members.size(); j++) {
+                    Long memberId = members.get(j).getId();
+                    if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                        continue;
+                    }
+                    memberIds.add(memberId);
                 }
-                memberIds.add(memberId);
             }
         }
         if (!memberIds.contains(creatorId)) {
             memberIds.add(creatorId);
         }
         return memberIds;
+    }
+
+    /**
+     * 返回STORY的评论list
+     *
+     * @param story
+     * @return
+     */
+    private List<CommentDetail> rtrvCommentInfos(Story story) {
+        String rCommentInfosUrl = webConfig.getRtrvCommentInfosUrl();
+        RtrvCommentInfosRequest rtrvCommentInfosRequest = new RtrvCommentInfosRequest();
+        rtrvCommentInfosRequest.setProjId(story.getProjSerialNo());
+        rtrvCommentInfosRequest.setSubjectId(story.getSerialNo());
+        //实例化restTemplate对象
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference trReference = new ParameterizedTypeReference<List<CommentDetail>>() {
+        };
+        List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
+        for (int j = 0; j < comDetails.size(); j++) {
+            //创建者返回对象
+            Long creatorId = comDetails.get(j).getCommentInfo().getCreatorId();
+            String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+            Staff staff = StaffUtil.rtrvStaffInfoById(creatorId, rtrvStaffInfoByIdUrl);
+            comDetails.get(j).getCommentInfo().setCreatorInfo(staff);
+            //被@的人返回对象
+            if (comDetails.get(j).getCommentInfo().getReplyId() != null) {
+                Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
+                Staff passiveAtInfo = StaffUtil.rtrvStaffInfoById(passiveAt, rtrvStaffInfoByIdUrl);
+                comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
+            }
+        }
+        return comDetails;
     }
 }
