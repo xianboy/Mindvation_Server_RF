@@ -22,7 +22,7 @@ public class Comment {
     //回复的时哪条评论的Id(可为空)
     private String replyId;
     //发起@的人(创建这条评论的人)
-    private String creatorId;
+    private Long creatorId;
     //被@的人(可以是多个人)
     private String passiveAts;
     //评论的内容

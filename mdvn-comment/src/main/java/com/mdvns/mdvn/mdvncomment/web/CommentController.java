@@ -46,7 +46,7 @@ public class CommentController {
      * @return
      */
     @PostMapping(value = "/rtrvCommentInfos")
-    public List<CommentDetail> rtrvCommentInfos(@RequestBody RtrvCommentInfosRequest request) {
+    public List<CommentDetail> rtrvCommentInfos(@RequestBody RtrvCommentInfosRequest request) throws BusinessException {
         LOG.info("开始执行{} rtrvCommentInfos()方法.", this.CLASS);
         return this.commentService.rtrvCommentInfos(request);
     }
@@ -57,7 +57,7 @@ public class CommentController {
      * @return
      */
     @PostMapping(value = "/likeOrDislike")
-    public RestResponse<?> likeOrDislike(@RequestBody LikeCommentRequest request) {
+    public RestResponse<?> likeOrDislike(@RequestBody LikeCommentRequest request) throws BusinessException {
         LOG.info("开始执行{} likeComment()方法.", this.CLASS);
         return this.commentService.likeOrDislike(request);
     }
