@@ -24,6 +24,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
@@ -64,6 +65,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
+    @Transactional
     public RestResponse<?> createIssueInfo(CreateIssueRequest request) throws BusinessException {
         LOG.info("开始执行{} createIssueInfo()方法.", this.CLASS);
 
@@ -117,7 +119,7 @@ public class IssueServiceImpl implements IssueService {
 
         LOG.info("结束执行{} createIssueInfo()方法.", this.CLASS);
 //        return rtrvIssueDetail(rtrvRequest);
-        return RestResponseUtil.success(rtrvIssueDetail(rtrvRequest));
+        return rtrvIssueDetail(rtrvRequest);
     }
 
 
@@ -128,6 +130,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
+    @Transactional
     public RestResponse<?> createIssueAnswerInfo(CreateIssueAnswerRequest request) throws BusinessException {
         LOG.info("开始执行{} createIssueAnswerInfo()方法.", this.CLASS);
         IssueAnswerInfo issueAnswerInfo = new IssueAnswerInfo();
@@ -175,6 +178,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
+    @Transactional
     public RestResponse<?> likeOrDislikeAnswer(LikeOrDislikeAnswerRequest request) {
         LOG.info("开始执行{} likeOrDislikeAnswer()方法.", this.CLASS);
         String remark = request.getRemark();
@@ -267,9 +271,18 @@ public class IssueServiceImpl implements IssueService {
             }
         }
         issueAnswer = this.issueAnswerRepository.saveAndFlush(issueAnswer);
-
+        //赋值·
+        IssueAnswerInfo issueAnswerInfo = new IssueAnswerInfo();
+        BeanUtils.copyProperties(issueAnswer, issueAnswerInfo);
+        issueAnswerInfo.setCreateTime(issueAnswer.getCreateTime().getTime());
+        if (!StringUtils.isEmpty(issueAnswer.getLikeIds())) {
+            issueAnswerInfo.setLikeIdList(MdvnStringUtil.stringToList(issueAnswer.getLikeIds()));
+        }
+        if (!StringUtils.isEmpty(issueAnswer.getDislikeIds())) {
+            issueAnswerInfo.setDislikeIdList(MdvnStringUtil.stringToList(issueAnswer.getDislikeIds()));
+        }
         LOG.info("结束执行{} likeOrDislikeAnswer()方法.", this.CLASS);
-        return RestResponseUtil.success(issueAnswer);
+        return RestResponseUtil.success(issueAnswerInfo);
     }
 
     /**
@@ -331,6 +344,12 @@ public class IssueServiceImpl implements IssueService {
                 //赋值·
                 BeanUtils.copyProperties(issueAnswer, issueAnswerInfo);
                 issueAnswerInfo.setCreateTime(issueAnswer.getCreateTime().getTime());
+                if (!StringUtils.isEmpty(issueAnswer.getLikeIds())) {
+                    issueAnswerInfo.setLikeIdList(MdvnStringUtil.stringToList(issueAnswer.getLikeIds()));
+                }
+                if (!StringUtils.isEmpty(issueAnswer.getDislikeIds())) {
+                    issueAnswerInfo.setDislikeIdList(MdvnStringUtil.stringToList(issueAnswer.getDislikeIds()));
+                }
                 //查询创建者对象信息
                 Staff answerCreatorInfo = this.rtrvStaffInfoById(issue.getCreatorId());
                 issueAnswerInfo.setCreatorInfo(answerCreatorInfo);
@@ -347,11 +366,11 @@ public class IssueServiceImpl implements IssueService {
                 List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
                 for (int j = 0; j < comDetails.size(); j++) {
                     //创建者返回对象
-                    Long creatorId = comDetails.get(j).getComment().getCreatorId();
+                    Long creatorId = comDetails.get(j).getCommentInfo().getCreatorId();
                     Staff staff = this.rtrvStaffInfoById(creatorId);
-                    comDetails.get(j).getComment().setCreatorInfo(staff);
+                    comDetails.get(j).getCommentInfo().setCreatorInfo(staff);
                     //被@的人返回对象
-                    if (comDetails.get(j).getComment().getReplyId() != null) {
+                    if (comDetails.get(j).getCommentInfo().getReplyId() != null) {
                         Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
                         Staff passiveAtInfo = this.rtrvStaffInfoById(passiveAt);
                         comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
@@ -388,6 +407,7 @@ public class IssueServiceImpl implements IssueService {
      * @return
      */
     @Override
+    @Transactional
     public RestResponse<?> adoptAnswer(adoptAnswerRequest request) throws BusinessException {
         LOG.info("开始执行{} adoptAnswer()方法.", this.CLASS);
         Long creatorId = request.getCreatorId();
@@ -449,7 +469,7 @@ public class IssueServiceImpl implements IssueService {
                 SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
                 singleCriterionRequest.setStaffId(initiatorId);
                 singleCriterionRequest.setCriterion(serialNo);
-                staffIds = restTemplate.patchForObject(webConfig.getRetrieveReqMembersUrl(), singleCriterionRequest, List.class);
+                staffIds = restTemplate.postForObject(webConfig.getRetrieveReqMembersUrl(), singleCriterionRequest, List.class);
             }
             if (serialNo.substring(0, 1).equals("S")) {
                 //实例化restTemplate对象
@@ -457,7 +477,7 @@ public class IssueServiceImpl implements IssueService {
                 SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
                 singleCriterionRequest.setStaffId(initiatorId);
                 singleCriterionRequest.setCriterion(serialNo);
-                staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
+                staffIds = restTemplate.postForObject(webConfig.getRetrieveStoryMembersUrl(), singleCriterionRequest, List.class);
             }
             ServerPushUtil.serverPush(initiatorId, serialNo, subjectType, type, staffIds);
             LOG.info("创建issue，消息推送成功");

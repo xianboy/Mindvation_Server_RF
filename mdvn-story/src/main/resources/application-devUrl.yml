@@ -25,3 +25,6 @@ url:
 
   retrieveTaskListUrl : http://localhost:20008/mdvn-task/tasks/retrieveList
 
+  rtrvCommentInfosUrl : http://localhost:20012/mdvn-comment/comments/rtrvCommentInfos
+  rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
+

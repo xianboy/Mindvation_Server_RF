@@ -1,7 +1,10 @@
 package com.mdvns.mdvn.mdvncomment.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RtrvCommentInfosRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.CommentDetail;
+import com.mdvns.mdvn.common.bean.model.CommentInfo;
 import com.mdvns.mdvn.common.bean.model.Staff;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -252,6 +255,12 @@ public class CommentServiceImpl implements CommentService {
             CommentInfo commentInfo = new CommentInfo();
             BeanUtils.copyProperties(comment, commentInfo);
             commentInfo.setCreateTime(comment.getCreateTime().getTime());
+            if (!StringUtils.isEmpty(comment.getLikeIds())) {
+                commentInfo.setLikeIdList(MdvnStringUtil.stringToList(comment.getLikeIds()));
+            }
+            if (!StringUtils.isEmpty(comment.getDislikeIds())) {
+                commentInfo.setDislikeIdList(MdvnStringUtil.stringToList(comment.getDislikeIds()));
+            }
             createCommentInfoResponse.setCommentInfo(commentInfo);
             if (!StringUtils.isEmpty(comment.getReplyId())) {
                 Comment comm = this.commentRepository.findByCommentId(comment.getReplyId());
@@ -259,6 +268,12 @@ public class CommentServiceImpl implements CommentService {
                 CommentInfo replyDetail = new CommentInfo();
                 BeanUtils.copyProperties(comm, replyDetail);
                 replyDetail.setCreateTime(comm.getCreateTime().getTime());
+                if (!StringUtils.isEmpty(comm.getLikeIds())) {
+                    replyDetail.setLikeIdList(MdvnStringUtil.stringToList(comm.getLikeIds()));
+                }
+                if (!StringUtils.isEmpty(comm.getDislikeIds())) {
+                    replyDetail.setDislikeIdList(MdvnStringUtil.stringToList(comm.getDislikeIds()));
+                }
                 createCommentInfoResponse.setReplyDetail(replyDetail);
             }
         } catch (Exception ex) {
@@ -295,11 +310,30 @@ public class CommentServiceImpl implements CommentService {
             for (int i = 0; i < comments.size(); i++) {
                 CommentDetail commentDetail = new CommentDetail();
                 Comment comment = comments.get(i);
-                commentDetail.setComment(comment);
+                CommentInfo commentInfo = new CommentInfo();
+                BeanUtils.copyProperties(comment, commentInfo);
+                commentInfo.setCreateTime(comment.getCreateTime().getTime());
+                if (!StringUtils.isEmpty(comment.getLikeIds())) {
+                    commentInfo.setLikeIdList(MdvnStringUtil.stringToList(comment.getLikeIds()));
+                }
+                if (!StringUtils.isEmpty(comment.getDislikeIds())){
+                    commentInfo.setDislikeIdList(MdvnStringUtil.stringToList(comment.getDislikeIds()));
+                }
+                commentDetail.setCommentInfo(commentInfo);
                 String replyId = comment.getReplyId();
                 if (!StringUtils.isEmpty(replyId)) {
                     Comment comm = this.commentRepository.findByCommentId(replyId);
-                    commentDetail.setReplyDetail(comm);
+                    //赋值·
+                    CommentInfo replyDetail = new CommentInfo();
+                    BeanUtils.copyProperties(comm, replyDetail);
+                    replyDetail.setCreateTime(comm.getCreateTime().getTime());
+                    if (!StringUtils.isEmpty(comm.getLikeIds())) {
+                        replyDetail.setLikeIdList(MdvnStringUtil.stringToList(comm.getLikeIds()));
+                    }
+                    if (!StringUtils.isEmpty(comm.getDislikeIds())) {
+                        replyDetail.setDislikeIdList(MdvnStringUtil.stringToList(comm.getDislikeIds()));
+                    }
+                    commentDetail.setReplyDetail(replyDetail);
                 }
                 commentDetails.add(commentDetail);
             }

@@ -183,7 +183,7 @@ public class CreateServiceImpl implements CreateService {
             SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
             singleCriterionRequest.setStaffId(createRequest.getCreatorId());
             singleCriterionRequest.setCriterion(taskByStoryId);
-            List<Long> staffIds = restTemplate.patchForObject(webConfig.getRetrieveStoryMembersUrl(),singleCriterionRequest,List.class);
+            List<Long> staffIds = restTemplate.postForObject(webConfig.getRetrieveStoryMembersUrl(),singleCriterionRequest,List.class);
             ServerPushUtil.serverPushByTask(initiatorId,serialNo,subjectType,type,staffIds,taskByStoryId);
             LOG.info("创建task，消息推送成功");
         } catch (Exception e) {

@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.common.util;
 
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.*;
 
 
 public class MdvnStringUtil {
@@ -30,5 +29,22 @@ public class MdvnStringUtil {
 
         return var2.toString();
     }
+
+    /**
+     * 将逗号隔开的字符串转化成list
+     * @param var1
+     * @return
+     */
+    public static List stringToList(String var1){
+        String[] var1ArrayIds = var1.split(",");
+        List<String> var1List = Arrays.asList(var1ArrayIds);
+        List<String> list = new ArrayList(var1List);
+        List<Long> longList = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            longList.add(Long.valueOf(list.get(i)));
+        }
+        return longList;
+    }
+
 
 }

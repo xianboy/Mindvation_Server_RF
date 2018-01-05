@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -232,12 +233,14 @@ public class MemberServiceImpl implements MemberService {
         List<Long> memberIds = new ArrayList<>();
         for (int i = 0; i < roleMembers.size(); i++) {
             List<TerseInfo> members = roleMembers.get(i).getMembers();
-            for (int j = 0; j < members.size(); j++) {
-                Long memberId = members.get(j).getId();
-                if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
-                    continue;
+            if (!StringUtils.isEmpty(members)) {
+                for (int j = 0; j < members.size(); j++) {
+                    Long memberId = members.get(j).getId();
+                    if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                        continue;
+                    }
+                    memberIds.add(memberId);
                 }
-                memberIds.add(memberId);
             }
         }
         return memberIds;

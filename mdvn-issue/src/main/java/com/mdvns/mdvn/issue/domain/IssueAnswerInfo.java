@@ -34,4 +34,9 @@ public class IssueAnswerInfo {
     private Staff creatorInfo;
 
     private List<CommentDetail> commentDetails;
+
+    //点赞的所有人的Id
+    private List likeIdList;
+    //踩的所有人的Id
+    private List dislikeIdList;
 }

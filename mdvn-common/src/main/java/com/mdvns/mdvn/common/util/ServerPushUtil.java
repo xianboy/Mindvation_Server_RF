@@ -11,6 +11,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class ServerPushUtil {
@@ -52,9 +54,14 @@ public class ServerPushUtil {
             /**
              * 区分消息更改的类型（create、update、at等）
              */
+            List<Long> staffIdList = new ArrayList<>();
+            for (int i = 0; i <staffIds.size() ; i++) {
+                Number num = (Number) staffIds.get(i);
+                staffIdList.add(num.longValue());
+            }
             serverPush.setType(type);
             sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setStaffIds(staffIds);
+            sendMessageRequest.setStaffIds(staffIdList);
             sendMessageRequest.setServerPushResponse(serverPush);
             String sendMessageUrl = "http://localhost:20009/mdvn-websocket/websocket/sendMessage";
             Boolean flag = restTemplate.postForObject(sendMessageUrl, sendMessageRequest, Boolean.class);
@@ -108,7 +115,12 @@ public class ServerPushUtil {
              */
             serverPush.setTaskByStoryId(taskByStoryId);
             sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setStaffIds(staffIds);
+            List<Long> staffIdList = new ArrayList<>();
+            for (int i = 0; i <staffIds.size() ; i++) {
+                Number num = (Number) staffIds.get(i);
+                staffIdList.add(num.longValue());
+            }
+            sendMessageRequest.setStaffIds(staffIdList);
             sendMessageRequest.setServerPushResponse(serverPush);
             String sendMessageUrl = "http://localhost:20009/mdvn-websocket/websocket/sendMessage";
             Boolean flag = restTemplate.postForObject(sendMessageUrl, sendMessageRequest, Boolean.class);
@@ -160,11 +172,16 @@ public class ServerPushUtil {
             /**
              * task返回storyId和进度
              */
+            List<Long> staffIdList = new ArrayList<>();
+            for (int i = 0; i <staffIds.size() ; i++) {
+                Number num = (Number) staffIds.get(i);
+                staffIdList.add(num.longValue());
+            }
             serverPush.setTaskByStoryId(taskByStoryId);
             serverPush.setNewProgress(newProgress);
             serverPush.setOldProgress(oldProgress);
             sendMessageRequest.setInitiatorId(initiatorId);
-            sendMessageRequest.setStaffIds(staffIds);
+            sendMessageRequest.setStaffIds(staffIdList);
             sendMessageRequest.setServerPushResponse(serverPush);
             String sendMessageUrl = "http://localhost:20009/mdvn-websocket/websocket/sendMessage";
             Boolean flag = restTemplate.postForObject(sendMessageUrl, sendMessageRequest, Boolean.class);
