@@ -10,6 +10,7 @@ import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.repository.TemplateRoleRepository;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ public class RoleServiceImpl implements RoleService {
      * @return list
      */
     @Override
+    @Transactional
     public List<TemplateRole> createRoles(Long creatorId, String hostSerialNo, List<String> roles) {
         List<TemplateRole> roleList = new ArrayList<>();
         for (String name : roles) {
@@ -41,9 +43,10 @@ public class RoleServiceImpl implements RoleService {
             role.setHostSerialNo(hostSerialNo);
             role.setSerialNo(buildSerialNo());
             role.setName(name);
+            role = this.roleRepository.saveAndFlush(role);
             roleList.add(role);
         }
-        return this.roleRepository.save(roleList);
+        return roleList;
     }
 
     /**

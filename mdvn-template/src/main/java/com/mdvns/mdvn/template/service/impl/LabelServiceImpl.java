@@ -14,6 +14,7 @@ import com.mdvns.mdvn.template.service.LabelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class LabelServiceImpl implements LabelService {
      * @return restResponse
      */
     @Override
+    @Transactional
     public Long create(CustomFunctionLabelRequest customRequest) {
         LOG.info("即将保存自定义过程方法模块...");
         //requirement和Story可能会自定义，且它们都是一对一关系
@@ -55,12 +57,14 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
+    @Transactional
     public FunctionLabel create(Long creatorId, String hostSerialNo, CreateLabelRequest labelRequest) throws BusinessException {
         //构建并保存label
         FunctionLabel label = new FunctionLabel();
         label.setCreatorId(creatorId);
         label.setHostSerialNo(hostSerialNo);
         label.setSerialNo(buildSerialNo());
+        label.setName(labelRequest.getName());
         label = this.labelRepository.saveAndFlush(label);
         List<String> subLabels = labelRequest.getSubLabels();
         //如果子过程方法存在
@@ -80,6 +84,7 @@ public class LabelServiceImpl implements LabelService {
      * @param hostSerialNo 编号
      * @param subLabels 子模块
      */
+    @Transactional
     private List<FunctionLabel> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
         List<FunctionLabel> subLabelList = new ArrayList<>();
         //遍历subLabels

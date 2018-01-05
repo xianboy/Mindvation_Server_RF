@@ -10,7 +10,7 @@ import java.util.List;
 @Repository
 public interface TemplateRoleRepository extends JpaRepository<TemplateRole, Long> {
     //查询id的最大值
-    @Query(value = "select max(id) from TemplateRole", nativeQuery = true)
+    @Query(value = "select max(id) from template_role", nativeQuery = true)
     Long getMaxId();
 
     //查询指定id集合的terseInfo

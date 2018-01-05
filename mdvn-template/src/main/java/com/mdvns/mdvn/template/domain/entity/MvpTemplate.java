@@ -23,7 +23,7 @@ public class MvpTemplate {
     @GeneratedValue
     private Long id;
 
-    /*标签创建人id*/
+    /*创建人id*/
     @Column(nullable = false)
     private Long creatorId;
 
@@ -33,7 +33,7 @@ public class MvpTemplate {
 
     /*顺序*/
     @Column(nullable = false)
-    private Integer index;
+    private Integer mvpIndex;
 
     /*被引用的次数*/
     @JsonIgnore

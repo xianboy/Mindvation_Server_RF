@@ -44,13 +44,13 @@ public class CreateTemplateRequest {
     private List<String> roleNames;
 
     /*迭代模板*/
-    @NotEmpty(message = "如果要添加IterationTemplate, itTemplates必须有元素")
-    @NotNull(message = "itTemplates不能为空")
-    private List<MvpTemplate> itTemplates;
+    @NotEmpty(message = "如果要添加MvpTemplate, mvpTemplates必须有元素")
+    @NotNull(message = "mvpTemplates")
+    private List<CreateMvpTemplateRequest> mvpTemplates;
 
     /*交付件*/
     @NotEmpty(message = "如果要添加Deliverable, deliverables必须有元素")
-    private List<Delivery> deliverables;
+    private List<CreateDeliveryRequest> deliveries;
 
 
 

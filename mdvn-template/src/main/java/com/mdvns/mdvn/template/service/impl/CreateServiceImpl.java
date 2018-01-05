@@ -5,9 +5,10 @@ import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.template.domain.CreateDeliveryRequest;
 import com.mdvns.mdvn.template.domain.CreateLabelRequest;
+import com.mdvns.mdvn.template.domain.CreateMvpTemplateRequest;
 import com.mdvns.mdvn.template.domain.CreateTemplateRequest;
-import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
 import com.mdvns.mdvn.template.domain.entity.Template;
@@ -63,34 +64,36 @@ public class CreateServiceImpl implements CreateService {
         createLabels(creatorId, template.getSerialNo(), createRequest.getLabels());
         //处理roles
         createRoles(creatorId, template.getSerialNo(), createRequest.getRoleNames());
-        //处理迭代模板itTemplates
-        handleItTemplates(creatorId, template.getId(), createRequest.getItTemplates());
+        //处理迭代模板mvpTemplates
+        createMvpTemplates(creatorId, template.getSerialNo(), createRequest.getMvpTemplates());
         ////处理deliverables
-        createDeliveries(creatorId, template.getSerialNo(), createRequest.getDeliverables());
+        createDeliveries(creatorId, template.getSerialNo(), createRequest.getDeliveries());
         LOG.info("创建模板成功...");
         return RestResponseUtil.success(template);
     }
 
     /**
      * 创建交付件
-     *
-     * @param creatorId    creatorId
+     *  @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @param deliveries   deliveries
      */
-    private void createDeliveries(Long creatorId, String hostSerialNo, List<Delivery> deliveries) {
+    private void createDeliveries(Long creatorId, String hostSerialNo, List<CreateDeliveryRequest> deliveries) {
         this.deliveryService.create(creatorId, hostSerialNo, deliveries);
     }
 
     /**
-     * @param creatorId   creatorId
-     * @param templateId  templateId
+     * 处理MVP
+     * @param creatorId creatorId
+     * @param hostSerialNo hostSerialNo
      * @param itTemplates itTemplates
      */
-    private void handleItTemplates(Long creatorId, Long templateId, List<MvpTemplate> itTemplates) {
-        for (MvpTemplate itTemplate : itTemplates) {
-            itTemplate.setCreatorId(creatorId);
-            itTemplate.setTemplateId(templateId);
+    private void createMvpTemplates(Long creatorId, String hostSerialNo, List<CreateMvpTemplateRequest> itTemplates) {
+        for (CreateMvpTemplateRequest mvpTemplateRequest : itTemplates) {
+            MvpTemplate mvpTemplate = new MvpTemplate();
+            mvpTemplate.setCreatorId(creatorId);
+            mvpTemplate.setHostSerialNo(hostSerialNo);
+            mvpTemplate.setMvpIndex(mvpTemplateRequest.getMvpIndex());
         }
     }
 

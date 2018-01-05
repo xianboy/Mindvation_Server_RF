@@ -36,7 +36,8 @@ public class CreateController {
      * @throws BusinessException exception
      */
     @PostMapping(value = "/create")
-    public RestResponse<?> create(@RequestBody @Validated CreateTemplateRequest createRequest) throws BusinessException {
+    public RestResponse<?> create(@RequestBody @Validated CreateTemplateRequest createRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
         return this.templateService.create(createRequest);
     }
 

@@ -3,6 +3,7 @@ package com.mdvns.mdvn.template.service.impl;
 import com.mdvns.mdvn.common.bean.CustomDeliveryRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
+import com.mdvns.mdvn.template.domain.CreateDeliveryRequest;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.repository.DeliveryRepository;
 import com.mdvns.mdvn.template.service.DeliveryService;
@@ -30,16 +31,19 @@ public class DeliveryServiceImpl implements DeliveryService {
      * @return List<Delivery>
      */
     @Override
-    public List<Delivery> create(Long creatorId, String hostSerialNo, List<Delivery> deliveries) {
+    public List<Delivery> create(Long creatorId, String hostSerialNo, List<CreateDeliveryRequest> deliveries) {
         LOG.info("新建模板交付件开始...");
         List<Delivery> list = new ArrayList<>();
-        for (Delivery delivery : deliveries) {
+        for (CreateDeliveryRequest deliveryRequest : deliveries) {
+            Delivery delivery = new Delivery();
             delivery.setCreatorId(creatorId);
             delivery.setHostSerialNo(hostSerialNo);
             delivery.setSerialNo(buildSerialNo());
+            delivery.setName(deliveryRequest.getName());
+            delivery.setTypeId(deliveryRequest.getTypeId());
+            delivery = this.deliveryRepository.saveAndFlush(delivery);
             list.add(delivery);
         }
-        list = this.deliveryRepository.save(list);
         LOG.info("新建模板交付件成功...");
         return list;
     }
