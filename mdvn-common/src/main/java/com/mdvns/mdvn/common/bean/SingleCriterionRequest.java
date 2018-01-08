@@ -14,8 +14,8 @@ import java.io.Serializable;
  */
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class SingleCriterionRequest implements Serializable {
+
     /*当前用户Id*/
     @NotNull(message = "用户Id不能为空")
     @Min(value = 1, message = "用户Id不能小于1")
@@ -33,5 +33,11 @@ public class SingleCriterionRequest implements Serializable {
     public SingleCriterionRequest(Long staffId, String criterion) {
         this.staffId = staffId;
         this.criterion = criterion;
+    }
+
+    public SingleCriterionRequest(Long staffId, String criterion, Integer isDeleted) {
+        this.staffId = staffId;
+        this.criterion = criterion;
+        this.isDeleted = isDeleted;
     }
 }
