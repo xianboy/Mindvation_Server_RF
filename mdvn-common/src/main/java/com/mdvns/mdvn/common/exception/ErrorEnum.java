@@ -41,6 +41,7 @@ public enum ErrorEnum {
     //staff
     /*用户不存在*/
     STAFF_NOT_EXISTS("30100"),
+    RTRV_AUTH_FAILED("30197"),
     REMOVE_AUTH_FAILED("30198"),
     ASSIGN_AUTH_FAILED("30199"),
 

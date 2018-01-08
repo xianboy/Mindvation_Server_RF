@@ -128,7 +128,7 @@ public class CommentServiceImpl implements CommentService {
             createCommentInfoResponse.setCommentInfo(commentInfo);
         } catch (Exception ex) {
             LOG.info("创建或者回复评论失败");
-            throw new BusinessException(ErrorEnum.COMMENT_CREATE_FAILD, "创建或者回复评论失败");
+            throw new BusinessException(ErrorEnum.COMMENT_CREATE_FAILED, "创建或者回复评论失败");
         }
 
         //创建者返回对象
@@ -278,7 +278,7 @@ public class CommentServiceImpl implements CommentService {
             }
         } catch (Exception ex) {
             LOG.info("点赞或者踩评论失败");
-            throw new BusinessException(ErrorEnum.LIKEORDISLIKE_COMMENT_FAILD, "点赞或者踩评论失败");
+            throw new BusinessException(ErrorEnum.LIKEORDISLIKE_COMMENT_FAILED, "点赞或者踩评论失败");
         }
         //创建者返回对象
         Long creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
@@ -339,7 +339,7 @@ public class CommentServiceImpl implements CommentService {
             }
         } catch (Exception ex) {
             LOG.info("获取评论信息失败");
-            throw new BusinessException(ErrorEnum.RTRV_COMMENTINFO_FAILD, "获取评论信息失败");
+            throw new BusinessException(ErrorEnum.RTRV_COMMENTINFO_FAILED, "获取评论信息失败");
         }
         LOG.info("结束执行{} rtrvCommentInfos()方法.", this.CLASS);
         return commentDetails;

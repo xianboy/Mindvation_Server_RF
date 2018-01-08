@@ -1,9 +1,11 @@
-package com.mdvns.mdvn.mdvncomment.domain;
+package com.mdvns.mdvn.common.bean.model;
 
 
 import com.mdvns.mdvn.common.bean.model.Staff;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * 评论类
@@ -41,6 +43,10 @@ public class CommentInfo {
     private Long intervalTime;
 
     private Staff creatorInfo;
+
+    private List likeIdList;
+
+    private List dislikeIdList;
 }
 
 

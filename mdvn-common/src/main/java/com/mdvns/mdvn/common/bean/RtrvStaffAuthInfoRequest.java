@@ -7,11 +7,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RtrvStaffAuthInfoRequest {
 	
-	private String projId;
-	
-	private String staffId;
-	
-	private String hierarchyId;
+//	private String projId;
+//
+//	private String staffId;
+//
+//	private String hierarchyId;
+
+	private Long projId;
+
+	private Long staffId;
+
+	private Long hostId;
+
+
 
 
 }

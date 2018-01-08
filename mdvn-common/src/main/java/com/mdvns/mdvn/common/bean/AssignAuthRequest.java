@@ -9,13 +9,18 @@ import java.util.List;
 @NoArgsConstructor
 public class AssignAuthRequest {
 
-    private String projId;
+//    private String projId;
+    private Long projId;
 
-    private String assignerId;
+//    private String assignerId;
+    private Long assignerId;
 
-    private List<String> assignees;
+//    private List<String> assignees;
+    private List<Long> addList;
 
-    private String hierarchyId;
+
+//    private String hierarchyId;
+    private Long hostId;
 
     private Integer authCode;
 
