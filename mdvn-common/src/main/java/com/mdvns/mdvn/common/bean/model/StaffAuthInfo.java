@@ -13,16 +13,13 @@ public class StaffAuthInfo {
     private String projId;
 
     /*员工Id*/
-//    private String staffId;
-    private Long staffId;
+    private String staffId;
 
     /*权限编号*/
     private Integer authCode;
 
-//    private  String assignerId;
-    private  Long assignerId;
-
-//    private String hierarchyId;
-    private Long hostId;
+    private  String assignerId;
+    
+    private String hierarchyId;
 
 }
