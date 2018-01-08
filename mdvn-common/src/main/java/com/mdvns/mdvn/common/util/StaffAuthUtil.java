@@ -210,22 +210,22 @@ public class StaffAuthUtil {
 //	}
 
 
-    /**
-     * 给创建者添加权限
-     * @param assignAuthUrl
-     * @param assignAuthRequest
-     * @return
-     * @throws BusinessException
-     */
-	public static List<StaffAuthInfo> assignAuthForCreator(String assignAuthUrl, AssignAuthRequest assignAuthRequest)throws BusinessException {
-        AssignAuthRequest assignAuthRequestForCreator = assignAuthRequest;
-
-        boolean flag = assignAuthRequestForCreator.getAddList().removeAll(assignAuthRequestForCreator.getAddList());
-        if(flag){
-            assignAuthRequestForCreator.getAddList().add(assignAuthRequestForCreator.getAssignerId());
-        }
-	    return assignAuth(assignAuthUrl,assignAuthRequestForCreator);
-    }
+//    /**
+//     * 给创建者添加权限
+//     * @param assignAuthUrl
+//     * @param assignAuthRequest
+//     * @return
+//     * @throws BusinessException
+//     */
+//	public static List<StaffAuthInfo> assignAuthForCreator(String assignAuthUrl, AssignAuthRequest assignAuthRequest)throws BusinessException {
+//        AssignAuthRequest assignAuthRequestForCreator = assignAuthRequest;
+//
+//        boolean flag = assignAuthRequestForCreator.getAddList().removeAll(assignAuthRequestForCreator.getAddList());
+//        if(flag){
+//            assignAuthRequestForCreator.getAddList().add(assignAuthRequestForCreator.getAssignerId());
+//        }
+//	    return assignAuth(assignAuthUrl,assignAuthRequestForCreator);
+//    }
 
 	
 	
