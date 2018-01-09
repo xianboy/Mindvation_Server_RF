@@ -17,6 +17,7 @@ import lombok.*;
  * attach:30900~31000
  * websocket:31100~31200
  * comment: 31200~31300
+ * reward: 31300~31400
  */
 public enum ErrorEnum {
 
@@ -96,6 +97,9 @@ public enum ErrorEnum {
     COMMENT_CREATE_FAILED("31200"),
     LIKEORDISLIKE_COMMENT_FAILED("31201"),
     RTRV_COMMENTINFO_FAILED("31202"),
+
+    //reward
+    REWARD_HAS_UNVEILED("31300"),
     ;
 
 

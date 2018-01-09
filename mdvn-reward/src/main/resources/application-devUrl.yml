@@ -1,0 +1,9 @@
+url:
+  #获取标签url
+  findTagInfoByIdUrl : http://localhost:20002/mdvn-tag/tags/{tagId}/tag
+  #获取成员
+  rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
+  retrieveAllStaffUrl : http://localhost:20001/mdvn-staff/staff/retrieveAll
+
+
+

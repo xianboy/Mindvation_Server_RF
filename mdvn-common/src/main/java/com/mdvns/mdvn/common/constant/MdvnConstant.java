@@ -75,6 +75,7 @@ public interface MdvnConstant {
     Integer NINE = 9;
     Integer TEN = 10;
     Double ONE_HALF = 0.5;
+    Integer MAX = Integer.MAX_VALUE;
 
 
 }

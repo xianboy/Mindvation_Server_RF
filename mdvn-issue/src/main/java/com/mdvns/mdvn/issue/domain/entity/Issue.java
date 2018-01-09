@@ -11,7 +11,7 @@ import javax.persistence.Id;
 import java.sql.Timestamp;
 
 /**
- * 发布求助（悬赏榜）
+ * 发布求助
  */
 @Component
 @Entity
