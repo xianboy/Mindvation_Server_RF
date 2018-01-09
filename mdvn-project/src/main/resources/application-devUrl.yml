@@ -6,3 +6,4 @@ url:
 #  更新附件状态
   updateAttachesUrl : http://localhost:10019/mdvn-file/files/updateAttaches
   rtrvAttsBySubjectIdUrl : http://localhost:10019/mdvn-file/files/rtrvAttsBySubjectId
+  assignAuthUrl :

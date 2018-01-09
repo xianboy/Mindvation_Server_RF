@@ -1,9 +1,12 @@
 package com.mdvns.mdvn.project.service.impl;
 
+import com.mdvns.mdvn.common.bean.AssignAuthRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.*;
+import com.mdvns.mdvn.project.config.WebConfig;
 import com.mdvns.mdvn.project.domain.CreateProjectRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.repository.ProjectRepository;
@@ -18,8 +21,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -40,6 +45,10 @@ public class CreateServiceImpl implements CreateService {
     @Autowired
     private TemplateService projectTemplateService;
 
+    /*注入 webconfig*/
+    @Resource
+    private WebConfig webConfig;
+
     /**
      * 新建项目
      *
@@ -58,9 +67,15 @@ public class CreateServiceImpl implements CreateService {
         project = buildProjectByRequest(createRequest);
         //保存
         project = this.projectRepository.saveAndFlush(project);
+
+        //为创建者添加权限
+        StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getId(),project.getCreatorId(), Arrays.asList(project.getCreatorId()),project.getId(), AuthConstant.BOSS));
+
         //项目保存成功，保存leader: ManyToMany
         if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
             this.projectStaffService.createProjectStaff(createRequest.getCreatorId(), project.getId(), createRequest.getLeaders());
+            //为Leader添加权限
+            StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getId(),project.getCreatorId(),createRequest.getLeaders(),project.getId(), AuthConstant.LEADER));
         }
         //项目保存成功，保存tag: ManyToMany
         if (!(null == createRequest.getTags() || createRequest.getTags().isEmpty())) {
