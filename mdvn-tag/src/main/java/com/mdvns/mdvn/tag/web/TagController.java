@@ -78,4 +78,13 @@ public class TagController {
         return this.tagService.findById(tagId);
     }
 
+    /**
+     * 查询一周内热门标签数据：支持分页
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/retrieveHotTagList")
+    public RestResponse<?> retrieveHotTagList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+        return this.tagService.retrieveHotTagList(request);
+    }
 }

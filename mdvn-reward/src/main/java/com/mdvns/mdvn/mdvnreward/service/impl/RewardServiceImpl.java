@@ -12,10 +12,7 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.mdvnreward.config.WebConfig;
-import com.mdvns.mdvn.mdvnreward.domain.CreateRewardRequest;
-import com.mdvns.mdvn.mdvnreward.domain.ReceiveARewardRequest;
-import com.mdvns.mdvn.mdvnreward.domain.RewardInfo;
-import com.mdvns.mdvn.mdvnreward.domain.RtrvRewardDetailRequest;
+import com.mdvns.mdvn.mdvnreward.domain.*;
 import com.mdvns.mdvn.mdvnreward.domain.entity.Reward;
 import com.mdvns.mdvn.mdvnreward.repository.RewardRepository;
 import com.mdvns.mdvn.mdvnreward.service.RewardService;
@@ -24,8 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.core.convert.converter.Converter;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -92,14 +89,38 @@ public class RewardServiceImpl implements RewardService {
         /**
          * 消息推送(创建reward)
          */
-        this.serverPushByCreateReward(request.getCreatorId(),reward);
+        this.serverPushByCreateReward(request.getCreatorId(), reward);
 
         LOG.info("结束执行{} createRewardInfo()方法.", this.CLASS);
         return RestResponseUtil.success(rewardInfo);
     }
 
     /**
-     * 获取悬赏榜列表信息(所有)
+     * 悬赏榜（初始化页面）
+     * @param request
+     * @return
+     * @throws BusinessException
+     */
+    @Override
+    @Transactional
+    public RestResponse<?> rtrvRewardAll(PageableQueryWithoutArgRequest request) throws BusinessException {
+
+        RewardDetail rewardDetail = new RewardDetail();
+        //获取一周内热门标签信息
+        Object hotTags = this.retrieveHotTagList(request.getStaffId()).getData();
+        rewardDetail.setHotTags(hotTags);
+        //获取未解决的悬赏榜list
+        //构建responseEntity
+        RestResponse<?> responseEntity = this.rtrvUnsolvedRewardList(request);
+        Object unsolvedRewards = responseEntity.getData();
+
+        rewardDetail.setUnsolvedRewards(unsolvedRewards);
+        //返回结果
+        return RestResponseUtil.success(rewardDetail);
+    }
+
+    /**
+     * 获取悬赏榜列表信息(reward List)
      *
      * @param request
      * @return
@@ -145,7 +166,7 @@ public class RewardServiceImpl implements RewardService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest,0,0);
+        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest, 0, 0);
         //返回结果
         return RestResponseUtil.success(rewardPage);
     }
@@ -171,7 +192,7 @@ public class RewardServiceImpl implements RewardService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest,1,0);
+        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest, 1, 0);
         //返回结果
         return RestResponseUtil.success(rewardPage);
     }
@@ -235,35 +256,12 @@ public class RewardServiceImpl implements RewardService {
     }
 
     /**
-     * 查询一周内热门标签数据：支持分页
-     * @return restResponse
-     */
-    @Override
-    @Transactional
-    public RestResponse<?> retrieveHotTagList(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) {
-        //获取分页参数对象
-        PageableCriteria pageableCriteria = pageableQueryWithoutArgRequest.getPageableCriteria();
-        //构建PageRequest
-        PageRequest pageRequest;
-        if (null == pageableCriteria) {
-            LOG.info("用户[{}]没有填写分页参数，故使用默认分页.", pageableQueryWithoutArgRequest.getStaffId());
-            pageRequest = PageableQueryUtil.defaultPageReqestBuilder();
-        } else {
-            pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
-        }
-        //分页查询
-        Page<Tag> deptPage = this.rewardRepository.findTagListInfo(pageRequest);
-        //返回结果
-        return RestResponseUtil.success(deptPage);
-    }
-
-    /**
      * 创建reward的消息推送
      *
      * @param reward
      * @throws BusinessException
      */
-    private void serverPushByCreateReward(Long staffId,Reward reward) throws BusinessException {
+    private void serverPushByCreateReward(Long staffId, Reward reward) throws BusinessException {
         try {
             Long initiatorId = reward.getCreatorId();
             String serialNo = reward.getSerialNo();
@@ -284,7 +282,7 @@ public class RewardServiceImpl implements RewardService {
      * @param staffId,reward
      * @throws BusinessException
      */
-    private void serverPushByReceiveAReward(Long staffId,Reward reward) throws BusinessException {
+    private void serverPushByReceiveAReward(Long staffId, Reward reward) throws BusinessException {
         try {
             Long initiatorId = staffId;
             String serialNo = reward.getSerialNo();
@@ -345,7 +343,7 @@ public class RewardServiceImpl implements RewardService {
             rewardInfo.setTagInfo(tag);
         }
         //查询揭榜者对象信息
-        if(!StringUtils.isEmpty(reward.getUnveilId())){
+        if (!StringUtils.isEmpty(reward.getUnveilId())) {
             Staff unveilInfo = this.rtrvStaffInfoById(reward.getUnveilId());
             rewardInfo.setUnveilInfo(unveilInfo);
         }
@@ -355,6 +353,7 @@ public class RewardServiceImpl implements RewardService {
 
     /**
      * 获取所有员工的IdList
+     *
      * @param staffId
      * @return
      * @throws BusinessException
@@ -393,6 +392,43 @@ public class RewardServiceImpl implements RewardService {
             staffIdList.add(sId);
         }
         return staffIdList;
+    }
+
+    /**
+     * 查询一周内热门标签数据：支持分页
+     *
+     * @return restResponse
+     */
+    @Transactional
+    public RestResponse<?> retrieveHotTagList(Long staffId) throws BusinessException {
+        PageableQueryWithoutArgRequest request = new PageableQueryWithoutArgRequest();
+        PageableCriteria pageableCriteria = new PageableCriteria();
+        pageableCriteria.setPage(MdvnConstant.ONE);
+        pageableCriteria.setSize(MdvnConstant.TEN);
+        request.setPageableCriteria(pageableCriteria);
+        request.setStaffId(staffId);
+        //访问staff,获取所有人员
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        //构建retrieveAllStaffUrl
+        String retrieveHotTagListUrl = webConfig.getRetrieveHotTagListUrl();
+        //构建ParameterizedTypeReference
+        ParameterizedTypeReference<RestResponse<PageableResponse<Tag>>> typeReference = new ParameterizedTypeReference<RestResponse<PageableResponse<Tag>>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new PageableQueryWithoutArgRequest(staffId, pageableCriteria));
+        //构建responseEntity
+        ResponseEntity<RestResponse<PageableResponse<Tag>>> responseEntity = restTemplate.exchange(retrieveHotTagListUrl, HttpMethod.POST, requestEntity, typeReference);
+        //构建restResponse
+        RestResponse<PageableResponse<Tag>> restResponse = responseEntity.getBody();
+        //如果code不是“000”, 抛出异常
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("查询一周内热门标签数据失败: {}", restResponse.getMsg());
+            throw new BusinessException(restResponse.getCode(), restResponse.getMsg());
+        }
+        //返回结果
+//        return restResponse.getData().getContent();
+        return restResponse;
     }
 
 }

@@ -53,6 +53,17 @@ public class RewardController {
     }
 
     /**
+     * 悬赏榜（初始化页面）
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/rtrvRewardAll")
+    public RestResponse<?> rtrvRewardAll(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+        LOG.info("开始执行{} rtrvRewardAll()方法.", this.CLASS);
+        return this.rewardService.rtrvRewardAll(request);
+    }
+
+    /**
      * 获取悬赏榜信息列表
      * @param request
      * @return
@@ -93,18 +104,6 @@ public class RewardController {
         LOG.info("开始执行{} receiveAReward()方法.", this.CLASS);
         return this.rewardService.receiveAReward(request);
     }
-
-    /**
-     * 查询一周内热门标签数据：支持分页
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/retrieveHotTagList")
-    public RestResponse<?> retrieveHotTagList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
-        LOG.info("开始执行{} retrieveHotTagList()方法.", this.CLASS);
-        return this.rewardService.retrieveHotTagList(request);
-    }
-
 
 
 }

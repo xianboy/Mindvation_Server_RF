@@ -11,4 +11,5 @@ public class WebConfig {
     private String rtrvStaffInfoByIdUrl;
     private String retrieveAllStaffUrl;
     private String findTagInfoByIdUrl;
+    private String retrieveHotTagListUrl;
 }

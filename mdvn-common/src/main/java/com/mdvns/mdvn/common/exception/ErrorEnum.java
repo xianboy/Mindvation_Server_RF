@@ -50,6 +50,7 @@ public enum ErrorEnum {
     //tag
     /*标签不存在*/
     TAG_NOT_EXISTS("30200"),
+    RETRIEVE_HOT_TAGS_FAILED("30201"),
 
 
     //template

@@ -21,6 +21,9 @@ public interface RewardService {
     RestResponse<?> createRewardInfo(CreateRewardRequest request) throws BusinessException;
 
     @Transactional
+    RestResponse<?> rtrvRewardAll(PageableQueryWithoutArgRequest request) throws BusinessException;
+
+    @Transactional
     RestResponse<?> rtrvRewardList(PageableQueryWithoutArgRequest request) throws BusinessException;
 
     @Transactional
@@ -34,7 +37,4 @@ public interface RewardService {
 
     @Transactional
     RestResponse<?> receiveAReward(ReceiveARewardRequest request) throws BusinessException;
-
-    @Transactional
-    RestResponse<?> retrieveHotTagList(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest);
 }

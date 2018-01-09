@@ -24,4 +24,10 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     @Query("select t.id, t.serialNo, t.name from Tag t where t.id in ?1 order by t.id")
     List<Object[]> findTerseInfoById(List<Long> ids);
 
+    @Query(value="SELECT * FROM tag WHERE id IN (SELECT tag_id FROM reward WHERE DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= DATE(create_time))", nativeQuery = true)
+    List<Tag> findHotTagListInfo();
+
+    @Query(value="SELECT * FROM tag WHERE id IN (SELECT tag_id FROM reward WHERE DATE_SUB(CURDATE(), INTERVAL 7 DAY) <= DATE(create_time)) limit ?1,?2", nativeQuery = true)
+    List<Tag> findHotTagsHavePageable(Integer m,Integer n);
+
 }
