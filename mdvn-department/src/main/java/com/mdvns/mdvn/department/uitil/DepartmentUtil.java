@@ -42,16 +42,15 @@ public class DepartmentUtil {
             departmentDetail.setCreateTime(dept.getCreateTime().getTime());
         }
         //职位
-        String ids = dept.getPositions();
-        if (!StringUtils.isEmpty(ids)) {
-            List<Long> positions = new ArrayList<>();
-            for (String id : ids.split(",")) {
-                positions.add(Long.valueOf(id));
-            }
-
-            List<Position> positionList = positionRepository.findByIdIn(positions);
+//        String ids = dept.getPositions();
+//        if (!StringUtils.isEmpty(ids)) {
+//            List<Long> positions = new ArrayList<>();
+//            for (String id : ids.split(",")) {
+//                positions.add(Long.valueOf(id));
+//            }
+            List<Position> positionList = positionRepository.findAllByHostIdAndIsDeleted(dept.getId(),0);
             departmentDetail.setPositions(positionList);
-        }
+//        }
         return departmentDetail;
     }
 }

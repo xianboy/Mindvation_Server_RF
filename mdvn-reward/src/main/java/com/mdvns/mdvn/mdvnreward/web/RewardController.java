@@ -6,6 +6,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.mdvnreward.domain.CreateRewardRequest;
 import com.mdvns.mdvn.mdvnreward.domain.ReceiveARewardRequest;
+import com.mdvns.mdvn.mdvnreward.domain.RewardTimedPushRequest;
 import com.mdvns.mdvn.mdvnreward.domain.RtrvRewardDetailRequest;
 import com.mdvns.mdvn.mdvnreward.service.RewardService;
 import org.slf4j.Logger;
@@ -104,6 +105,17 @@ public class RewardController {
         LOG.info("开始执行{} receiveAReward()方法.", this.CLASS);
         return this.rewardService.receiveAReward(request);
     }
+
+    /**
+     * 揭榜后定时推送
+     */
+    @PostMapping(value = "/rewardTimedPush")
+    public RestResponse<?> rewardTimedPush(@RequestBody RewardTimedPushRequest request) throws BusinessException {
+        LOG.info("开始执行{} rewardTimedPush()方法.", this.CLASS);
+        return this.rewardService.rewardTimedPush(request);
+    }
+
+
 
 
 }

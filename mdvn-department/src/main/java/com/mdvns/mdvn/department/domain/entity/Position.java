@@ -20,6 +20,9 @@ public class Position {
     /*职位名称*/
     private String name;
 
+    /*部门id*/
+    private Long hostId;
+
     /*编号*/
     private String serialNo;
 
@@ -32,6 +35,9 @@ public class Position {
     /*是否已删除*/
     @JsonIgnore
     private Integer isDeleted;
+
+    /*更改时间*/
+    private Timestamp updateTime;
 
     public Position(String name) {
         this.name = name;

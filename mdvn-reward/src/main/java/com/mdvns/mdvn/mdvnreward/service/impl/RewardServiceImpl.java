@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -75,6 +74,7 @@ public class RewardServiceImpl implements RewardService {
         Long tagId = request.getTagId();
         reward.setCreateTime(currentTime);
         reward.setCreatorId(creatorId);
+        reward.setName(request.getName());
         reward.setContent(content);
         reward.setWelfareScore(welfareScore);
         reward.setContribution(contribution);
@@ -97,6 +97,7 @@ public class RewardServiceImpl implements RewardService {
 
     /**
      * 悬赏榜（初始化页面）
+     *
      * @param request
      * @return
      * @throws BusinessException
@@ -155,6 +156,8 @@ public class RewardServiceImpl implements RewardService {
     @Override
     @Transactional
     public RestResponse<?> rtrvUnsolvedRewardList(PageableQueryWithoutArgRequest request) throws BusinessException {
+        //后见返回对象rewardListResponse
+        RewardListResponse rewardListResponse = new RewardListResponse();
         //获取分页参数对象
         PageableCriteria pageableCriteria = request.getPageableCriteria();
         //构建PageRequest
@@ -166,9 +169,19 @@ public class RewardServiceImpl implements RewardService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest, 0, 0);
+        Page<Reward> rewardPage = this.rewardRepository.findByIsResolvedAndIsDeleted(pageRequest, 0, 0);
+        //返回对象信息
+        List<RewardInfo> rewardInfos = new ArrayList<>();
+        List<Reward> rewards = rewardPage.getContent();
+        for (int i = 0; i < rewards.size(); i++) {
+            Reward reward = rewards.get(i);
+            RewardInfo rewardInfo = this.getRewardInfo(reward);
+            rewardInfos.add(rewardInfo);
+        }
+        rewardListResponse.setRewardInfos(rewardInfos);
+        rewardListResponse.setTotalElements(rewardPage.getTotalElements());
         //返回结果
-        return RestResponseUtil.success(rewardPage);
+        return RestResponseUtil.success(rewardListResponse);
     }
 
     /**
@@ -181,6 +194,8 @@ public class RewardServiceImpl implements RewardService {
     @Override
     @Transactional
     public RestResponse<?> rtrvResolvedRewardList(PageableQueryWithoutArgRequest request) throws BusinessException {
+        //后见返回对象rewardListResponse
+        RewardListResponse rewardListResponse = new RewardListResponse();
         //获取分页参数对象
         PageableCriteria pageableCriteria = request.getPageableCriteria();
         //构建PageRequest
@@ -192,9 +207,19 @@ public class RewardServiceImpl implements RewardService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Reward> rewardPage = this.rewardRepository.findByIsUnveilAndIsDeleted(pageRequest, 1, 0);
+        Page<Reward> rewardPage = this.rewardRepository.findByIsResolvedAndIsDeleted(pageRequest, 1, 0);
+        //返回对象信息
+        List<RewardInfo> rewardInfos = new ArrayList<>();
+        List<Reward> rewards = rewardPage.getContent();
+        for (int i = 0; i < rewards.size(); i++) {
+            Reward reward = rewards.get(i);
+            RewardInfo rewardInfo = this.getRewardInfo(reward);
+            rewardInfos.add(rewardInfo);
+        }
+        rewardListResponse.setRewardInfos(rewardInfos);
+        rewardListResponse.setTotalElements(rewardPage.getTotalElements());
         //返回结果
-        return RestResponseUtil.success(rewardPage);
+        return RestResponseUtil.success(rewardListResponse);
     }
 
     /**
@@ -256,6 +281,45 @@ public class RewardServiceImpl implements RewardService {
     }
 
     /**
+     * 揭榜之后定时推送（给自己定时推送）
+     * @param request
+     * @return
+     */
+    @Override
+    public RestResponse<?> rewardTimedPush(RewardTimedPushRequest request) {
+        LOG.info("开始执行{} receiveAReward()方法.", this.CLASS);
+        // run in a second
+        Long pushTime = request.getPushTime();
+        final long timeInterval = 1000 *60*pushTime;//单位是毫秒
+        Runnable runnable = new Runnable() {
+            public void run() {
+                while (true) {
+                    // ------- code for task to run
+//                    System.out.println("Hello !!");
+                    // ------- ends here
+                    try {
+                        Thread.sleep(timeInterval);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        serverPushByrRewardTimedPush(request);
+                        LOG.info("开始定时消息推送");
+                    } catch (BusinessException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                }
+            }
+        };
+        Thread thread = new Thread(runnable);
+        thread.start();
+        LOG.info("结束执行{} receiveAReward()方法.", this.CLASS);
+        return RestResponseUtil.success(true);
+    }
+
+
+    /**
      * 创建reward的消息推送
      *
      * @param reward
@@ -297,6 +361,28 @@ public class RewardServiceImpl implements RewardService {
             LOG.error("消息推送(揭榜)出现异常，异常信息：" + e);
         }
     }
+
+
+    /**
+     * 揭榜之后创建项目给自己的消息推送
+     *
+     * @param request
+     * @throws BusinessException
+     */
+    private void serverPushByrRewardTimedPush(RewardTimedPushRequest request) throws BusinessException {
+        try {
+            Long initiatorId = request.getStaffId();
+            String serialNo = request.getSerialNo();
+            String subjectType = "reward";
+            String type = "toOneself";
+            ServerPushUtil.sendMessageToOneself(initiatorId, serialNo, subjectType, type);
+            LOG.info("揭榜之后定时给自己推送消息，消息推送成功");
+        } catch (Exception e) {
+            LOG.error("消息推送(揭榜)出现异常，异常信息：" + e);
+        }
+    }
+
+
 
     /**
      * 通过staffId获取staff详情

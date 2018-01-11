@@ -7,6 +7,7 @@ import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.mdvnreward.domain.CreateRewardRequest;
 import com.mdvns.mdvn.mdvnreward.domain.ReceiveARewardRequest;
+import com.mdvns.mdvn.mdvnreward.domain.RewardTimedPushRequest;
 import com.mdvns.mdvn.mdvnreward.domain.RtrvRewardDetailRequest;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,4 +38,6 @@ public interface RewardService {
 
     @Transactional
     RestResponse<?> receiveAReward(ReceiveARewardRequest request) throws BusinessException;
+
+    RestResponse<?> rewardTimedPush(RewardTimedPushRequest request);
 }

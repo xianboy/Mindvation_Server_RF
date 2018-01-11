@@ -27,7 +27,10 @@ public class RewardInfo {
     private Integer welfareScore;//福利积分
     private Integer contribution;//贡献度
     private Integer isUnveil;//是否已揭榜 (1代表已解决，0代表未解决)
+    private Integer isResolved;//是否已解决 (1代表已解决，0代表未解决)
     private Long tagId;
+    private Integer isHaveProject = 0;//是否已经创建项目
+    private String projSerialNo;//项目编号
     private Integer isDeleted;
 
     private Staff creatorInfo;

@@ -54,7 +54,7 @@ public class RetrieveServiceImpl implements RetrieveService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Department> deptPage = this.deptRepository.findAll(pageRequest);
+        Page<Department> deptPage = this.deptRepository.findByIsDeleted(pageRequest,0);
         //返回结果
         return RestResponseUtil.success(deptPage);
     }
