@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.common.bean;
 
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

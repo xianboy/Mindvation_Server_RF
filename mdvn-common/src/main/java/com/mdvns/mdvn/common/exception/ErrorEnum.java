@@ -28,6 +28,8 @@ public enum ErrorEnum {
     /*数据不存在*/
     NOT_EXISTS("557"),
 
+    SYSTEM_ERROR("554"),
+
     /*数据已存在*/
     EXISTED("558"),
     /*获取id和name失败*/
@@ -54,6 +56,7 @@ public enum ErrorEnum {
     //template
     /*新建模板时, 子过程方法不能为空*/
     TEMPLATE_SYSTEM_ERROR("30499"),
+    /*获取过程方法失败*/
     RETRIEVE_LABEL_FAILED("30498"),
     RETRIEVE_ROLEMEMBER_FAILED("30497"),
     //子过程方法为空
@@ -70,7 +73,10 @@ public enum ErrorEnum {
 
     /*模板不存在*/
     TEMPLATE_NOT_EXISTS("30404"),
-    DELIVERY_NOT_EXIST("30405"),
+    /*交付件不存在*/
+    DELIVERY_NOT_EXISTS("30405"),
+
+
 
     //requirement
     /*需求对象不存在*/

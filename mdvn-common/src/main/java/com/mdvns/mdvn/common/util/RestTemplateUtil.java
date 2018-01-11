@@ -137,7 +137,7 @@ public class RestTemplateUtil {
         RestResponse<Delivery> restResponse = responseEntity.getBody();
         if (!"000".equals(restResponse.getCode())) {
             LOG.error("获取ID为【{}】的交付件失败.", retrieveRequest.getCriterion());
-            throw new BusinessException(ErrorEnum.DELIVERY_NOT_EXIST, "获取id为【" + retrieveRequest.getCriterion() + "】的交付件失败.");
+            throw new BusinessException(ErrorEnum.DELIVERY_NOT_EXISTS, "获取id为【" + retrieveRequest.getCriterion() + "】的交付件失败.");
         } else {
             LOG.info("获取ID为【{}】的交付件成功...");
             return restResponse.getData();
@@ -166,7 +166,6 @@ public class RestTemplateUtil {
     }
 
     /**
-     *
      * @param retrieveUrl
      * @param retrieveRequest
      * @return
@@ -174,5 +173,8 @@ public class RestTemplateUtil {
      */
     public static AttchInfo retrieveAttach(String retrieveUrl, SingleCriterionRequest retrieveRequest) throws BusinessException {
         RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.postForObject(retrieveUrl, retrieveRequest, AttchInfo.class);    }
+        return restTemplate.postForObject(retrieveUrl, retrieveRequest, AttchInfo.class);
+    }
+
 }
+
