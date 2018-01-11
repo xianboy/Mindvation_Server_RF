@@ -40,6 +40,8 @@ public class ProjectDetail implements Serializable {
     private PageableResponse<RequirementModel> requirements;
     /*附件列表*/
     private List<AttchInfo> attchInfos;
+    /*权限信息*/
+    private List<StaffAuthInfo> staffAuthInfo;
 
 }
 

@@ -21,8 +21,11 @@ public class WebConfig {
     private String updateAttachesUrl;
     //通过subjectId获取附件列表信息
     private String rtrvAttsBySubjectIdUrl;
-    //获取auth的url
+    //获取assign auth的url
     private String assignAuthUrl;
-
+    //获取retrieve auth的url
+    private String rtrvStaffAuthUrl;
+    //获取remove auth的url
+    private String removeAuthUrl;
 
 }

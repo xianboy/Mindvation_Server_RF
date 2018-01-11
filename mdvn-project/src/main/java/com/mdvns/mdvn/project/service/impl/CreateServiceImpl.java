@@ -69,13 +69,13 @@ public class CreateServiceImpl implements CreateService {
         project = this.projectRepository.saveAndFlush(project);
 
         //为创建者添加权限
-        StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getId(),project.getCreatorId(), Arrays.asList(project.getCreatorId()),project.getId(), AuthConstant.BOSS));
+        StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getSerialNo(),project.getCreatorId(), Arrays.asList(project.getCreatorId()),project.getSerialNo(), AuthConstant.BOSS));
 
         //项目保存成功，保存leader: ManyToMany
         if (!(null == createRequest.getLeaders() || createRequest.getLeaders().isEmpty())) {
             this.projectStaffService.createProjectStaff(createRequest.getCreatorId(), project.getId(), createRequest.getLeaders());
             //为Leader添加权限
-            StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getId(),project.getCreatorId(),createRequest.getLeaders(),project.getId(), AuthConstant.LEADER));
+            StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getSerialNo(),project.getCreatorId(),createRequest.getLeaders(),project.getSerialNo(), AuthConstant.LEADER));
         }
         //项目保存成功，保存tag: ManyToMany
         if (!(null == createRequest.getTags() || createRequest.getTags().isEmpty())) {

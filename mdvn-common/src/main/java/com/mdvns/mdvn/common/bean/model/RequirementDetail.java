@@ -60,5 +60,6 @@ public class RequirementDetail implements Serializable {
 
     /*评论列表*/
     private List<CommentDetail> commentDetails;
-
+    /*权限信息*/
+    private List<StaffAuthInfo> staffAuthInfo;
 }

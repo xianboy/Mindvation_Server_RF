@@ -34,6 +34,8 @@ public class CreateTaskRequest implements Serializable {
     @NotNull(message = "交付件不能为空.")
     private Object delivery;
 
+    /*项目编号*/
+    private String projSerialNo;
 
 
 }

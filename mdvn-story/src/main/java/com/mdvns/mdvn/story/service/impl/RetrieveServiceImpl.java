@@ -67,6 +67,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(story, MdvnConstant.ID, retrieveDetailRequest.getCriterion());
         //设置
         StoryDetail detail = buildDetail(retrieveDetailRequest.getStaffId(), story);
+        //获取用户权限信息
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),story.getProjSerialNo(),story.getSerialNo(),retrieveDetailRequest.getStaffId());
+        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定id的story的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
@@ -87,6 +90,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "编号为【" + singleCriterionRequest.getCriterion() + "】的story不存在");
         //设置
         StoryDetail detail = buildDetail(singleCriterionRequest.getStaffId(), story);
+        //获取用户权限信息
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),story.getProjSerialNo(),story.getSerialNo(),singleCriterionRequest.getStaffId());
+        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定serialNo的story的详情成功, 结束运行【retrieveDetailBySerialNo】service...");
         //返回结果
         return RestResponseUtil.success(detail);

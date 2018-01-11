@@ -79,6 +79,12 @@ public class RetrieveServiceImpl implements RetrieveService {
         task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
         //获取task的附件
         task.setAttchInfos(FileUtil.getAttaches(task.getSerialNo()));
+        //获取task的权限
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),task.getProjSerialNo(),task.getSerialNo(),staffId);
+        if(!staffAuthInfos.isEmpty()){
+            task.setStaffAuthInfo(staffAuthInfos);
+        }
+
         LOG.info("根据Id获取详情成功...");
         return task;
     }

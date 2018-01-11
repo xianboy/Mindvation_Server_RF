@@ -12,7 +12,7 @@ import java.util.List;
 public class AssignAuthRequest {
 
 //    private String projId;
-    private Long projId;
+    private String projSerialNo;
 
 //    private String assignerId;
     private Long assignerId;
@@ -22,7 +22,7 @@ public class AssignAuthRequest {
 
 
 //    private String hierarchyId;
-    private Long hostId;
+    private String hostSerialNo;
 
     private Integer authCode;
 

@@ -1,7 +1,5 @@
-package com.mdvns.mdvn.common.bean;
+package com.mdvns.mdvn.staff.domain;
 
-import com.mdvns.mdvn.common.bean.model.StaffAuthInfo;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +7,6 @@ import java.util.List;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 public class RemoveAuthRequest {
 
     /*操作人(删除权限的人)Id*/

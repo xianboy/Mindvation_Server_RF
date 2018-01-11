@@ -99,18 +99,18 @@ public class StaffAuthUtil {
     /**
      * 获取员工在项目中的权限信息
      * @param rtrvStaffAuthUrl
-     * @param projId
-     * @param hostId
+     * @param projSerialNo
+     * @param hostSerialNo
      * @param staffId
      * @return
      * @throws BusinessException
      */
-	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, Long projId, Long hostId, Long staffId) throws BusinessException{
+	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, String projSerialNo, String hostSerialNo, Long staffId) throws BusinessException{
        RestTemplate restTemplate = new RestTemplate();
        ResponseEntity<List> responseEntity ;
        RtrvStaffAuthInfoRequest rtrvStaffAuthInfoRequest = new RtrvStaffAuthInfoRequest();
-       rtrvStaffAuthInfoRequest.setProjId(projId);
-       rtrvStaffAuthInfoRequest.setHostId(hostId);
+       rtrvStaffAuthInfoRequest.setProjSerialNo(projSerialNo);
+       rtrvStaffAuthInfoRequest.setHostSerialNo(hostSerialNo);
        rtrvStaffAuthInfoRequest.setStaffId(staffId);
         try {
             responseEntity = restTemplate.postForEntity(rtrvStaffAuthUrl,rtrvStaffAuthInfoRequest,List.class);
