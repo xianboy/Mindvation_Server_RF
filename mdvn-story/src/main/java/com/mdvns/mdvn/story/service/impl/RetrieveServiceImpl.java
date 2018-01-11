@@ -364,19 +364,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Long storyId = story.getId();
         Long templateId = story.getTemplateId();
         List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, storyId, templateId, 0);
-        List<Long> memberIds = new ArrayList<>();
-        for (int i = 0; i < roleMembers.size(); i++) {
-            List<TerseInfo> members = roleMembers.get(i).getMembers();
-            if (!StringUtils.isEmpty(members)) {
-                for (int j = 0; j < members.size(); j++) {
-                    Long memberId = members.get(j).getId();
-                    if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
-                        continue;
-                    }
-                    memberIds.add(memberId);
-                }
-            }
-        }
+        List<Long> memberIds = StaffUtil.getDistinctMembers(roleMembers);
         if (!memberIds.contains(creatorId)) {
             memberIds.add(creatorId);
         }
