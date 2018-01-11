@@ -250,6 +250,7 @@ public class MyWebSocket implements WebSocketService {
                     logger.info("发起人id: " + recipientId + ";[WebSocketServer] Received Message : userId = " + key + " , message = " + message);
                     WebSocketUtils.receive(key, message);
                     i.getValue().getBasicRemote().sendText(message);
+                    logger.info("++++++++++++++++++++定时推送消息给自己成功————————————————————&&");
                     keyStaffId = recipientId;
                 }
             } catch (Exception e) {
@@ -260,6 +261,7 @@ public class MyWebSocket implements WebSocketService {
          * 如果接收人不在线，入库
          */
         if (keyStaffId == null) {
+            logger.info("++++++++++++++++++++定时推送消息计入数据库————————————————————&&");
             ServerPush serverPush = new ServerPush();
             serverPush.setCreateTime(currentTime);
             serverPush.setInitiatorId(recipientId);

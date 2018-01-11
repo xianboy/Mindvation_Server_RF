@@ -25,5 +25,5 @@ public interface TagService {
     ResponseEntity<?> findById(Long tagId);
 
     @Transactional
-    RestResponse<?> retrieveHotTagList(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) throws BusinessException;
+    RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException;
 }

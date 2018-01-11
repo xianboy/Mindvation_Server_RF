@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.issue.domain.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -18,7 +19,7 @@ import java.sql.Timestamp;
 public class IssueAnswer {
     @Id
     @GeneratedValue
-    private Integer uuId;
+    private Long id;
     private String answerId;
     private String issueId;
     private Long creatorId;
@@ -37,6 +38,8 @@ public class IssueAnswer {
     //踩的所有人的Id
     @Column(columnDefinition = "text")
     private String dislikeIds;
-    private String projId;
+    private String projSerialNo;//项目编号
+    @JsonIgnore
+    private Integer isDeleted = 0;
 
 }

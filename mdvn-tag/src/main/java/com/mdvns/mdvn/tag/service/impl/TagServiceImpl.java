@@ -147,22 +147,24 @@ public class TagServiceImpl implements TagService {
     }
 
     /**
-     * 查询一周内热门标签数据：支持分页
+     * 查询一周内热门标签数据：支持分页(悬赏榜/求助)
      *
      * @return restResponse
      */
     @Override
     @Transactional
-    public RestResponse<?> retrieveHotTagList(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) throws BusinessException {
+    public RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException {
         //获取分页参数对象
-        PageableCriteria pageableCriteria = pageableQueryWithoutArgRequest.getPageableCriteria();
+        PageableCriteria pageableCriteria = request.getPageableCriteria();
+        //获取查询条件（悬赏、求助）
+        String criterion = request.getCriterion();
         //创建pageableResponse对象
         PageableResponse pageableResponse = new PageableResponse();
         //判断有无分页参数
         List<Tag> tags = new ArrayList();
         try {
             if (null == pageableCriteria) {
-                LOG.info("用户[{}]没有填写分页参数，故查标签这里不分页.", pageableQueryWithoutArgRequest.getStaffId());
+                LOG.info("用户[{}]没有填写分页参数，故查标签这里不分页.", request.getStaffId());
                 tags = this.tagRepository.findHotTagListInfo();
                 pageableResponse.setTotalElements((long) tags.size());
             } else {
@@ -170,7 +172,12 @@ public class TagServiceImpl implements TagService {
                 Integer pageSize = pageableCriteria.getSize();
                 Integer m = page * pageSize;
                 Integer n = pageSize;
-                tags = this.tagRepository.findHotTagsHavePageable(m, n);
+                if (criterion.equals("reward")) {
+                    tags = this.tagRepository.findRewardHotTagsHavePageable(m, n);
+                }
+                if (criterion.equals("issue")) {
+                    tags = this.tagRepository.findIssueHotTagsHavePageable(m, n);
+                }
                 pageableResponse.setNumber(page);
                 pageableResponse.setNumberOfElements(tags.size());
                 pageableResponse.setSize(pageSize);

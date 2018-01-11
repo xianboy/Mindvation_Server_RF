@@ -84,7 +84,7 @@ public class TagController {
      * @return
      */
     @PostMapping(value = "/retrieveHotTagList")
-    public RestResponse<?> retrieveHotTagList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+    public RestResponse<?> retrieveHotTagList(@RequestBody SingleCriterionRequest request) throws BusinessException {
         return this.tagService.retrieveHotTagList(request);
     }
 }

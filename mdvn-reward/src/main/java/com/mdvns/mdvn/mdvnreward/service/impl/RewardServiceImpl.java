@@ -290,6 +290,7 @@ public class RewardServiceImpl implements RewardService {
         LOG.info("开始执行{} receiveAReward()方法.", this.CLASS);
         // run in a second
         Long pushTime = request.getPushTime();
+        LOG.info("推送给自己的Id是"+request.getStaffId());
         final long timeInterval = 1000 *60*pushTime;//单位是毫秒
         Runnable runnable = new Runnable() {
             public void run() {
@@ -304,7 +305,7 @@ public class RewardServiceImpl implements RewardService {
                     }
                     try {
                         serverPushByrRewardTimedPush(request);
-                        LOG.info("开始定时消息推送");
+                        LOG.info("开始定时消息推送；"+"时间是"+pushTime+"分钟");
                     } catch (BusinessException e) {
                         e.printStackTrace();
                     }
