@@ -92,6 +92,18 @@ public class Task implements Serializable {
     @Transient//非持久化字段
     private List<StaffAuthInfo> staffAuthInfo;
 
+    /**
+     * 项目层级结构类型
+     * possible values are : 2, 3, 4
+     *
+     * Explanation
+     * 2 : Project -> Task
+     * 3 : Project -> Requirement -> Task
+     * 4 : Project -> Requirement -> Story -> Task
+     */
+    @Column(nullable = false)
+    private Integer layerType;
+
 
 
     public void setStartDate(Long startDate) {

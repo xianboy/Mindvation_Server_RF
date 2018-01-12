@@ -62,4 +62,17 @@ public class RequirementDetail implements Serializable {
     private List<CommentDetail> commentDetails;
     /*权限信息*/
     private List<StaffAuthInfo> staffAuthInfo;
+
+
+    /**
+     * 项目层级结构类型
+     * possible values are : 2, 3, 4
+     *
+     * Explanation
+     * 2 : Project -> Task
+     * 3 : Project -> Requirement -> Task
+     * 4 : Project -> Requirement -> Story -> Task
+     */
+    private Integer layerType;
+
 }

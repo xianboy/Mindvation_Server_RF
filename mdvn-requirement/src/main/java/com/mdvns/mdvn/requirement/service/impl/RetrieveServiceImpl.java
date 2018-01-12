@@ -169,13 +169,15 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置开始/结束日期
         detail.setStartDate(requirement.getStartDate().getTime());
         detail.setEndDate(requirement.getEndDate().getTime());
-        detail.setStories(getStories(staffId, requirement.getSerialNo()));
+//        detail.setStories(getStories(staffId, requirement.getSerialNo()));
         //设置story point 总数
 //        detail.setStoryPointAmount(getStoryPointAmount());
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(requirement.getSerialNo()));
         //设置评论
         detail.setCommentDetails(this.rtrvCommentInfos(requirement));
+        //设置层级结构类型
+        detail.setLayerType(requirement.getLayerType());
         return detail;
     }
 

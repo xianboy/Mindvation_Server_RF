@@ -111,6 +111,12 @@ public class CreateServiceImpl implements CreateService {
             story.setAttaches(aches);
             FileUtil.buildAttaches(attaches,serialNo);
         }
+
+        //项目层级类型
+        if(request.getLayerType().equals(MdvnConstant.TWO)||request.getLayerType().equals(MdvnConstant.THREE)||request.getLayerType().equals(MdvnConstant.FOUR)){
+            story.setLayerType(request.getLayerType());
+        }
+
         return story;
     }
 

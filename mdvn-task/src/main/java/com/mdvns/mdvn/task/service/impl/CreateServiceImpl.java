@@ -90,6 +90,7 @@ public class CreateServiceImpl implements CreateService {
         task.setEndDate(createRequest.getEndDate());
 
         task.setProjSerialNo(createRequest.getProjSerialNo());
+        task.setLayerType(createRequest.getLayerType());
         return task;
     }
 

@@ -172,11 +172,13 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置story point
         detail.setStoryPoint(story.getStoryPoint());
         //设置task列表
-        detail.setTasks(getTasks(staffId, story.getSerialNo()));
+//        detail.setTasks(getTasks(staffId, story.getSerialNo()));
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(story.getSerialNo()));
         //设置评论
         detail.setCommentDetails(this.rtrvCommentInfos(story));
+        //设置层级结构类型
+        detail.setLayerType(story.getLayerType());
         return detail;
     }
 

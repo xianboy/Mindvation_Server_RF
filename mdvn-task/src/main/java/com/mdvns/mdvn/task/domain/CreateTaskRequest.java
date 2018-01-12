@@ -37,5 +37,7 @@ public class CreateTaskRequest implements Serializable {
     /*项目编号*/
     private String projSerialNo;
 
+    /* 层级结构类型 */
+    private Integer layerType;
 
 }

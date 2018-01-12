@@ -161,6 +161,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 //        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(proj.getSerialNo()));
+        //设置层级结构类型
+        detail.setLayerType(proj.getLayerType());
         return detail;
     }
 

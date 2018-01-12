@@ -60,4 +60,7 @@ public class CreateRequirementRequest {
     /*需求附件: 多个附件的id*/
     private List<Long> attaches;
 
+    /*项目层级结构类型*/
+    private Integer layerType;
+
 }
