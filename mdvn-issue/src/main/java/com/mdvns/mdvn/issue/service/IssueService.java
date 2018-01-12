@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.issue.service;
 
+import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -15,4 +16,5 @@ public interface IssueService {
     RestResponse<?> rtrvIssueList(SingleCriterionRequest request) throws BusinessException;
 
 
+    RestResponse<?> rtrvIssueRankingList(PageableQueryWithoutArgRequest request);
 }

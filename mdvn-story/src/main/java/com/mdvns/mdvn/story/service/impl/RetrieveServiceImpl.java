@@ -381,27 +381,11 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     private List<CommentDetail> rtrvCommentInfos(Story story) {
         String rCommentInfosUrl = webConfig.getRtrvCommentInfosUrl();
-        RtrvCommentInfosRequest rtrvCommentInfosRequest = new RtrvCommentInfosRequest();
-        rtrvCommentInfosRequest.setProjId(story.getProjSerialNo());
-        rtrvCommentInfosRequest.setSubjectId(story.getSerialNo());
-        //实例化restTemplate对象
-        RestTemplate restTemplate = new RestTemplate();
-        ParameterizedTypeReference trReference = new ParameterizedTypeReference<List<CommentDetail>>() {
-        };
-        List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
-        for (int j = 0; j < comDetails.size(); j++) {
-            //创建者返回对象
-            Long creatorId = comDetails.get(j).getCommentInfo().getCreatorId();
-            String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-            Staff staff = StaffUtil.rtrvStaffInfoById(creatorId, rtrvStaffInfoByIdUrl);
-            comDetails.get(j).getCommentInfo().setCreatorInfo(staff);
-            //被@的人返回对象
-            if (comDetails.get(j).getCommentInfo().getReplyId() != null) {
-                Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
-                Staff passiveAtInfo = StaffUtil.rtrvStaffInfoById(passiveAt, rtrvStaffInfoByIdUrl);
-                comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
-            }
-        }
+        String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        String projSerialNo = story.getProjSerialNo();
+        String serialNo = story.getSerialNo();
+        List<CommentDetail> comDetails = CommentUtil.rtrvCommentInfos(projSerialNo,serialNo,rCommentInfosUrl,rtrvStaffInfoByIdUrl);
         return comDetails;
     }
+
 }

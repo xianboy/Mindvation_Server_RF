@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.task.service.impl;
 
+import com.mdvns.mdvn.common.bean.MultipleCriterionRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
@@ -162,6 +163,32 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         LOG.info("获取task的历史记录成功...");
         return RestResponseUtil.success(historyList);
+    }
+
+    /**
+     * 获取某人所有的task信息
+     * @param retrieveRequest
+     * @return
+     */
+    @Override
+    public RestResponse<?> retrieveAllTaskInfoById(MultipleCriterionRequest retrieveRequest) throws BusinessException {
+        LOG.info("获取某人ID为【{}】的所有taskInfo开始...", retrieveRequest.getCriterion());
+        Long staffId = Long.valueOf(retrieveRequest.getCriterion());
+        String projSerialNo = retrieveRequest.getOtherCriterion();
+        if (StringUtils.isEmpty(retrieveRequest.getCriterion())) {
+            LOG.error("值为【{}】的查询参数错误.", retrieveRequest.getCriterion());
+            throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "查询参数错误");
+        }
+        PageableCriteria pageableCriteria = retrieveRequest.getPageableCriteria();
+        //构建分页对象
+        if (pageableCriteria != null) {
+            PageRequest pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
+            Page<Task> taskPage = this.repository.findAllByCreatorIdAndProjSerialNo(staffId, projSerialNo,pageRequest);
+            return RestResponseUtil.success(taskPage);
+        }
+        List<Task> taskList = this.repository.findAllByCreatorIdAndProjSerialNo(staffId,projSerialNo);
+        LOG.info("获取task的历史记录成功...");
+        return RestResponseUtil.success(taskList);
     }
 
 }

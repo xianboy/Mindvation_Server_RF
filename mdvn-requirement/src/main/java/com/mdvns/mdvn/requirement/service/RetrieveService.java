@@ -25,4 +25,6 @@ public interface RetrieveService {
     Long retrieveLabelIdBySerialNo(SingleCriterionRequest retrieveRequest);
 
     List<Long> retrieveReqMembersBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
+
+    RestResponse<?> retrieveReqMembersInfoBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
 }

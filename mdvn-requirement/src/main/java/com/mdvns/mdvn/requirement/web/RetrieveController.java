@@ -85,4 +85,20 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveReqMembersBySerialNo(singleCriterionRequest);
     }
+
+
+    /**
+     * 获取指定项目serialNo下的所有requirement的不重复成员对象
+     * @param singleCriterionRequest request
+     * @param bindingResult bindingResult
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @PostMapping(value = "/retrieveAllReqMembersInfo")
+    public RestResponse<?> retrieveReqMembersInfoBySerialNo(@RequestBody  @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveReqMembersInfoBySerialNo(singleCriterionRequest);
+    }
+
+
 }

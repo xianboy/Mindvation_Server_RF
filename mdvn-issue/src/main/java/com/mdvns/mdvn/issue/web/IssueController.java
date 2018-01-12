@@ -28,7 +28,7 @@ public class IssueController {
     private IssueService issueService;
 
     /**
-     * 获取悬赏榜信息列表(解决/未解决)
+     * 获取求助信息列表(解决/未解决)
      * @param request
      * @return
      */
@@ -36,6 +36,17 @@ public class IssueController {
     public RestResponse<?> rtrvIssueList(@RequestBody SingleCriterionRequest request) throws BusinessException {
         LOG.info("开始执行{} rtrvIssueList()方法.", this.CLASS);
         return this.issueService.rtrvIssueList(request);
+    }
+
+    /**
+     * 获取求助的排行榜（比例）
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/rtrvIssueRankingList")
+    public RestResponse<?> rtrvIssueRankingList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+        LOG.info("开始执行{} rtrvIssueRankingList()方法.", this.CLASS);
+        return this.issueService.rtrvIssueRankingList(request);
     }
 
 

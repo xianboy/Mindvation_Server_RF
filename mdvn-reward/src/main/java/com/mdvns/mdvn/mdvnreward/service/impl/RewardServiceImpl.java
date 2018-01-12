@@ -384,28 +384,6 @@ public class RewardServiceImpl implements RewardService {
     }
 
 
-
-    /**
-     * 通过staffId获取staff详情
-     *
-     * @param id
-     * @return
-     */
-    public Staff rtrvStaffInfoById(Long id) {
-        //实例化restTem对象
-        RestTemplate restTemplate = new RestTemplate();
-        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
-        singleCriterionRequest.setCriterion(String.valueOf(id));
-        singleCriterionRequest.setStaffId(id);
-        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
-        };
-        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveByIdUrl, HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
-        RestResponse<Staff> restResponse = responseEntity.getBody();
-        return restResponse.getData();
-    }
-
-
     /**
      * 赋值并返回人员及标签对象信息
      *
@@ -418,7 +396,9 @@ public class RewardServiceImpl implements RewardService {
         BeanUtils.copyProperties(reward, rewardInfo);
         rewardInfo.setCreateTime(reward.getCreateTime().getTime());
         //查询创建者对象信息
-        Staff creatorInfo = this.rtrvStaffInfoById(reward.getCreatorId());
+        /*获取某个员工对象信息*/
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff creatorInfo = StaffUtil.rtrvStaffInfoById(reward.getCreatorId(),retrieveByIdUrl);
         rewardInfo.setCreatorInfo(creatorInfo);
         if (!StringUtils.isEmpty(reward.getTagId())) {
             //实例化restTemplate对象
@@ -431,7 +411,8 @@ public class RewardServiceImpl implements RewardService {
         }
         //查询揭榜者对象信息
         if (!StringUtils.isEmpty(reward.getUnveilId())) {
-            Staff unveilInfo = this.rtrvStaffInfoById(reward.getUnveilId());
+            /*获取某个员工对象信息*/
+            Staff unveilInfo = StaffUtil.rtrvStaffInfoById(reward.getUnveilId(),retrieveByIdUrl);
             rewardInfo.setUnveilInfo(unveilInfo);
         }
         return rewardInfo;

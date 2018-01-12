@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.issue.service.impl;
 
+import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
@@ -9,10 +10,13 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 
 import com.mdvns.mdvn.common.util.PageableQueryUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.StaffUtil;
 import com.mdvns.mdvn.issue.config.WebConfig;
 import com.mdvns.mdvn.issue.domain.IssueInfo;
 import com.mdvns.mdvn.issue.domain.IssueListResponse;
+import com.mdvns.mdvn.issue.domain.IssueRanking;
 import com.mdvns.mdvn.issue.domain.entity.Issue;
+import com.mdvns.mdvn.issue.repository.IssueAnswerRepository;
 import com.mdvns.mdvn.issue.repository.IssueRepository;
 import com.mdvns.mdvn.issue.service.IssueService;
 import org.slf4j.Logger;
@@ -32,6 +36,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -49,6 +55,8 @@ public class IssueServiceImpl implements IssueService {
     /*Dashboard Repository*/
     @Autowired
     private IssueRepository issueRepository;
+    @Autowired
+    private IssueAnswerRepository issueAnswerRepository;
 
     /*注入WebConfig*/
     @Autowired
@@ -102,23 +110,63 @@ public class IssueServiceImpl implements IssueService {
 
 
     /**
-     * 通过staffId获取staff详情
+     * 获取求助的排行榜
      *
-     * @param id
+     * @param request
      * @return
      */
-    public Staff rtrvStaffInfoById(Long id) {
-        //实例化restTem对象
-        RestTemplate restTemplate = new RestTemplate();
-        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
-        singleCriterionRequest.setCriterion(String.valueOf(id));
-        singleCriterionRequest.setStaffId(id);
-        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
-        };
-        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveByIdUrl, HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
-        RestResponse<Staff> restResponse = responseEntity.getBody();
-        return restResponse.getData();
+    @Override
+    public RestResponse<?> rtrvIssueRankingList(PageableQueryWithoutArgRequest request) {
+        List<IssueRanking> issueRankings = new ArrayList<>();
+        /**
+         * 1.查询回答过issue的所有员工
+         */
+        List<Long> staffIdList = this.issueAnswerRepository.findAllIssueStaffList();
+        /**
+         * 2.查询每一个员工回答过得所有求助issue（已解决的）
+         */
+        for (int i = 0; i < staffIdList.size(); i++) {
+            IssueRanking issueRanking = new IssueRanking();
+            Long staffId = Long.parseLong(String.valueOf(staffIdList.get(i)));
+            /*获取某个员工对象信息*/
+            String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+            Staff staffInfo = StaffUtil.rtrvStaffInfoById(staffId,retrieveByIdUrl);
+            issueRanking.setCreatorInfo(staffInfo);
+            List<Issue> issueList = this.issueRepository.findAllIssueListHaveResolved(staffId);
+            issueRanking.setResolveNum(Long.valueOf(issueList.size()));
+            /**
+             * 3.查询员工回答过的issue里面采纳员工的issue(自己被采纳的)
+             */
+            List<Issue> issueListHaveAdopt = this.issueRepository.findAllIssueListHaveAdopt(staffId);
+            issueRanking.setAdoptNum(Long.valueOf(issueListHaveAdopt.size()));
+            /**
+             * 4.算出比例
+             */
+            Float proportion = Float.valueOf(issueListHaveAdopt.size()/issueList.size()*100);
+            issueRanking.setProportion(proportion);
+            issueRankings.add(issueRanking);
+        }
+        //排序
+        Collections.sort(issueRankings, new Comparator<IssueRanking>() {
+
+            public int compare(IssueRanking o1, IssueRanking o2) {
+
+                // 按照学生的年龄进行降序排列
+                if (o1.getProportion() > o2.getProportion()) {
+                    return -1;
+                }
+                if (o1.getProportion() == o2.getProportion()) {
+                    return 0;
+                }
+                return 1;
+            }
+        });
+        //给出编号
+        for (int i = 0; i < issueRankings.size(); i++) {
+            issueRankings.get(i).setNoun(Long.valueOf(i+1));
+        }
+
+        return RestResponseUtil.success(issueRankings);
     }
 
 
@@ -134,7 +182,9 @@ public class IssueServiceImpl implements IssueService {
         BeanUtils.copyProperties(issue, issueInfo);
         issueInfo.setCreateTime(issue.getCreateTime().getTime());
         //查询创建者对象信息
-        Staff creatorInfo = this.rtrvStaffInfoById(issue.getCreatorId());
+        /*获取某个员工对象信息*/
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff creatorInfo = StaffUtil.rtrvStaffInfoById(issue.getCreatorId(),retrieveByIdUrl);
         issueInfo.setCreatorInfo(creatorInfo);
         if (!StringUtils.isEmpty(issue.getTagId())) {
             //实例化restTemplate对象
