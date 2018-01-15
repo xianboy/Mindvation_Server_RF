@@ -40,4 +40,6 @@ public interface RewardService {
     RestResponse<?> receiveAReward(ReceiveARewardRequest request) throws BusinessException;
 
     RestResponse<?> rewardTimedPush(RewardTimedPushRequest request);
+
+    RestResponse<?> rtrvRewardRankingList(PageableQueryWithoutArgRequest request);
 }

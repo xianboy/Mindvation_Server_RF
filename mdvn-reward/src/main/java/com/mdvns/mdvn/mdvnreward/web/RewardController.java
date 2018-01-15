@@ -115,6 +115,17 @@ public class RewardController {
         return this.rewardService.rewardTimedPush(request);
     }
 
+    /**
+     * 获取悬赏的排行榜（比例）
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/rtrvRewardRankingList")
+    public RestResponse<?> rtrvRewardRankingList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+        LOG.info("开始执行{} rtrvRewardRankingList()方法.", this.CLASS);
+        return this.rewardService.rtrvRewardRankingList(request);
+    }
+
 
 
 

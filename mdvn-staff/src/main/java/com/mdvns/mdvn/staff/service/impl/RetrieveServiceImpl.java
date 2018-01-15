@@ -103,6 +103,21 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
+     * 根据id集合获取staff对象
+     *
+     * @param retrieveTerseInfoRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveStaffInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest) {
+        //根据request获取id集合
+        List<Long> ids = retrieveTerseInfoRequest.getIds();
+        List<Staff> resultSet = this.staffRepository.findStaffInfosById(ids);
+        LOG.info("根据id集合获取staff对象完成：{}", resultSet.toString());
+        return RestResponseUtil.success(resultSet);
+    }
+
+    /**
      * 根据name查人
      * @param retrieveRequest request
      * @return RestResponse

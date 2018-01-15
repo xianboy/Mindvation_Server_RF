@@ -61,6 +61,7 @@ public class CreateRequirementRequest {
     private List<Long> attaches;
 
     /*项目层级结构类型*/
+    @NotNull(message = "层级不能为空.")
     private Integer layerType;
 
 }

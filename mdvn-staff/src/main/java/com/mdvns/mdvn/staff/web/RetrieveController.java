@@ -55,6 +55,17 @@ public class RetrieveController {
         return this.retrieveService.retrieveTerseInfo(retrieveTerseInfoRequest);
     }
 
+    /**
+     * 根据id集合获取staff对象
+     * @param retrieveTerseInfoRequest request
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveStaffInfos")
+    public RestResponse<?> retrieveStaffInfos(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveStaffInfos(retrieveTerseInfoRequest);
+    }
+
 
     @PostMapping(value = "/retrieveByName")
     public RestResponse<?> retrieveByName(@RequestBody @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) {

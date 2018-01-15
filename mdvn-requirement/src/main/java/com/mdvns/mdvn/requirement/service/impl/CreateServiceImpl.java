@@ -73,9 +73,6 @@ public class CreateServiceImpl implements CreateService {
             if(!addList.isEmpty()){
                 StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),addList,requirement.getSerialNo(),AuthConstant.RMEMBER));
             }
-
-
-
         }
         //设置成员数量
         requirement.setMemberAmount(memberAmount);

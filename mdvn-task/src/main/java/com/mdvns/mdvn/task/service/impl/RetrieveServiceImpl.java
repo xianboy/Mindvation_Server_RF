@@ -184,9 +184,20 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (pageableCriteria != null) {
             PageRequest pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
             Page<Task> taskPage = this.repository.findAllByCreatorIdAndProjSerialNo(staffId, projSerialNo,pageRequest);
+            List<Task> taskList = taskPage.getContent();
+            for (int i = 0; i < taskList.size(); i++) {
+                Task task = taskList.get(i);
+                //获取task的交付件
+                task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
+            }
             return RestResponseUtil.success(taskPage);
         }
         List<Task> taskList = this.repository.findAllByCreatorIdAndProjSerialNo(staffId,projSerialNo);
+        for (int i = 0; i < taskList.size(); i++) {
+            Task task = taskList.get(i);
+            //获取task的交付件
+            task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
+        }
         LOG.info("获取task的历史记录成功...");
         return RestResponseUtil.success(taskList);
     }

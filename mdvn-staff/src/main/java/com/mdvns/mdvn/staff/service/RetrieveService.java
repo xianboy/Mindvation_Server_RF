@@ -16,6 +16,8 @@ public interface RetrieveService {
 
     RestResponse<?> retrieveTerseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 
+    RestResponse<?> retrieveStaffInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
+
     //根据name查人
     RestResponse<?> retrieveByName(SingleCriterionRequest singleCriterionRequest);
 

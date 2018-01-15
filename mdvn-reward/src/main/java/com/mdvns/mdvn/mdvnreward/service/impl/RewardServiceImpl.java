@@ -31,7 +31,10 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.sql.Timestamp;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -282,6 +285,7 @@ public class RewardServiceImpl implements RewardService {
 
     /**
      * 揭榜之后定时推送（给自己定时推送）
+     *
      * @param request
      * @return
      */
@@ -290,8 +294,8 @@ public class RewardServiceImpl implements RewardService {
         LOG.info("开始执行{} receiveAReward()方法.", this.CLASS);
         // run in a second
         Long pushTime = request.getPushTime();
-        LOG.info("推送给自己的Id是"+request.getStaffId());
-        final long timeInterval = 1000 *60*pushTime;//单位是毫秒
+        LOG.info("推送给自己的Id是" + request.getStaffId());
+        final long timeInterval = 1000 * 60 * pushTime;//单位是毫秒
         Runnable runnable = new Runnable() {
             public void run() {
                 while (true) {
@@ -305,7 +309,7 @@ public class RewardServiceImpl implements RewardService {
                     }
                     try {
                         serverPushByrRewardTimedPush(request);
-                        LOG.info("开始定时消息推送；"+"时间是"+pushTime+"分钟");
+                        LOG.info("开始定时消息推送；" + "时间是" + pushTime + "分钟");
                     } catch (BusinessException e) {
                         e.printStackTrace();
                     }
@@ -398,7 +402,7 @@ public class RewardServiceImpl implements RewardService {
         //查询创建者对象信息
         /*获取某个员工对象信息*/
         String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        Staff creatorInfo = StaffUtil.rtrvStaffInfoById(reward.getCreatorId(),retrieveByIdUrl);
+        Staff creatorInfo = StaffUtil.rtrvStaffInfoById(reward.getCreatorId(), retrieveByIdUrl);
         rewardInfo.setCreatorInfo(creatorInfo);
         if (!StringUtils.isEmpty(reward.getTagId())) {
             //实例化restTemplate对象
@@ -412,7 +416,7 @@ public class RewardServiceImpl implements RewardService {
         //查询揭榜者对象信息
         if (!StringUtils.isEmpty(reward.getUnveilId())) {
             /*获取某个员工对象信息*/
-            Staff unveilInfo = StaffUtil.rtrvStaffInfoById(reward.getUnveilId(),retrieveByIdUrl);
+            Staff unveilInfo = StaffUtil.rtrvStaffInfoById(reward.getUnveilId(), retrieveByIdUrl);
             rewardInfo.setUnveilInfo(unveilInfo);
         }
         return rewardInfo;
@@ -497,6 +501,67 @@ public class RewardServiceImpl implements RewardService {
         //返回结果
 //        return restResponse.getData().getContent();
         return restResponse;
+    }
+
+    /**
+     * 获取悬赏的排行榜
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public RestResponse<?> rtrvRewardRankingList(PageableQueryWithoutArgRequest request) {
+        List<RewardRanking> rewardRankings = new ArrayList<>();
+        /**
+         * 1.查询揭榜过悬赏的所有员工
+         */
+        List<Long> staffIdList = this.rewardRepository.findAllRewardStaffList();
+        /**
+         * 2.查询每一个员工揭榜过的所有求助reward（已揭榜）
+         */
+        for (int i = 0; i < staffIdList.size(); i++) {
+            RewardRanking rewardRanking = new RewardRanking();
+            Long staffId = Long.parseLong(String.valueOf(staffIdList.get(i)));
+            /*获取某个员工对象信息*/
+            String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+            Staff staffInfo = StaffUtil.rtrvStaffInfoById(staffId, retrieveByIdUrl);
+            rewardRanking.setCreatorInfo(staffInfo);
+            List<Reward> rewardListHaveUnveil = this.rewardRepository.findAllRewardListHaveUnveil(staffId);
+            rewardRanking.setUnveilNum(Long.valueOf(rewardListHaveUnveil.size()));
+            /**
+             * 3.查询员工揭榜过的reward里面已解决的reward(已解决)
+             */
+            List<Reward> rewardListHaveResolved = this.rewardRepository.findAllRewardListHaveResolved(staffId);
+            rewardRanking.setResolveNum(Long.valueOf(rewardListHaveResolved.size()));
+            /**
+             * 4.算出比例
+             */
+            Float proportion = Float.valueOf(rewardListHaveResolved.size() * 10000 / rewardListHaveUnveil.size());
+            proportion = new Float(new DecimalFormat(".00").format(proportion/100));
+            rewardRanking.setProportion(proportion);
+            rewardRankings.add(rewardRanking);
+        }
+        //排序
+        Collections.sort(rewardRankings, new Comparator<RewardRanking>() {
+
+            public int compare(RewardRanking o1, RewardRanking o2) {
+
+                // 按照学生的年龄进行降序排列
+                if (o1.getProportion() > o2.getProportion()) {
+                    return -1;
+                }
+                if (o1.getProportion() == o2.getProportion()) {
+                    return 0;
+                }
+                return 1;
+            }
+        });
+        //给出编号
+        for (int i = 0; i < rewardRankings.size(); i++) {
+            rewardRankings.get(i).setNoun(Long.valueOf(i + 1));
+        }
+
+        return RestResponseUtil.success(rewardRankings);
     }
 
 }

@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -142,7 +143,8 @@ public class IssueServiceImpl implements IssueService {
             /**
              * 4.算出比例
              */
-            Float proportion = Float.valueOf(issueListHaveAdopt.size()/issueList.size()*100);
+            Float proportion = Float.valueOf(issueListHaveAdopt.size()*10000/issueList.size());
+            proportion = new Float(new DecimalFormat(".00").format(proportion/100));
             issueRanking.setProportion(proportion);
             issueRankings.add(issueRanking);
         }

@@ -38,6 +38,7 @@ public class CreateTaskRequest implements Serializable {
     private String projSerialNo;
 
     /* 层级结构类型 */
+    @NotNull(message = "层级不能为空.")
     private Integer layerType;
 
 }

@@ -167,7 +167,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //设置开始/结束日期
         detail.setStartDate(requirement.getStartDate().getTime());
         detail.setEndDate(requirement.getEndDate().getTime());
-//        detail.setStories(getStories(staffId, requirement.getSerialNo()));
+        detail.setStories(getStories(staffId, requirement.getSerialNo()));
         //设置story point 总数
 //        detail.setStoryPointAmount(getStoryPointAmount());
         //设置附件
@@ -314,9 +314,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             staffIds.add(sId);
         }
         //获取member的url
-        String retrieveMembersUrl = webConfig.getRetrieveMembersUrl();
+        String retrieveMembersUrl = webConfig.getRetrieveStaffInfosUrl();
         //调用staff模块获取成员信息
-        List<TerseInfo> members = RestTemplateUtil.retrieveTerseInfo(staffId, staffIds, retrieveMembersUrl);
+        List<Staff> members = RestTemplateUtil.retrieveStaffInfos(staffId, staffIds, retrieveMembersUrl);
         MdvnCommonUtil.emptyList(members, ErrorEnum.STAFF_NOT_EXISTS, "Id为【" + staffIds.toString() + "】的用户不存在.");
         LOG.info("获取所有requirement的成员信息成功...");
         return RestResponseUtil.success(members);
