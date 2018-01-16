@@ -1,6 +1,5 @@
 package com.mdvns.mdvn.department.domain;
 
-import com.mdvns.mdvn.department.domain.entity.Position;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -19,9 +18,7 @@ public class UpdateDepartmentRequest {
     @NotNull(message = "staffId不能为空")
     @Min(value = 1, message = "staffId不能小于1")
     private Long staffId;
-
-    private String name;
-
-    private List<Position> positionList;
+    /*职位*/
+    private List<String> positions;
 
 }

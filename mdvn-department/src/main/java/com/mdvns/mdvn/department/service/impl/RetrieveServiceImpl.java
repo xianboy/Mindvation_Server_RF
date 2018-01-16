@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.department.service.impl;
 
 import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
-import com.mdvns.mdvn.common.bean.PageableResponse;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
@@ -10,7 +9,6 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.PageableQueryUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.department.domain.DepartmentDetail;
 import com.mdvns.mdvn.department.domain.entity.Department;
 import com.mdvns.mdvn.department.repository.DeptRepository;
 import com.mdvns.mdvn.department.repository.PositionRepository;
@@ -25,8 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class RetrieveServiceImpl implements RetrieveService {
@@ -46,7 +42,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     @Override
     @Transactional
-    public RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) throws BusinessException {
+    public RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) {
         //获取分页参数对象
         PageableCriteria pageableCriteria = pageableQueryWithoutArgRequest.getPageableCriteria();
         //构建PageRequest
@@ -58,20 +54,9 @@ public class RetrieveServiceImpl implements RetrieveService {
             pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
         }
         //分页查询
-        Page<Department> deptPage = this.deptRepository.findByIsDeleted(pageRequest,0);
-        //封装出detail详细信息
-        PageableResponse<DepartmentDetail> detailPageableResponse = new PageableResponse<>();
-        detailPageableResponse.setTotalElements(deptPage.getTotalElements());
-        List<Department> departments = deptPage.getContent();
-        List<DepartmentDetail> departmentDetails = new ArrayList<>();
-        for (int i = 0; i < departments.size(); i++) {
-            Department department = departments.get(i);
-            DepartmentDetail departmentDetail = DepartmentUtil.buildDetailByDepartment(department, this.positionRepository);
-            departmentDetails.add(departmentDetail);
-        }
-        detailPageableResponse.setContent(departmentDetails);
+        Page<Department> deptPage = this.deptRepository.findAll(pageRequest);
         //返回结果
-        return RestResponseUtil.success(detailPageableResponse);
+        return RestResponseUtil.success(deptPage);
     }
     /**
      * 获取指定name的部门详情

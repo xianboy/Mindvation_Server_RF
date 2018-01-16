@@ -14,17 +14,13 @@ public class StaffDetail {
     //id
     private Long id;
     //员工编号
-    private String serialNo;
+    private String serialNum;
     /*账号*/
     private String account;
     /*密码*/
     private String password;
     /*姓名*/
     private String name;
-    /*部门id*/
-    private Long deptId;
-    /*职位id*/
-    private Long positionId;
     /*头像*/
     private String avatar;
     /*入职时间*/

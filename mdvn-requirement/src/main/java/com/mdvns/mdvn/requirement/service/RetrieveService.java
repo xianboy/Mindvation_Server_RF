@@ -23,7 +23,6 @@ public interface RetrieveService {
 
     List<Long> retrieveReqMembersBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
 
-<<<<<<< HEAD
     //获取指定过程方法对应的需求编号
     List<String> retrieveSerialNoByLabel(RetrieveReqmtByLabelRequest retrieveRequest);
 
@@ -32,7 +31,4 @@ public interface RetrieveService {
 
     //获取指定需求集合的dashboard
     ReqmtDashboard retrieveDashboard(RetrieveMvpContentRequest retrieveRequest);
-=======
-    RestResponse<?> retrieveReqMembersInfoBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
->>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 }

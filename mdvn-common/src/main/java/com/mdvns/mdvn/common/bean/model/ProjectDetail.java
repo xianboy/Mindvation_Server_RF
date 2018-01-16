@@ -36,26 +36,10 @@ public class ProjectDetail implements Serializable {
     private List<TerseTemplate> templates;
     /*项目可调整系数*/
     private Double contingency;
-    /*项目创建者对象信息*/
-    private Staff creatorInfo;
     /*需求列表*/
     private PageableResponse<Requirement> requirements;
     /*附件列表*/
     private List<AttchInfo> attchInfos;
-    /*权限信息*/
-    private List<StaffAuthInfo> staffAuthInfo;
-
-    /**
-     * 项目层级结构类型
-     * possible values are : 2, 3, 4
-     *
-     * Explanation
-     * 2 : Project -> Task
-     * 3 : Project -> Requirement -> Task
-     * 4 : Project -> Requirement -> Story -> Task
-     */
-    private Integer layerType;
-
 
 }
 

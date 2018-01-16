@@ -13,8 +13,5 @@ url:
 
   retrieveStoryMembersUrl : http://localhost:20007/mdvn-story/stories/retrieveStoryMembers
 
-  assignAuthUrl : http://localhost:20001/mdvn-staff/staff/assignAuth
-  rtrvStaffAuthUrl: http://localhost:20001/mdvn-staff/staff/rtrvAuth
-  removeAuthUrl: http://localhost:20001/mdvn-staff/staff/removeAuth
 
 

@@ -1,12 +1,9 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
-import com.mdvns.mdvn.common.bean.AssignAuthRequest;
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
-import com.mdvns.mdvn.common.bean.MemberRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.UpdateMvpContentRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
-import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -27,8 +24,6 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -62,19 +57,10 @@ public class CreateServiceImpl implements CreateService {
         Requirement requirement = buildRequirementByRequest(createRequest);
         //调用repository保存requirement
         requirement = this.repository.saveAndFlush(requirement);
-        //保存创建者权限信息
-        StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(), Arrays.asList(requirement.getCreatorId()),requirement.getSerialNo(), AuthConstant.LEADER));
-
         //需求保存成功,保存成员映射
         Integer memberAmount = MdvnConstant.ZERO;
         if (!(null == createRequest.getMembers() || createRequest.getMembers().isEmpty())) {
             memberAmount = this.memberService.handleMembers(createRequest.getCreatorId(), requirement.getId(), createRequest.getMembers());
-
-            //去除重复值 and 保存Member权限信息
-            List<Long> addList = ListUtil.getDistinctAddList(createRequest.getMembers());
-            if(!addList.isEmpty()){
-                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),addList,requirement.getSerialNo(),AuthConstant.RMEMBER));
-            }
         }
         //设置成员数量
         requirement.setMemberAmount(memberAmount);
@@ -147,10 +133,6 @@ public class CreateServiceImpl implements CreateService {
             String aches = MdvnStringUtil.joinLong(attaches, ",");
             reqmnt.setAttaches(aches);
             FileUtil.buildAttaches(attaches,serialNo);
-        }
-        //项目层级类型
-        if(request.getLayerType().equals(MdvnConstant.TWO)||request.getLayerType().equals(MdvnConstant.THREE)||request.getLayerType().equals(MdvnConstant.FOUR)){
-            reqmnt.setLayerType(request.getLayerType());
         }
         return reqmnt;
 

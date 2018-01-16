@@ -6,7 +6,7 @@ url:
 
    retrieveReqMembersUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveReqMembers
 
-   rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
+   retrieveByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
 
    findTagInfoByIdUrl : http://localhost:20002/mdvn-tag/tags/{tagId}/tag
 

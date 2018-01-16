@@ -15,8 +15,8 @@ public class IssueInfo{
     private String issueId;
     //所属需求或者story的Id
     private String subjectId;
-    private Long creatorId;
-    private String projSerialNo;//项目编号
+    private String creatorId;
+    private String projId;
     //求助描述
     private String content;
     private Long createTime;

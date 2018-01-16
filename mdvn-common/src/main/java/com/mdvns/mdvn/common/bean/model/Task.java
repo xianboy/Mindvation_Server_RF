@@ -43,7 +43,4 @@ public class Task implements Serializable {
     private Delivery delivery;
 
     private List<AttchInfo> attchInfos;
-
-    /*权限信息*/
-    private List<StaffAuthInfo> staffAuthInfo;
 }

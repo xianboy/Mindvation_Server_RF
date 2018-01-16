@@ -27,10 +27,6 @@ public class WebConfig {
     //获取story成员及负责人
     private String retrieveStoryMembersUrl;
 
-    //权限相关
-    private String assignAuthUrl;
-    private String rtrvStaffAuthUrl;
-    private String removeAuthUrl;
 }
 
 

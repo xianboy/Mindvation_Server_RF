@@ -51,9 +51,6 @@ public class StoryDetail implements Serializable{
     /*上层过程方法及其子过程方法*/
     private FunctionLabel optionalLabel;
 
-    /*需求创建者对象信息*/
-    private Staff creatorInfo;
-
     /*成员*/
     private List<RoleMember> members;
 
@@ -72,17 +69,4 @@ public class StoryDetail implements Serializable{
     private List<AttchInfo> attchInfos;
     /*评论列表*/
     private List<CommentDetail> commentDetails;
-    /*权限信息*/
-    private List<StaffAuthInfo> staffAuthInfo;;
-
-    /**
-     * 项目层级结构类型
-     * possible values are : 2, 3, 4
-     *
-     * Explanation
-     * 2 : Project -> Task
-     * 3 : Project -> Requirement -> Task
-     * 4 : Project -> Requirement -> Story -> Task
-     */
-    private Integer layerType;
 }

@@ -1,10 +1,10 @@
 package com.mdvns.mdvn.issue.service;
 
-import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
+
+
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import org.springframework.transaction.annotation.Transactional;
+import com.mdvns.mdvn.issue.domain.*;
 
 /**
  * 评论接口
@@ -12,9 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface IssueService {
 
-    @Transactional
-    RestResponse<?> rtrvIssueList(SingleCriterionRequest request) throws BusinessException;
+    RestResponse<?> createIssueInfo(CreateIssueRequest request) throws BusinessException;
 
+    RestResponse<?> likeOrDislikeAnswer(LikeOrDislikeAnswerRequest request);
 
-    RestResponse<?> rtrvIssueRankingList(PageableQueryWithoutArgRequest request);
+    RestResponse<?> rtrvIssueDetail(RtrvIssueDetailRequest request);
+
+    RestResponse<?> createIssueAnswerInfo(CreateIssueAnswerRequest request) throws BusinessException;
+
+    RestResponse<?> adoptAnswer(adoptAnswerRequest request) throws BusinessException;
 }

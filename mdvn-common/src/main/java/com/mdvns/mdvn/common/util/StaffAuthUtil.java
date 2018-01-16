@@ -99,18 +99,18 @@ public class StaffAuthUtil {
     /**
      * 获取员工在项目中的权限信息
      * @param rtrvStaffAuthUrl
-     * @param projSerialNo
-     * @param hostSerialNo
+     * @param projId
+     * @param hostId
      * @param staffId
      * @return
      * @throws BusinessException
      */
-	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, String projSerialNo, String hostSerialNo, Long staffId) throws BusinessException{
+	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, Long projId, Long hostId, Long staffId) throws BusinessException{
        RestTemplate restTemplate = new RestTemplate();
        ResponseEntity<List> responseEntity ;
        RtrvStaffAuthInfoRequest rtrvStaffAuthInfoRequest = new RtrvStaffAuthInfoRequest();
-       rtrvStaffAuthInfoRequest.setProjSerialNo(projSerialNo);
-       rtrvStaffAuthInfoRequest.setHostSerialNo(hostSerialNo);
+       rtrvStaffAuthInfoRequest.setProjId(projId);
+       rtrvStaffAuthInfoRequest.setHostId(hostId);
        rtrvStaffAuthInfoRequest.setStaffId(staffId);
         try {
             responseEntity = restTemplate.postForEntity(rtrvStaffAuthUrl,rtrvStaffAuthInfoRequest,List.class);
@@ -210,22 +210,22 @@ public class StaffAuthUtil {
 //	}
 
 
-//    /**
-//     * 给创建者添加权限
-//     * @param assignAuthUrl
-//     * @param assignAuthRequest
-//     * @return
-//     * @throws BusinessException
-//     */
-//	public static List<StaffAuthInfo> assignAuthForCreator(String assignAuthUrl, AssignAuthRequest assignAuthRequest)throws BusinessException {
-//        AssignAuthRequest assignAuthRequestForCreator = assignAuthRequest;
-//
-//        boolean flag = assignAuthRequestForCreator.getAddList().removeAll(assignAuthRequestForCreator.getAddList());
-//        if(flag){
-//            assignAuthRequestForCreator.getAddList().add(assignAuthRequestForCreator.getAssignerId());
-//        }
-//	    return assignAuth(assignAuthUrl,assignAuthRequestForCreator);
-//    }
+    /**
+     * 给创建者添加权限
+     * @param assignAuthUrl
+     * @param assignAuthRequest
+     * @return
+     * @throws BusinessException
+     */
+	public static List<StaffAuthInfo> assignAuthForCreator(String assignAuthUrl, AssignAuthRequest assignAuthRequest)throws BusinessException {
+        AssignAuthRequest assignAuthRequestForCreator = assignAuthRequest;
+
+        boolean flag = assignAuthRequestForCreator.getAddList().removeAll(assignAuthRequestForCreator.getAddList());
+        if(flag){
+            assignAuthRequestForCreator.getAddList().add(assignAuthRequestForCreator.getAssignerId());
+        }
+	    return assignAuth(assignAuthUrl,assignAuthRequestForCreator);
+    }
 
 	
 	

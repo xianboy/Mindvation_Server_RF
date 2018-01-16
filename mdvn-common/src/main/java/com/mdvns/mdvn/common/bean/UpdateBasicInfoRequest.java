@@ -16,7 +16,7 @@ public class UpdateBasicInfoRequest implements Serializable {
     @Min(value = 1, message = "用户Id不能小于1")
     private Long staffId;
 
-    /*更新对象Id*/
+    /*当前用户Id*/
     @NotNull(message = "更新对象Id不能为空")
     @Min(value = 1, message = "更新对象Id不能小于1")
     private Long hostId;

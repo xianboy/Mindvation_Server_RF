@@ -1,6 +1,5 @@
 package com.mdvns.mdvn.task.service.impl;
 
-import com.mdvns.mdvn.common.bean.MultipleCriterionRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
@@ -80,12 +79,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
         //获取task的附件
         task.setAttchInfos(FileUtil.getAttaches(task.getSerialNo()));
-        //获取task的权限
-        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),task.getProjSerialNo(),task.getSerialNo(),staffId);
-        if(!staffAuthInfos.isEmpty()){
-            task.setStaffAuthInfo(staffAuthInfos);
-        }
-
         LOG.info("根据Id获取详情成功...");
         return task;
     }
@@ -163,43 +156,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         LOG.info("获取task的历史记录成功...");
         return RestResponseUtil.success(historyList);
-    }
-
-    /**
-     * 获取某人所有的task信息
-     * @param retrieveRequest
-     * @return
-     */
-    @Override
-    public RestResponse<?> retrieveAllTaskInfoById(MultipleCriterionRequest retrieveRequest) throws BusinessException {
-        LOG.info("获取某人ID为【{}】的所有taskInfo开始...", retrieveRequest.getCriterion());
-        Long staffId = Long.valueOf(retrieveRequest.getCriterion());
-        String projSerialNo = retrieveRequest.getOtherCriterion();
-        if (StringUtils.isEmpty(retrieveRequest.getCriterion())) {
-            LOG.error("值为【{}】的查询参数错误.", retrieveRequest.getCriterion());
-            throw new BusinessException(ErrorEnum.ILLEGAL_ARG, "查询参数错误");
-        }
-        PageableCriteria pageableCriteria = retrieveRequest.getPageableCriteria();
-        //构建分页对象
-        if (pageableCriteria != null) {
-            PageRequest pageRequest = PageableQueryUtil.pageRequestBuilder(pageableCriteria);
-            Page<Task> taskPage = this.repository.findAllByCreatorIdAndProjSerialNo(staffId, projSerialNo,pageRequest);
-            List<Task> taskList = taskPage.getContent();
-            for (int i = 0; i < taskList.size(); i++) {
-                Task task = taskList.get(i);
-                //获取task的交付件
-                task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
-            }
-            return RestResponseUtil.success(taskPage);
-        }
-        List<Task> taskList = this.repository.findAllByCreatorIdAndProjSerialNo(staffId,projSerialNo);
-        for (int i = 0; i < taskList.size(); i++) {
-            Task task = taskList.get(i);
-            //获取task的交付件
-            task.setDelivery(getDeliveryById(staffId, task.getDeliveryId()));
-        }
-        LOG.info("获取task的历史记录成功...");
-        return RestResponseUtil.success(taskList);
     }
 
 }

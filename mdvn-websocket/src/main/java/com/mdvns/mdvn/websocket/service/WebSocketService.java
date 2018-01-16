@@ -10,8 +10,6 @@ import java.io.IOException;
 public interface WebSocketService {
     Boolean sendMessage(SendMessageRequest request) throws IOException;
 
-    Boolean sendMessageToOneself(SendMessageRequest request) throws IOException;
-
     RestResponse<?> rtrvServerPushInfoList(RtrvServerPushListRequest request);
 
     RestResponse<?> deleteServerPushInfo(Integer uuId);

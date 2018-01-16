@@ -11,7 +11,6 @@ import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnStringUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.common.util.ServerPushUtil;
-import com.mdvns.mdvn.common.util.StaffUtil;
 import com.mdvns.mdvn.mdvncomment.config.WebConfig;
 import com.mdvns.mdvn.mdvncomment.domain.*;
 import com.mdvns.mdvn.mdvncomment.domain.entity.Comment;
@@ -134,17 +133,13 @@ public class CommentServiceImpl implements CommentService {
 
         //创建者返回对象
         Long creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
-        /*获取某个员工对象信息*/
-        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        Staff staffInfo = StaffUtil.rtrvStaffInfoById(creatorId,retrieveByIdUrl);
+        Staff staffInfo = this.rtrvStaffInfoById(creatorId);
         createCommentInfoResponse.getCommentInfo().setCreatorInfo(staffInfo);
 
         //被@的人返回对象
         if (request.getReplyId() != null) {
             Long passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
-            /*获取某个员工对象信息*/
-            Staff replyStaffInfo = StaffUtil.rtrvStaffInfoById(passiveAt,retrieveByIdUrl);
-            createCommentInfoResponse.getReplyDetail().setCreatorInfo(replyStaffInfo);
+            createCommentInfoResponse.getReplyDetail().setCreatorInfo(this.rtrvStaffInfoById(passiveAt));
         }
 
         /**
@@ -287,16 +282,12 @@ public class CommentServiceImpl implements CommentService {
         }
         //创建者返回对象
         Long creatorId = createCommentInfoResponse.getCommentInfo().getCreatorId();
-        /*获取某个员工对象信息*/
-        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        Staff staffInfo = StaffUtil.rtrvStaffInfoById(creatorId,retrieveByIdUrl);
-        createCommentInfoResponse.getCommentInfo().setCreatorInfo(staffInfo);
+        createCommentInfoResponse.getCommentInfo().setCreatorInfo(this.rtrvStaffInfoById(creatorId));
         //被@的人返回对象
         String replyId = createCommentInfoResponse.getCommentInfo().getReplyId();
         if (!StringUtils.isEmpty(replyId)) {
             Long passiveAt = createCommentInfoResponse.getReplyDetail().getCreatorId();
-            Staff replyStaffInfo = StaffUtil.rtrvStaffInfoById(passiveAt,retrieveByIdUrl);
-            createCommentInfoResponse.getReplyDetail().setCreatorInfo(replyStaffInfo);
+            createCommentInfoResponse.getReplyDetail().setCreatorInfo(this.rtrvStaffInfoById(passiveAt));
         }
         LOG.info("结束执行{} likeOrDislike()方法.", this.CLASS);
         return RestResponseUtil.success(createCommentInfoResponse);
@@ -393,6 +384,26 @@ public class CommentServiceImpl implements CommentService {
         } catch (Exception e) {
             LOG.error("消息推送(创建comment)出现异常，异常信息：" + e);
         }
+    }
+
+    /**
+     * 通过staffId获取staff详情
+     *
+     * @param id
+     * @return
+     */
+    public Staff rtrvStaffInfoById(Long id) {
+        //实例化restTem对象
+        RestTemplate restTemplate = new RestTemplate();
+        String retrieveByIdUrl = webConfig.getRetrieveByIdUrl();
+        SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
+        singleCriterionRequest.setCriterion(String.valueOf(id));
+        singleCriterionRequest.setStaffId(id);
+        ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
+        };
+        ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(retrieveByIdUrl, HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
+        RestResponse<Staff> restResponse = responseEntity.getBody();
+        return restResponse.getData();
     }
 
 }

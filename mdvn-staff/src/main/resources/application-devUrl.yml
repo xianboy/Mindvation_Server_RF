@@ -6,5 +6,3 @@ url:
 #  retrieveRoleUrl : http://localhost:20004/mdvn-template/templates/retrieveRoleTerseInfo
   retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
   retrieveRolesUrl : http://localhost:20004/mdvn-template/templates/retrieveTemplateRoles
-  findTagInfoByIdUrl : http://localhost:20002/mdvn-tag/tags/{tagId}/tag
-  retrieveTagInfosUrl : http://localhost:20002/mdvn-tag/tags/retrieveTagInfos
