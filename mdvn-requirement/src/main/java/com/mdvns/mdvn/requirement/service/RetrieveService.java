@@ -25,16 +25,6 @@ public interface RetrieveService {
     Long retrieveLabelIdBySerialNo(SingleCriterionRequest retrieveRequest);
 
     List<Long> retrieveReqMembersBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
-<<<<<<< HEAD
-=======
 
-    //获取指定过程方法对应的需求编号
-    List<String> retrieveSerialNoByLabel(RetrieveReqmtByLabelRequest retrieveRequest);
-
-    //获取指定hostSerialNo(项目编号)和templateId的需求编号
-    List<String> retrieveSerialNo(RetrieveReqmtSerialNoRequest retrieveRequest);
-
-    //获取指定需求集合的dashboard
-    ReqmtDashboard retrieveDashboard(RetrieveMvpContentRequest retrieveRequest);
->>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
+    RestResponse<?> retrieveReqMembersInfoBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException;
 }
