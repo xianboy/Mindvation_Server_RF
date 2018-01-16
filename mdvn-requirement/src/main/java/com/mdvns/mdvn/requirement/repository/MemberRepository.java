@@ -23,10 +23,4 @@ public interface MemberRepository extends JpaRepository<RequirementMember, Long>
 
     //根据requirementId、roleId、memberId查数据
     RequirementMember findByRequirementIdAndRoleIdAndMemberId(Long requirementId, Long roleId, Long memberId);
-
-    /*在requirement_member表里查出所有不重复的id*/
-    @Query(value="SELECT DISTINCT member_id FROM requirement_member WHERE requirement_id  IN (SELECT id FROM requirement WHERE host_serial_no = ?1)", nativeQuery = true)
-    List<Long> findAllDistinctMembers(String projSerialNo);
-
-
 }
