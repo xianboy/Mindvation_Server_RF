@@ -3,6 +3,7 @@ package com.mdvns.mdvn.template.repository;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -39,4 +40,13 @@ public interface LabelRepository extends JpaRepository<FunctionLabel, Long> {
     //查询id为指定id集合中的functionLabel
     @Query("select f.id, f.serialNo, f.name from FunctionLabel f where f.id in ?1")
     List<Object[]> findTerseInfoByIdList(List<Long> subLabel);
+
+    //修改MVP
+    @Modifying
+    @Query("update FunctionLabel f set f.mvpId = ?1 where f.hostSerialNo=?2 and f.name in ?3")
+    void addMvp4Label(Long mvpId, String hostSerialNo, List<String> labelNames);
+
+    //根据mvpId和isDeleted查询Id
+    @Query("select f.id from FunctionLabel f where f.mvpId=?1 and f.isDeleted=?2")
+    List<Long> findIdByMvpIdAndIsDeleted(Long aLong, Integer isDeleted);
 }

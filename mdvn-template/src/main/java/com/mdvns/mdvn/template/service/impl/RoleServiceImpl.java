@@ -69,6 +69,17 @@ public class RoleServiceImpl implements RoleService {
     }
 
     /**
+     * 获取指定hostSerialNo的角色信息
+     * @param retrieveRequest request
+     * @return List
+     */
+    @Override
+    public List<TemplateRole> getRoles(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        return this.roleRepository.findDistinctByHostSerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
+    }
+
+    /**
      * 构建template编号
      *
      * @return 编号

@@ -31,6 +31,10 @@ public class MvpTemplate {
     @Column(nullable = false)
     private String hostSerialNo;
 
+    /*模板id*/
+    @NotNull(message = "templateId 不能为空")
+    private Long templateId;
+
     /*顺序*/
     @Column(nullable = false)
     private Integer mvpIndex;

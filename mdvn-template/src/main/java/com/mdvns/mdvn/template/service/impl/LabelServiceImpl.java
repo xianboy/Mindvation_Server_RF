@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.template.service.impl;
 
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -13,6 +14,7 @@ import com.mdvns.mdvn.template.repository.LabelRepository;
 import com.mdvns.mdvn.template.service.LabelService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -85,7 +87,7 @@ public class LabelServiceImpl implements LabelService {
      * @param subLabels 子模块
      */
     @Transactional
-    private List<FunctionLabel> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
+    public List<FunctionLabel> createSubLabels(Long creatorId, String hostSerialNo, List<String> subLabels) {
         List<FunctionLabel> subLabelList = new ArrayList<>();
         //遍历subLabels
         for (String name : subLabels) {
@@ -131,20 +133,6 @@ public class LabelServiceImpl implements LabelService {
         return this.labelRepository.findByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
     }
 
-    /**
-     * 获取指定id的模板的FunctionLabel
-     * @param hostSerialNo hostSerialNo
-     * @param isDeleted isDeleted
-     * @return List
-     */
-    @Override
-    public List<TerseInfo> getTemplateLabel(String hostSerialNo, Integer isDeleted) throws BusinessException {
-        List<Long> idList = this.labelRepository.findIdByHostSerialNoAndIsDeleted(hostSerialNo, isDeleted);
-        if (idList.isEmpty()) {
-            return null;
-        }
-        return getLabels(idList);
-    }
 
     /**
      * 获取指定id的过程方法模块及其子模块
@@ -157,7 +145,7 @@ public class LabelServiceImpl implements LabelService {
         FunctionLabel label = this.labelRepository.findOne(id);
         if (null == label) {
             LOG.error("ID为【{}】的FunctionLabel不存在.", id);
-            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
+            throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【" + id + "】的FunctionLabel不存在.");
         }
         label.setSubLabels(findByHostSerialNoAndIsDeleted(label.getSerialNo(), isDeleted));
         return label;
@@ -181,22 +169,36 @@ public class LabelServiceImpl implements LabelService {
         return label;
     }
 
+    @Override
+    @Modifying
+    @Transactional
+    public void addMvp4Label(Long staffId, Long mvpId, String hostSerialNo, List<String> labelNames) {
+        this.labelRepository.addMvp4Label(mvpId, hostSerialNo, labelNames);
+    }
+
     /**
-     * 获取指定id的过程方法的子过程方法
-     * @param labelId labelId
-     * @param isDeleted isDeleted
-     * @return RestResponse
+     * 获取指定hostSerialNo的过程方法
+     *
+     * @param retrieveRequest request
+     * @return List
      */
-    /*@Override
-    public List<TerseInfo> retrieveSubLabel(Long labelId, Integer isDeleted) {
-        FunctionLabel label = this.labelRepository.findOne(labelId);
-        if (null == label) {
-            LOG.info("ID为【{}】的过程方法不存在.", labelId);
-            return null;
-        }
-        List<Object[]> subLabels = this.labelRepository.findTerseInfoByHostSerialNo(label.getSerialNo(), isDeleted);
-        return ConvertObjectUtil.convertObjectArray2TerseInfo(subLabels);
-    }*/
+    @Override
+    public List<FunctionLabel> retrieveTemplateLabels(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        return this.labelRepository.findByHostSerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
+    }
+
+    /**
+     *给functionLabel构建编号
+     * 获取mvpId为指定的值的过程方法的Id
+     * @param retrieveRequest request
+     * @return List
+     */
+    @Override
+    public List<Long> retrieveLabelByMvp(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted() ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted());
+        return this.labelRepository.findIdByMvpIdAndIsDeleted(Long.valueOf(retrieveRequest.getCriterion()), isDeleted);
+    }
 
     /**
      *给functionLabel构建编号

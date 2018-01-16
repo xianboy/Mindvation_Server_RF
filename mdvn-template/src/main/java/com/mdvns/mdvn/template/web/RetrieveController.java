@@ -4,6 +4,7 @@ import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.template.domain.entity.Delivery;
+import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.validation.BindingResult;
@@ -11,6 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -152,5 +154,40 @@ public class RetrieveController {
         return this.retrieveService.retrieveDeliveries(retrieveRequest);
     }
 
+    /**
+     * 获取指定ID的模板的迭代计划
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return List<MvpTemplate>
+     */
+    @PostMapping(value = "/retrieveMvpTemplates")
+    public List<MvpTemplate> retrieveMvpTemplates(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveMvpTemplates(retrieveRequest);
+    }
+
+    /**
+     * 获取mvpId为指定的值的过程方法的Id
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return List
+     */
+    @PostMapping(value = "/retrieveLabelByMvp")
+    public List<Long> retrieveLabelByMvp(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveLabelByMvp(retrieveRequest);
+    }
+
+    /**
+     * 获取指定ID的模板名称
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return 模板名称
+     */
+    @PostMapping(value = "/retrieveName")
+    public String retrieveTemplateName(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveTemplateName(retrieveRequest);
+    }
 
 }

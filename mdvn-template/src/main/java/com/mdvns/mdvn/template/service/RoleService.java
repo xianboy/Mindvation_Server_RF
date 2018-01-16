@@ -12,4 +12,8 @@ public interface RoleService {
 
     //查询模板角色
     RestResponse<?> retrieveRoles(SingleCriterionRequest singleCriterionRequest);
+
+
+    //获取指定id集合的角色
+    List<TemplateRole> getRoles(SingleCriterionRequest retrieveRequest);
 }

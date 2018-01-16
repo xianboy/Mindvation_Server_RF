@@ -26,6 +26,9 @@ public class FunctionLabel {
     @GeneratedValue
     private Long id;
 
+    /*MVP id*/
+    private Long mvpId;
+
     /*创建人ID*/
     @NotNull(message = "id不能为空")
     @Min(value = 1, message = "id不能小于1")
