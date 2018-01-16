@@ -75,8 +75,11 @@ public enum ErrorEnum {
     TEMPLATE_NOT_EXISTS("30404"),
     /*交付件不存在*/
     DELIVERY_NOT_EXISTS("30405"),
+    /*MVP 不存在*/
+    MVP_NOT_EXISTS("30406"),
 
-
+    //project
+    PROJCET_NOT_EXISTS("30500"),
 
     //requirement
     /*需求对象不存在*/

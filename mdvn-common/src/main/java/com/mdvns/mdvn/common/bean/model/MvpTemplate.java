@@ -3,11 +3,11 @@ package com.mdvns.mdvn.common.bean.model;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
+import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-public class MvpTemplate {
+public class MvpTemplate implements Serializable {
 
     private Long id;
 
@@ -20,10 +20,13 @@ public class MvpTemplate {
     /*顺序*/
     private Integer mvpIndex;
 
-    /*模板名称*/
-    private String templateName;
+    /*模板Id*/
+    private Long templateId;
+
+    /*状态*/
+    private String status;
 
     /*标签创建时间*/
-    private Timestamp createTime;
+    private Long createTime;
 
 }

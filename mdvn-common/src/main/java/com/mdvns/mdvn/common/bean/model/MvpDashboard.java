@@ -10,16 +10,11 @@ import java.util.List;
 @NoArgsConstructor
 public class MvpDashboard implements Serializable {
 
-    /*模板*/
+    /*模板名称*/
     private String templateName;
 
-    /*还未分配到mvpId中的story*/
-    private List<Story> backlogs;
+    private StoryDashboard storyDashboard;
 
-    /*当前的mvp*/
-    private List<Story> currentMvp;
-
-    /*下一个mvp*/
-    private List<Story> nextMvp;
+    private ReqmtDashboard reqmtDashboard;
 
 }
