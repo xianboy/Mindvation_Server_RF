@@ -8,7 +8,6 @@ import com.mdvns.mdvn.requirement.service.MemberService;
 import com.mdvns.mdvn.requirement.service.RetrieveService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -85,8 +84,21 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveReqMembersBySerialNo(singleCriterionRequest);
     }
-<<<<<<< HEAD
-=======
+
+
+    /**
+     * 获取指定项目serialNo下的所有requirement的不重复成员对象
+     * @param singleCriterionRequest request
+     * @param bindingResult bindingResult
+     * @return restResponse
+     * @throws BusinessException exception
+     */
+    @PostMapping(value = "/retrieveAllReqMembersInfo")
+    public RestResponse<?> retrieveReqMembersInfoBySerialNo(@RequestBody  @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveReqMembersInfoBySerialNo(singleCriterionRequest);
+    }
+
 
     /**
      * 获取指定过程方法对应的需求编号
@@ -124,6 +136,4 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveDashboard(retrieveRequest);
     }
-
->>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 }

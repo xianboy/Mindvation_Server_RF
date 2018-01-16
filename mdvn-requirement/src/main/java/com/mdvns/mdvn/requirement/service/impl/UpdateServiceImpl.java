@@ -1,17 +1,12 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
-<<<<<<< HEAD
-=======
-import com.mdvns.mdvn.common.bean.model.MvpContent;
->>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
+import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.FileUtil;
-import com.mdvns.mdvn.common.util.MdvnCommonUtil;
-import com.mdvns.mdvn.common.util.RestResponseUtil;
-import com.mdvns.mdvn.common.util.ServerPushUtil;
+import com.mdvns.mdvn.common.util.*;
+import com.mdvns.mdvn.requirement.config.WebConfig;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
@@ -41,6 +36,9 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Resource
     private MemberService memberService;
+
+    @Resource
+    private WebConfig webConfig;
 
     /**
      * 更新状态
@@ -174,6 +172,16 @@ public class UpdateServiceImpl implements UpdateService {
         //更新RoleMember
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getMembers());
+            //更新权限
+            List<Long> addList = ListUtil.getDistinctAddList(updateRequest.getMembers());
+            if(!addList.isEmpty()){
+                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),addList,requirement.getSerialNo(), AuthConstant.RMEMBER));
+            }
+            List<Long> removeList = ListUtil.getDistinctRemoveList(updateRequest.getMembers());
+            if(!removeList.isEmpty()){
+                StaffAuthUtil.removeAuth(webConfig.getRemoveAuthUrl(),new RemoveAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),removeList,requirement.getSerialNo(),AuthConstant.RMEMBER));
+            }
+
         }
         /**
          * 消息推送
@@ -208,5 +216,36 @@ public class UpdateServiceImpl implements UpdateService {
         }
     }
 
+    /**
+     * 创建MVP:修改指定条件下的mvpId
+     *
+     * @param request request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvp(UpdateMvpContentRequest request) {
+        this.requirementRepository.updateMvpIdBySerialNoIn(request.getMvpId(), request.getSerialNo());
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 修改某个模板的mvp Dashboard
+     *
+     * @param updateRequest request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvpDashboard(UpdateMvpDashboardRequest updateRequest) {
+        LOG.info("修改mvp Dashboard开始...");
+        //遍历mvpList修改requirement中的mvpId
+        for (MvpContent mvpContent : updateRequest.getMvpList()) {
+            LOG.info("修改ID为【{}】的Requirement的mvpId成【{}】开始...", mvpContent.getContents(), mvpContent.getMvpId());
+            this.requirementRepository.updateMvpIdByIdIn(mvpContent.getMvpId(), mvpContent.getContents());
+            LOG.info("成功修改ID为【{}】的Requirement的mvpId成【{}】...", mvpContent.getContents(), mvpContent.getMvpId());
+        }
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
 
 }
