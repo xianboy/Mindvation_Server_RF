@@ -88,7 +88,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         Integer layerType = RestTemplateUtil.retrieveLayerType(retrieveProjectLayerTypeUrl, staffId, projSerialNo);
         //获取项目指定模板ID的前两个没有close的mvpId
         List<MvpTemplate> top2Mvp = this.repository.findTop2ByHostSerialNoAndTemplateIdAndStatusIsNotOrderByMvpIndexAsc(projSerialNo, templateId, MdvnConstant.CLOSE);
-        MdvnCommonUtil.emptyList(top2Mvp, ErrorEnum.MVP_NOT_EXISTS, "没有符合条件的MVP");
+//        MdvnCommonUtil.emptyList(top2Mvp, ErrorEnum.MVP_NOT_EXISTS, "编号为【"+projSerialNo+"】的项目, ID为【"+templateId+"】的模板没有MVP");
+        if (top2Mvp.size()==MdvnConstant.ZERO) {
+            return null;
+        }
         List<Long> top2MvpId = new ArrayList<>();
         for (MvpTemplate mvp : top2Mvp) {
             top2MvpId.add(mvp.getId());
@@ -123,7 +126,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     private StoryDashboard getStoryDashboard(RetrieveMvpContentRequest retrieveRequest) throws BusinessException {
         LOG.info("获取hostSerialNo为指定需求集合【{}】的mvp dashboard开始...", retrieveRequest.getSerialNoList());
-        String retrieveStoryDashboardUrl = "";
+        String retrieveStoryDashboardUrl = webConfig.getRetrieveStoryDashboardUrl();
         RestTemplate restTemplate = new RestTemplate();
         ParameterizedTypeReference<StoryDashboard> typeRef = new ParameterizedTypeReference<StoryDashboard>() {
         };

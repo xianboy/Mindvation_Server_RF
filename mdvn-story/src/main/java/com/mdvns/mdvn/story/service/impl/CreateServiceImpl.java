@@ -162,6 +162,7 @@ public class CreateServiceImpl implements CreateService {
      */
     @Override
     @Modifying
+    @Transactional
     public RestResponse<?> createMvp(UpdateMvpContentRequest request) {
         this.repository.updateMvp(request.getMvpId(), request.getSerialNo());
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);

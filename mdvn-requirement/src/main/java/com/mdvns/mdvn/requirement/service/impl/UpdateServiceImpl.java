@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.model.MvpContent;
 import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;

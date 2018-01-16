@@ -69,6 +69,9 @@ public class Task implements Serializable {
     /*task附件：id*/
     private String attaches;
 
+    /*项目编号*/
+    private String projSerialNo;
+
     /*是否已删除*/
     @Column(nullable = false)
     @JsonIgnore

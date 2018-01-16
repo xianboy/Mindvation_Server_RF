@@ -47,4 +47,7 @@ public class WebConfig {
 
     //获取MVP requirement
     private String retrieveReqmtDashboardUrl;
+
+    //获取MVP Story
+    private String retrieveStoryDashboardUrl;
 }

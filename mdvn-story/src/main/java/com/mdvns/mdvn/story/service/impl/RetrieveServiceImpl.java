@@ -392,7 +392,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         StoryDashboard dashboard = new StoryDashboard();
         dashboard.setBacklogs(getBacklogs(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), isDeleted));
         dashboard.setCurrentMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId().get(MdvnConstant.ZERO), isDeleted));
-        if (null == retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE)) {
+        if (retrieveRequest.getTop2MvpId().size()<MdvnConstant.TWO) {
             dashboard.setNextMvp(null);
         } else {
             dashboard.setNextMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE), isDeleted));

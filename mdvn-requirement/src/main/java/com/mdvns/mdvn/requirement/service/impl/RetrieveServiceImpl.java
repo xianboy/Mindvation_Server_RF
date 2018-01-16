@@ -1,8 +1,6 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
-import com.mdvns.mdvn.common.bean.PageableResponse;
-import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -374,7 +372,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     public com.mdvns.mdvn.requirement.domain.ReqmtDashboard retrieveDashboard(RetrieveMvpContentRequest retrieveRequest) {
         Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        ReqmtDashboard dashboard = new ReqmtDashboard();
+        com.mdvns.mdvn.requirement.domain.ReqmtDashboard dashboard = new com.mdvns.mdvn.requirement.domain.ReqmtDashboard();
         dashboard.setBacklogs(getBacklogs(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), isDeleted));
         Long mvpId = retrieveRequest.getTop2MvpId().get(MdvnConstant.ZERO);
         dashboard.setCurrentMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), mvpId, isDeleted));

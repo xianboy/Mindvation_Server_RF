@@ -1,5 +1,8 @@
 url:
 
+  #获取指定Story集合的Mvp Dashboard
+  retrieveStoryDashboardUrl : http://localhost:20007/mdvn-story/stories/retrieveDashboard
+
   #获取指定需求集合的Mvp Dashboard
   retrieveReqmtDashboardUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveDashboard
 
