@@ -35,6 +35,7 @@ public class CreateTaskRequest implements Serializable {
     private Object delivery;
 
     /*项目编号*/
+    @NotNull(message = "projSerialNo不能为空.")
     private String projSerialNo;
 
     /* 层级结构类型 */

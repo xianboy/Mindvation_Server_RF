@@ -1,13 +1,11 @@
 package com.mdvns.mdvn.staff.domain.entity;
 
+import com.mdvns.mdvn.common.bean.model.Tag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 
 @Entity

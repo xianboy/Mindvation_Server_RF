@@ -51,6 +51,9 @@ public class StoryDetail implements Serializable{
     /*上层过程方法及其子过程方法*/
     private FunctionLabel optionalLabel;
 
+    /*需求创建者对象信息*/
+    private Staff creatorInfo;
+
     /*成员*/
     private List<RoleMember> members;
 

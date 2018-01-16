@@ -162,6 +162,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setLabel(getLabel(staffId, story.getFunctionLabelId()));
         //设置修改时可选择的子过程方法(上层模块对应的子过程方法)
         detail.setOptionalLabel(getOptionalLabels(staffId, story.getHostSerialNo()));
+        //设置需求创建人对象信息
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff staffInfo = StaffUtil.rtrvStaffInfoById(story.getCreatorId(),retrieveByIdUrl);
+        detail.setCreatorInfo(staffInfo);
         //设置成员
         detail.setMembers(getRoleMembers(staffId, story.getId(), story.getTemplateId()));
         //设置修改时可选的成员(上层模块的成员)

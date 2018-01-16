@@ -1,11 +1,13 @@
 package com.mdvns.mdvn.staff.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.mdvns.mdvn.common.bean.model.Tag;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity
 @Data
@@ -60,4 +62,8 @@ public class Staff {
 
     @JsonIgnore
     private Integer isDeleted;
+
+    /*标签对象*/
+    @Transient//非持久化字段
+    private List<Tag> tags;
 }

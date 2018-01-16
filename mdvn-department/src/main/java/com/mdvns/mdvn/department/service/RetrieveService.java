@@ -7,7 +7,7 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 
 public interface RetrieveService {
     //查询所有数据：支持分页
-    RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest);
+    RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) throws BusinessException;
 
     //获取指定id部门的详情
     RestResponse<?> retrieveDetailById(SingleCriterionRequest retrieveDetailRequest) throws BusinessException;

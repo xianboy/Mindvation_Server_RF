@@ -43,6 +43,9 @@ public class RequirementDetail implements Serializable {
     /*过程方法*/
     private TerseInfo label;
 
+    /*需求创建者对象信息*/
+    private Staff creatorInfo;
+
     /*成员*/
     private List<RoleMember> roleMembers;
 

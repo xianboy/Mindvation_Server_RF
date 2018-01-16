@@ -151,6 +151,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (null != proj.getContingency()) {
             detail.setContingency(proj.getContingency());
         }
+        //设置项目创建人对象信息
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff staffInfo = StaffUtil.rtrvStaffInfoById(proj.getCreatorId(),retrieveByIdUrl);
+        detail.setCreatorInfo(staffInfo);
         //设置负责人
         detail.setLeaders(getLeaders(staffId, proj.getId()));
         //设置标签

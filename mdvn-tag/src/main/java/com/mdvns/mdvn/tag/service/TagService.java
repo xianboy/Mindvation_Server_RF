@@ -26,4 +26,6 @@ public interface TagService {
 
     @Transactional
     RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException;
+
+    RestResponse<?> retrieveTagInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 }

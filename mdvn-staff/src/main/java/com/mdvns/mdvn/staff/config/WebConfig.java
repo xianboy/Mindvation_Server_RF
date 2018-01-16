@@ -12,5 +12,9 @@ public class WebConfig {
     //根据id集合查询标签
     private String retrieveTagsUrl;
 
+    private String findTagInfoByIdUrl;
+
+    private String retrieveTagInfosUrl;
+
 }
 

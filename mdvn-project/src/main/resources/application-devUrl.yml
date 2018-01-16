@@ -9,3 +9,4 @@ url:
   assignAuthUrl : http://localhost:20001/mdvn-staff/staff/assignAuth
   rtrvStaffAuthUrl: http://localhost:20001/mdvn-staff/staff/rtrvAuth
   removeAuthUrl: http://localhost:20001/mdvn-staff/staff/removeAuth
+  rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById

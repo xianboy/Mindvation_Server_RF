@@ -27,5 +27,6 @@ public class WebConfig {
     private String rtrvStaffAuthUrl;
     //获取remove auth的url
     private String removeAuthUrl;
+    private String rtrvStaffInfoByIdUrl;
 
 }

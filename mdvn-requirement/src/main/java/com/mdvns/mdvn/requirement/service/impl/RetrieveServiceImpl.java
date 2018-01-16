@@ -162,6 +162,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setPriority(requirement.getPriority());
         //设置过程方法
         detail.setLabel(getLabel(staffId, requirement.getFunctionLabelId()));
+        //设置需求创建人对象信息
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff staffInfo = StaffUtil.rtrvStaffInfoById(requirement.getCreatorId(),retrieveByIdUrl);
+        detail.setCreatorInfo(staffInfo);
         //设置成员
         detail.setRoleMembers(getRoleMembers(staffId, requirement.getId(), requirement.getTemplateId()));
         //设置开始/结束日期

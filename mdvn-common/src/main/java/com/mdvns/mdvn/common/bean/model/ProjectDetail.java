@@ -36,6 +36,8 @@ public class ProjectDetail implements Serializable {
     private List<TerseTemplate> templates;
     /*项目可调整系数*/
     private Double contingency;
+    /*项目创建者对象信息*/
+    private Staff creatorInfo;
     /*需求列表*/
     private PageableResponse<RequirementModel> requirements;
     /*附件列表*/

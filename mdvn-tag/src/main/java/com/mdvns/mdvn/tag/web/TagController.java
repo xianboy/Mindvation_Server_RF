@@ -69,6 +69,17 @@ public class TagController {
     }
 
     /**
+     * 根据id集合获取tag对象集合
+     * @param retrieveTerseInfoRequest request
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveTagInfos")
+    public RestResponse<?> retrieveTagInfos(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.tagService.retrieveTagInfos(retrieveTerseInfoRequest);
+    }
+
+    /**
      * 根据Id查询tag
      * @param tagId
      * @return

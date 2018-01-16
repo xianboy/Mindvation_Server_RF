@@ -194,4 +194,19 @@ public class TagServiceImpl implements TagService {
         //返回结果
         return RestResponseUtil.success(pageableResponse);
     }
+
+    /**
+     * 根据id集合获取Tag对象集合
+     *
+     * @param retrieveTerseInfoRequest request
+     * @return RestResponse
+     */
+    @Override
+    public RestResponse<?> retrieveTagInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest) {
+        //根据request获取id集合
+        List<Long> ids = retrieveTerseInfoRequest.getIds();
+        List<Tag> resultSet = this.tagRepository.findTagInfosByIds(ids);
+        LOG.info("根据id集合获取staff对象完成：{}", resultSet.toString());
+        return RestResponseUtil.success(resultSet);
+    }
 }
