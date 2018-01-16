@@ -85,4 +85,45 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveReqMembersBySerialNo(singleCriterionRequest);
     }
+<<<<<<< HEAD
+=======
+
+    /**
+     * 获取指定过程方法对应的需求编号
+     *
+     * @param retrieveRequest request
+     * @param bindingResult   bindingResult
+     * @return List
+     */
+    @PostMapping(value = "/retrieveSerialNoByLabel")
+    public List<String> retrieveSerialNoByLabel(@RequestBody @Validated RetrieveReqmtByLabelRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveSerialNoByLabel(retrieveRequest);
+    }
+
+    /**
+     * 获取指定hostSerialNo(项目编号)和templateId的需求编号
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return List
+     */
+    @PostMapping(value = "/retrieveSerialNo")
+    public List<String> retrieveSerialNo(@RequestBody @Validated RetrieveReqmtSerialNoRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveSerialNo(retrieveRequest);
+    }
+
+    /**
+     *获取指定需求集合的dashboard
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return ReqmtDashboard
+     */
+    @PostMapping(value = "/retrieveDashboard")
+    public ReqmtDashboard retrieveDashboard(@RequestBody @Validated RetrieveMvpContentRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveDashboard(retrieveRequest);
+    }
+
+>>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 }

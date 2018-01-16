@@ -21,13 +21,21 @@ public class StaffAuthInfo {
     private String projId;
 
     /*员工Id*/
+<<<<<<< HEAD
     private String staffId;
+=======
+    private Long staffId;
+>>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 
     /*权限编号*/
     private Integer authCode;
 
     /*项目模块Id*/
+<<<<<<< HEAD
     private String hierarchyId;
+=======
+    private String hostSerialNo;
+>>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 
     /*权限添加人Id*/
     private String assignerId;
