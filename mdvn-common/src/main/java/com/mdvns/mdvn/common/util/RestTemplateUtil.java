@@ -57,6 +57,35 @@ public class RestTemplateUtil {
     }
 
     /**
+     * 根据id集合获取staff对象
+     *
+     * @param url     查询id和name的url
+     * @param staffId 当前用户id
+     * @param ids     需要查询的id集合
+     * @return list
+     */
+    public static List<Staff> retrieveStaffInfos(Long staffId, List<Long> ids, String url) throws BusinessException {
+        LOG.info("查询terseInfo的url是：【{}】", url);
+        //实例化restTemplate对象
+        RestTemplate restTemplate = new RestTemplate();
+        //构建ParameterizedTypeReference
+        ParameterizedTypeReference<RestResponse<Staff[]>> typeRef = new ParameterizedTypeReference<RestResponse<Staff[]>>() {
+        };
+        //构建requestEntity
+        HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveTerseInfoRequest(staffId, ids));
+        //构建responseEntity
+        ResponseEntity<RestResponse<Staff[]>> responseEntity = restTemplate.exchange(url,
+                HttpMethod.POST, requestEntity, typeRef);
+        //获取restResponse
+        RestResponse<Staff[]> restResponse = responseEntity.getBody();
+        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
+            LOG.error("获取指定id集合的TerseInfo失败.");
+            throw new BusinessException(ErrorEnum.GET_BASE_INFO_FAILED, "获取指定id集合的TerseInfo失败.");
+        }
+        return Arrays.asList(restResponse.getData());
+    }
+
+    /**
      * 自定义过程方法
      *
      * @param customLabelUrl url

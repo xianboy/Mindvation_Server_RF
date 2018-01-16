@@ -22,4 +22,8 @@ public interface TagService {
         RestResponse<?> retrieveBaseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 
     ResponseEntity<?> findById(Long tagId);
+
+    @Transactional
+    RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException;
+
 }
