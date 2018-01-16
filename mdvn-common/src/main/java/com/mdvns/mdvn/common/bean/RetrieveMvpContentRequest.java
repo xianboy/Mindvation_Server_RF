@@ -18,18 +18,28 @@ public class RetrieveMvpContentRequest implements Serializable {
     private Long staffId;
 
     /*mvpId*/
-    private List<Long> top2MvpId;
+    private Long mvpId;
 
     /*模板对应的需求编号(四层)*/
-    private List<String> serialNoList;
+    private List<String> hostSerialNoList;
 
     /*isDeleted*/
     private Integer isDeleted;
 
-    public RetrieveMvpContentRequest(Long staffId, List<Long> top2MvpId, List<String> serialNoList) {
+    public RetrieveMvpContentRequest(Long staffId, Long mvpId, List<String> hostSerialNoList) {
         this.staffId = staffId;
-        this.top2MvpId = top2MvpId;
-        this.serialNoList = serialNoList;
+        this.mvpId = mvpId;
+        this.hostSerialNoList = hostSerialNoList;
+    }
+
+    public RetrieveMvpContentRequest(Long staffId, Long mvpId) {
+        this.staffId = staffId;
+        this.mvpId = mvpId;
+    }
+
+    public RetrieveMvpContentRequest(Long staffId, List<String> hostSerialNoList) {
+        this.staffId = staffId;
+        this.hostSerialNoList = hostSerialNoList;
     }
 }
 

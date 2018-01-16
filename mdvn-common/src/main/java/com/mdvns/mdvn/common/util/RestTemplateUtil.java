@@ -166,25 +166,14 @@ public class RestTemplateUtil {
     }
 
     /**
-     * @param retrieveUrl url
-     * @param retrieveRequest request
-     * @return AttchInfo
+     * @param retrieveUrl
+     * @param retrieveRequest
+     * @return
      * @throws BusinessException
      */
     public static AttchInfo retrieveAttach(String retrieveUrl, SingleCriterionRequest retrieveRequest) throws BusinessException {
         RestTemplate restTemplate = new RestTemplate();
         return restTemplate.postForObject(retrieveUrl, retrieveRequest, AttchInfo.class);
-    }
-
-    /**
-     * 获取指定serialNo的模块的layerType
-     * @param staffId 当前用户Id
-     * @param hostSerialNo 模块编号
-     * @return layerType
-     */
-    public static Integer retrieveLayerType(String retrieveLayerTypeUrl, Long staffId, String hostSerialNo) {
-        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.postForObject(retrieveLayerTypeUrl, new SingleCriterionRequest(staffId, hostSerialNo), Integer.class);
     }
 
 }

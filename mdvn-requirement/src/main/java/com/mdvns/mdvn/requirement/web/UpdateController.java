@@ -72,29 +72,4 @@ public class UpdateController {
         return this.updateService.updateOptionalInfo(updateRequest);
     }
 
-    /**
-     * 更新指定集合的需求的mvpId(三层)
-     *
-     * @param request request
-     * @param bindingResult bindingResult
-     * @return RestResponse
-     */
-    @PostMapping(value = "/updateMvp")
-    public RestResponse<?> updateMvp(@RequestBody @Validated UpdateMvpContentRequest request, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.updateService.updateMvp(request);
-    }
-
-    /**
-     * 修改某个模板的mvp Dashboard
-     * @param updateRequest updateRequest
-     * @param bindingResult bindingResult
-     * @return RestResponse
-     */
-    @PostMapping(value = "/updateMvpDashboard")
-    public RestResponse<?> updateMvpDashboard(@RequestBody @Validated UpdateMvpDashboardRequest updateRequest, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.updateService.updateMvpDashboard(updateRequest);
-    }
-
 }

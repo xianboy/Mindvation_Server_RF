@@ -9,9 +9,14 @@ import com.mdvns.mdvn.template.domain.CreateDeliveryRequest;
 import com.mdvns.mdvn.template.domain.CreateLabelRequest;
 import com.mdvns.mdvn.template.domain.CreateMvpTemplateRequest;
 import com.mdvns.mdvn.template.domain.CreateTemplateRequest;
-import com.mdvns.mdvn.template.domain.entity.*;
+import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
+import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
+import com.mdvns.mdvn.template.domain.entity.Template;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
-import com.mdvns.mdvn.template.service.*;
+import com.mdvns.mdvn.template.service.CreateService;
+import com.mdvns.mdvn.template.service.DeliveryService;
+import com.mdvns.mdvn.template.service.LabelService;
+import com.mdvns.mdvn.template.service.RoleService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional
 public class CreateServiceImpl implements CreateService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateServiceImpl.class);
@@ -39,9 +43,6 @@ public class CreateServiceImpl implements CreateService {
     @Resource
     private RoleService roleService;
 
-    @Resource
-    private MvpService mvpService;
-
     /**
      * 新建模板
      *
@@ -49,6 +50,7 @@ public class CreateServiceImpl implements CreateService {
      * @return 新建模板
      */
     @Override
+    @Transactional
     public RestResponse<?> create(CreateTemplateRequest createRequest) throws BusinessException {
         LOG.info("创建模板开始...");
         Long creatorId = createRequest.getCreatorId();
@@ -59,13 +61,13 @@ public class CreateServiceImpl implements CreateService {
         //保存template
         template = createByRequest(createRequest);
         //处理functionLabel
-        template.setLabels(createLabels(creatorId, template.getSerialNo(), createRequest.getLabels()));
+        createLabels(creatorId, template.getSerialNo(), createRequest.getLabels());
         //处理roles
-        template.setRoles(createRoles(creatorId, template.getSerialNo(), createRequest.getRoleNames()));
+        createRoles(creatorId, template.getSerialNo(), createRequest.getRoleNames());
         //处理迭代模板mvpTemplates
-        template.setMvpTemplates(createMvpTemplates(creatorId,template.getId(), template.getSerialNo(), createRequest.getMvpTemplates()));
+        createMvpTemplates(creatorId, template.getSerialNo(), createRequest.getMvpTemplates());
         ////处理deliverables
-        template.setDeliveries(createDeliveries(creatorId, template.getSerialNo(), createRequest.getDeliveries()));
+        createDeliveries(creatorId, template.getSerialNo(), createRequest.getDeliveries());
         LOG.info("创建模板成功...");
         return RestResponseUtil.success(template);
     }
@@ -75,29 +77,24 @@ public class CreateServiceImpl implements CreateService {
      *  @param creatorId    creatorId
      * @param hostSerialNo hostSerialNo
      * @param deliveries   deliveries
-     * @return List<Delivery>
      */
-    private List<Delivery> createDeliveries(Long creatorId, String hostSerialNo, List<CreateDeliveryRequest> deliveries) {
-        return this.deliveryService.create(creatorId, hostSerialNo, deliveries);
+    private void createDeliveries(Long creatorId, String hostSerialNo, List<CreateDeliveryRequest> deliveries) {
+        this.deliveryService.create(creatorId, hostSerialNo, deliveries);
     }
 
     /**
-     * 创建MVP
-     * @param creatorId 当前用户ID
-     * @param hostSerialNo MVP所依赖的主体(模板/项目)编号
-     * @param createRequestList createRequest
-     * @return List<MvpTemplate>
+     * 处理MVP
+     * @param creatorId creatorId
+     * @param hostSerialNo hostSerialNo
+     * @param itTemplates itTemplates
      */
-    private List<MvpTemplate> createMvpTemplates(Long creatorId, Long templateId, String hostSerialNo, List<CreateMvpTemplateRequest> createRequestList) {
-        LOG.info("创建mvp");
-        List<MvpTemplate> mvpList = new ArrayList<>();
-        for (CreateMvpTemplateRequest createRequest : createRequestList) {
-
-            MvpTemplate mvpTemplate = this.mvpService.create(creatorId, templateId, hostSerialNo, createRequest);
-            this.labelService.addMvp4Label(creatorId, mvpTemplate.getId(), hostSerialNo, createRequest.getContents());
-            mvpList.add(mvpTemplate);
+    private void createMvpTemplates(Long creatorId, String hostSerialNo, List<CreateMvpTemplateRequest> itTemplates) {
+        for (CreateMvpTemplateRequest mvpTemplateRequest : itTemplates) {
+            MvpTemplate mvpTemplate = new MvpTemplate();
+            mvpTemplate.setCreatorId(creatorId);
+            mvpTemplate.setHostSerialNo(hostSerialNo);
+            mvpTemplate.setMvpIndex(mvpTemplateRequest.getMvpIndex());
         }
-        return mvpList;
     }
 
     /**
@@ -107,8 +104,8 @@ public class CreateServiceImpl implements CreateService {
      * @param hostSerialNo hostSerialNo
      * @param roles        roles
      */
-    private List<TemplateRole> createRoles(Long creatorId, String hostSerialNo, List<String> roles) {
-        return this.roleService.createRoles(creatorId, hostSerialNo, roles);
+    private void createRoles(Long creatorId, String hostSerialNo, List<String> roles) {
+        this.roleService.createRoles(creatorId, hostSerialNo, roles);
     }
 
     /**
@@ -116,7 +113,6 @@ public class CreateServiceImpl implements CreateService {
      *  @param creatorId    创建人id
      * @param hostSerialNo 上层对象编号
      * @param labelRequest 模板集合
-     * @return List
      */
     private List<FunctionLabel> createLabels(Long creatorId, String hostSerialNo, List<CreateLabelRequest> labelRequest) throws BusinessException {
         //遍历labels

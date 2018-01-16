@@ -96,9 +96,6 @@ public class Story implements Serializable {
     /*STORY附件：id*/
     private String attaches;
 
-    /*Story所在mvpId*/
-    private Long mvpId;
-
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

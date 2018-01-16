@@ -49,12 +49,11 @@ public class FunctionLabel {
     @Column(columnDefinition = "timestamp", nullable = false)
     private Timestamp createTime = new Timestamp(System.currentTimeMillis());
 
-    /*MVP id*/
-    private Long mvpId;
-
     /*是否已删除*/
     @JsonIgnore
     private Integer isDeleted = MdvnConstant.ZERO;
+
+
 
     /*子模块名称*/
     @Transient//非持久化字段

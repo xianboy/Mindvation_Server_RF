@@ -1,17 +1,14 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.RetrieveMvpContentRequest;
 import com.mdvns.mdvn.common.bean.RtrvCommentInfosRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.RoleMember;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.story.config.WebConfig;
-import com.mdvns.mdvn.story.domain.StoryDashboard;
 import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.repository.StoryRepository;
 import com.mdvns.mdvn.story.service.MemberService;
@@ -378,50 +375,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             memberIds.add(creatorId);
         }
         return memberIds;
-    }
-
-    /**
-     * 获取指定MvpId的Story集合
-     *
-     * @param retrieveRequest request
-     * @return List
-     */
-    @Override
-    public StoryDashboard retrieveDashboard(RetrieveMvpContentRequest retrieveRequest) {
-        LOG.info("获取hostSerialNo为【{}】且mvpId为【{}】的Story开始...", retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId());
-        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        StoryDashboard dashboard = new StoryDashboard();
-        dashboard.setBacklogs(getBacklogs(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), isDeleted));
-        dashboard.setCurrentMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId().get(MdvnConstant.ZERO), isDeleted));
-        if (null == retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE)) {
-            dashboard.setNextMvp(null);
-        } else {
-            dashboard.setNextMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE), isDeleted));
-        }
-        return dashboard;
-    }
-
-    /**
-     * 获取mvp Dashboard的内容
-     * @param staffId 当前用户
-     * @param serialNoList serialNoList
-     * @param mvpId mvpId
-     * @param isDeleted isDeleted
-     * @return
-     */
-    private List<Story> getMvpContent(Long staffId, List<String> serialNoList, Long mvpId, Integer isDeleted) {
-        return this.repository.findByHostSerialNoInAndMvpIdAndIsDeleted(serialNoList, mvpId, isDeleted);
-    }
-
-    /**
-     * 获取Mvp backlogs
-     * @param staffId 当前用户
-     * @param hostSerialNoList hostSerialNoList
-     * @param isDeleted isDeleted
-     * @return List
-     */
-    private List<Story> getBacklogs(Long staffId, List<String> hostSerialNoList, Integer isDeleted) {
-        return this.repository.findByHostSerialNoInAndIsDeletedAndMvpIdIsNull(hostSerialNoList, isDeleted);
     }
 
     /**

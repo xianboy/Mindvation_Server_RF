@@ -2,7 +2,6 @@ package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
-import com.mdvns.mdvn.common.bean.UpdateMvpContentRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -17,7 +16,6 @@ import com.mdvns.mdvn.requirement.service.MemberService;
 import com.mdvns.mdvn.requirement.service.TagService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -200,5 +198,6 @@ public class CreateServiceImpl implements CreateService {
             LOG.error("消息推送(创建需求)出现异常，异常信息：" + e);
         }
     }
+
 
 }

@@ -1,7 +1,6 @@
 package com.mdvns.mdvn.template.service;
 
 import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
-import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.template.domain.CreateLabelRequest;
@@ -23,17 +22,15 @@ public interface LabelService {
     //根据name和hostSerialNo查询FunctionLabel
     List<FunctionLabel> findByHostSerialNoAndIsDeleted(String hostSerialNo, Integer zero);
 
+    //获取指定id的模板的FunctionLabel
+    List<TerseInfo> getTemplateLabel(String serialNo, Integer isDeleted) throws BusinessException;
+
     //获取指定id的过程方法模块及其子模块
     FunctionLabel retrieveLabelDetailById(Long id, Integer isDeleted) throws BusinessException;
 
     //获取指定hostSerialNo的过程方法模块及其子模块
     FunctionLabel retrieveLabelDetailByHostSerialNo(String criterion, Integer isDeleted) throws BusinessException;
 
-    void addMvp4Label(Long staffId, Long mvpId, String hostSerialNo, List<String> contents);
 
-    //获取指定hostSerialNo的过程方法
-    List<FunctionLabel> retrieveTemplateLabels(SingleCriterionRequest retrieveRequest);
-
-    //获取mvpId为指定的值的过程方法的Id
-    List<Long> retrieveLabelByMvp(SingleCriterionRequest retrieveRequest);
+//    List<TerseInfo> retrieveSubLabel(Long hostSerialNo, Integer isDeleted);
 }

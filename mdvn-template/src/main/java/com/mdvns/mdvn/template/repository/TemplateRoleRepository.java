@@ -17,12 +17,13 @@ public interface TemplateRoleRepository extends JpaRepository<TemplateRole, Long
     @Query("select t.id, t.serialNo, t.name from TemplateRole t where t.id in ?1")
     List<Object[]> findTerseInfoById(List<Long> ids);
 
+    //根据hostSerialNo和isDeleted查询id
+    @Query("select tr.id from TemplateRole tr where tr.hostSerialNo=?1 and tr.isDeleted=?2")
+    List<Long> findIdByHostSerialNoAndIsDeleted(String hostSerialNo, Integer isDeleted);
+
     //查询指定模板的所有有色的terseInfo
     @Query("select tr.id, tr.serialNo, tr.name from TemplateRole tr where tr.hostSerialNo=?1 and tr.isDeleted=?2")
     List<Object[]> findRoleTerseInfoByHostSerial(String hostSerialNo, Integer isDeleted);
-
-    //根据hostSerialNo查询
-    List<TemplateRole> findDistinctByHostSerialNoAndIsDeleted(String hostSerialNo, Integer isDeleted);
 
 
 }

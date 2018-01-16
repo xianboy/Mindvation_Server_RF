@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-public class Requirement implements Serializable {
+public class RequirementModel implements Serializable {
 
     /*id pk*/
     private Long id;

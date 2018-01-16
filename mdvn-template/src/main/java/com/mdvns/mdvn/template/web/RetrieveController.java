@@ -3,7 +3,7 @@ package com.mdvns.mdvn.template.web;
 import com.mdvns.mdvn.common.bean.*;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
-import com.mdvns.mdvn.template.domain.entity.MvpTemplate;
+import com.mdvns.mdvn.template.domain.entity.Delivery;
 import com.mdvns.mdvn.template.service.RetrieveService;
 import com.mdvns.mdvn.template.service.RoleService;
 import org.springframework.validation.BindingResult;
@@ -11,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -26,7 +25,6 @@ public class RetrieveController {
 
     /**
      * 根据行业类型查询
-     *
      * @param singleCriterionRequest request
      * @return RestResponse
      */
@@ -38,7 +36,6 @@ public class RetrieveController {
 
     /**
      * 分页查询所有数据
-     *
      * @param pageableQueryWithoutArgRequest request
      * @return RestResponse
      */
@@ -50,7 +47,6 @@ public class RetrieveController {
 
     /**
      * 根据指定id集合查询id,serialNo和name
-     *
      * @param retrieveTerseInfoRequest retrieveTerseInfoRequest
      * @return RestResponse
      */
@@ -62,7 +58,6 @@ public class RetrieveController {
 
     /**
      * 根据指定id集合查询TemplateROle的id和name
-     *
      * @param retrieveTerseInfoRequest request
      * @return RestResponse
      */
@@ -74,9 +69,8 @@ public class RetrieveController {
 
     /**
      * 根据指定id集合查询FunctionLabel
-     *
      * @param retrieveTerseInfoRequest request
-     * @param bindingResult            bindingResult
+     * @param bindingResult bindingResult
      * @return restResponse
      */
     @PostMapping(value = "/retrieveLabel")
@@ -87,9 +81,8 @@ public class RetrieveController {
 
     /**
      * 根据name和hostSerialNo查询过程方法
-     *
      * @param retrieveRequest request
-     * @param bindingResult   bindingResult
+     * @param bindingResult bindingResult
      * @return restResponse
      */
     @PostMapping(value = "/retrieveByNameAndHost")
@@ -100,9 +93,8 @@ public class RetrieveController {
 
     /**
      * 根据id获取模板信息
-     *
      * @param singleCriterionRequest request
-     * @param bindingResult          bindingResult
+     * @param bindingResult  bindingResult
      * @return RestResponse
      * @throws BusinessException exception
      */
@@ -113,8 +105,9 @@ public class RetrieveController {
     }
 
     /**
+     *
      * @param singleCriterionRequest request
-     * @param bindingResult          bindingResult
+     * @param bindingResult bindingResult
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveTemplateRoles")
@@ -125,9 +118,8 @@ public class RetrieveController {
 
     /**
      * 获取指定id的过程方法及其子方法
-     *
      * @param retrieveRequest request
-     * @param bindingResult   bindingResult
+     * @param bindingResult bindingResult
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveLabelDetail")
@@ -138,9 +130,8 @@ public class RetrieveController {
 
     /**
      * 获取指定id的交付件
-     *
-     * @param retrieveRequest request
-     * @param bindingResult   bindingResult
+     * @param retrieveRequest rqeuest
+     * @param bindingResult bindingResult
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveDelivery")
@@ -151,9 +142,8 @@ public class RetrieveController {
 
     /**
      * 获取指定id的模板的所有交付件
-     *
      * @param retrieveRequest request
-     * @param bindingResult   bindingResult
+     * @param bindingResult bindingResult
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveDeliveries")
@@ -162,40 +152,5 @@ public class RetrieveController {
         return this.retrieveService.retrieveDeliveries(retrieveRequest);
     }
 
-    /**
-     * 获取指定ID的模板的迭代计划
-     * @param retrieveRequest request
-     * @param bindingResult bindingResult
-     * @return List<MvpTemplate>
-     */
-    @PostMapping(value = "/retrieveMvpTemplates")
-    public List<MvpTemplate> retrieveMvpTemplates(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveMvpTemplates(retrieveRequest);
-    }
-
-    /**
-     * 获取mvpId为指定的值的过程方法的Id
-     * @param retrieveRequest request
-     * @param bindingResult bindingResult
-     * @return List
-     */
-    @PostMapping(value = "/retrieveLabelByMvp")
-    public List<Long> retrieveLabelByMvp(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveLabelByMvp(retrieveRequest);
-    }
-
-    /**
-     * 获取指定ID的模板名称
-     * @param retrieveRequest request
-     * @param bindingResult bindingResult
-     * @return 模板名称
-     */
-    @PostMapping(value = "/retrieveName")
-    public String retrieveTemplateName(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveTemplateName(retrieveRequest);
-    }
 
 }

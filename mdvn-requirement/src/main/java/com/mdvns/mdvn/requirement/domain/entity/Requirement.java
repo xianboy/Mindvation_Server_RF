@@ -26,7 +26,7 @@ public class Requirement implements Serializable {
     @Column(nullable = false)
     private Long creatorId;
 
-    /*所属项目serialNo*/
+    /*所属项目id*/
     @Column(nullable = false)
     private String hostSerialNo;
 
@@ -76,9 +76,6 @@ public class Requirement implements Serializable {
 
     /* total amount of story point and CR story point*/
     private Integer storyPointAmount = MdvnConstant.ZERO;
-
-    /*mvpId*/
-    private Long mvpId;
 
     /*是否被删除*/
     @JsonIgnore

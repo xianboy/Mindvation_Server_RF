@@ -1,13 +1,15 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
-import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.PageableResponse;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RtrvCommentInfosRequest;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.requirement.config.WebConfig;
-import com.mdvns.mdvn.requirement.domain.ReqmtDashboard;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
@@ -22,6 +24,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -271,12 +278,11 @@ public class RetrieveServiceImpl implements RetrieveService {
         Requirement requirement = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
         Long staffId = singleCriterionRequest.getStaffId();
         Long creatorId = requirement.getCreatorId();
-//        Long requirementId = requirement.getId();
-//        Long templateId = requirement.getTemplateId();
-//        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, requirementId, templateId, 0);
+        Long requirementId = requirement.getId();
+        Long templateId = requirement.getTemplateId();
+        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, requirementId, templateId, 0);
         List<Long> memberIds = new ArrayList<>();
-        this.memberService.getReqMembers(staffId, requirement);
-        /*for (int i = 0; i < roleMembers.size(); i++) {
+        for (int i = 0; i < roleMembers.size(); i++) {
             List<TerseInfo> members = roleMembers.get(i).getMembers();
             if (!StringUtils.isEmpty(members)) {
                 for (int j = 0; j < members.size(); j++) {
@@ -287,7 +293,7 @@ public class RetrieveServiceImpl implements RetrieveService {
                     memberIds.add(memberId);
                 }
             }
-        }*/
+        }
         if (!memberIds.contains(creatorId)) {
             memberIds.add(creatorId);
         }
@@ -295,34 +301,9 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 获取指定id的过程方法对应的需求编号
-     * @param retrieveRequest request
-     * @return List
-     */
-    @Override
-    public List<String> retrieveSerialNoByLabel(RetrieveReqmtByLabelRequest retrieveRequest) {
-        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        return this.repository.findSerialNoByHostSerialNoAndFunctionLabelIdInAndIsDeleted(retrieveRequest.getHostSerialNo(), retrieveRequest.getLabels(), isDeleted);
-    }
-
-    /**
-     * 获取指定hostSerialNo(项目编号)和templateId的需求编号
-     * @param retrieveRequest request
-     * @return List
-     */
-    @Override
-    public List<String> retrieveSerialNo(RetrieveReqmtSerialNoRequest retrieveRequest) {
-        LOG.info("获取hostSerialNo为【{}】和templateId为【{}】的需求编号开始...", retrieveRequest.getHostSerialNo(),retrieveRequest.getTemplateId());
-        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        List<String> result = this.repository.findSerialNoByHostSerialNoAndTemplateIdAndIsDeleted(retrieveRequest.getHostSerialNo(), retrieveRequest.getTemplateId(), isDeleted);
-        LOG.info("成功获取hostSerialNo为【{}】和templateId为【{}】的需求编号:【{}】", retrieveRequest.getHostSerialNo(),retrieveRequest.getTemplateId(), result);
-        return result;
-    }
-
-    /**
      * 返回需求的评论list
-     * @param requirement requirement
-     * @return List
+     * @param requirement
+     * @return
      */
     private List<CommentDetail> rtrvCommentInfos(Requirement requirement){
         String rCommentInfosUrl = webConfig.getRtrvCommentInfosUrl();
@@ -351,47 +332,5 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
 
-
-    /**
-     * 获取以requirement为内容的Dashboard
-     * @param retrieveRequest request
-     * @return ReqmtDashboard
-     */
-    public com.mdvns.mdvn.requirement.domain.ReqmtDashboard retrieveDashboard(RetrieveMvpContentRequest retrieveRequest) {
-        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
-        ReqmtDashboard dashboard = new ReqmtDashboard();
-        dashboard.setBacklogs(getBacklogs(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), isDeleted));
-        Long mvpId = retrieveRequest.getTop2MvpId().get(MdvnConstant.ZERO);
-        dashboard.setCurrentMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), mvpId, isDeleted));
-        if (null == retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE)) {
-            dashboard.setNextMvp(null);
-        } else {
-            dashboard.setNextMvp(getMvpContent(retrieveRequest.getStaffId(), retrieveRequest.getSerialNoList(), retrieveRequest.getTop2MvpId().get(MdvnConstant.ONE), isDeleted));
-        }
-        return dashboard;
-    }
-
-    /**
-     * 获取指定需求集合中mvpId为指定值的数据
-     * @param staffId 当前用户Id
-     * @param hostSerialNoList 需求集合
-     * @param mvpId mvpId
-     * @param isDeleted isDeleted
-     * @return List
-     */
-    private List<Requirement> getMvpContent(Long staffId, List<String> hostSerialNoList, Long mvpId, Integer isDeleted) {
-        return this.repository.findBySerialNoInAndIsDeletedAndMvpId(hostSerialNoList, isDeleted, mvpId);
-    }
-
-    /**
-     * 获取指定需求集合中的mvpId为空的数据
-     * @param staffId 当前用户Id
-     * @param hostSerialNoList 需求集合
-     * @param isDeleted isDeleted
-     * @return List
-     */
-    private List<Requirement> getBacklogs(Long staffId, List<String> hostSerialNoList, Integer isDeleted) {
-        return this.repository.findBySerialNoInAndIsDeletedAndMvpIdIsNull(hostSerialNoList, isDeleted);
-    }
 
 }

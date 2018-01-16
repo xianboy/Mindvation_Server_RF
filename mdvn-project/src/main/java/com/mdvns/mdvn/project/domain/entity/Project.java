@@ -23,9 +23,6 @@ public class Project {
     /*项目创建者Id*/
     private Long creatorId;
 
-    /*层级标记*/
-    private Integer layerType;
-
     /*项目名称*/
     private String name;
 

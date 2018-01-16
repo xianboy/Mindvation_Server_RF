@@ -21,13 +21,13 @@ public class StaffAuthInfo {
     private String projId;
 
     /*员工Id*/
-    private Long staffId;
+    private String staffId;
 
     /*权限编号*/
     private Integer authCode;
 
     /*项目模块Id*/
-    private String hostSerialNo;
+    private String hierarchyId;
 
     /*权限添加人Id*/
     private String assignerId;
