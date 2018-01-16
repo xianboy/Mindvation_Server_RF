@@ -14,4 +14,7 @@ public interface UpdateService {
 
     @Transactional
     RestResponse<?> updateOptionalInfo(UpdateOptionalInfoRequest updateRequest) throws BusinessException;
+
+    //修改某个模板的mvp Dashboard
+    RestResponse<?> updateMvpDashboard(UpdateMvpDashboardRequest updateRequest);
 }

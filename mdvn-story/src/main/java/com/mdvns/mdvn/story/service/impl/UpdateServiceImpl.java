@@ -1,10 +1,7 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
-<<<<<<< HEAD
-=======
 import com.mdvns.mdvn.common.bean.model.MvpContent;
->>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -223,5 +220,24 @@ public class UpdateServiceImpl implements UpdateService {
         } catch (Exception e) {
             LOG.error("消息推送(更改story)出现异常，异常信息：" + e);
         }
+    }
+
+    /**
+     * 修改某个模板的mvp Dashboard
+     *
+     * @param updateRequest request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvpDashboard(UpdateMvpDashboardRequest updateRequest) {
+        LOG.info("修改mvp Dashboard开始...");
+        //遍历mvpList修改story中的mvpId
+        for (MvpContent mvpContent : updateRequest.getMvpList()) {
+            LOG.info("修改ID为【{}】的Story的mvpId成【{}】开始...", mvpContent.getContents(), mvpContent.getMvpId());
+            this.repository.updateMvpIdByIdIn(mvpContent.getMvpId(), mvpContent.getContents());
+            LOG.info("成功修改ID为【{}】的Story的mvpId成【{}】...", mvpContent.getContents(), mvpContent.getMvpId());
+        }
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 }

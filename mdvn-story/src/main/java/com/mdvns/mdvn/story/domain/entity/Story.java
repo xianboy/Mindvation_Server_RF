@@ -96,12 +96,9 @@ public class Story implements Serializable {
     /*STORY附件：id*/
     private String attaches;
 
-<<<<<<< HEAD
-=======
     /*Story所在mvpId*/
     private Long mvpId;
 
->>>>>>> parent of c74f720... Merge branch 'master' of https://github.com/xianboy/Mindvation_Server_RF
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);
