@@ -10,9 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 public class StoryDashboard implements Serializable {
 
-    /*模板名称*/
-    private String templateName;
-
     /*还未分配到mvpId中的story*/
     private List<Story> backlogs;
 

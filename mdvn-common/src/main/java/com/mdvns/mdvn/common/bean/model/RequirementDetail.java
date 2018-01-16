@@ -61,4 +61,13 @@ public class RequirementDetail implements Serializable {
     /*评论列表*/
     private List<CommentDetail> commentDetails;
 
+    /*创建人信息*/
+    private Staff creatorInfo;
+
+    /*当前用户的权限信息*/
+    private List<StaffAuthInfo> staffAuthInfo;
+
+    /*分层标识*/
+    private Integer layerType;
+
 }

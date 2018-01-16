@@ -10,12 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -105,13 +101,13 @@ public class StaffAuthUtil {
      * @return
      * @throws BusinessException
      */
-	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, Long projId, Long hostId, Long staffId) throws BusinessException{
+	public static List<StaffAuthInfo> rtrvStaffAuthInfo(String rtrvStaffAuthUrl, String projSerialNo, String hostSerialNo, Long staffId) throws BusinessException{
        RestTemplate restTemplate = new RestTemplate();
        ResponseEntity<List> responseEntity ;
-       RtrvStaffAuthInfoRequest rtrvStaffAuthInfoRequest = new RtrvStaffAuthInfoRequest();
-       rtrvStaffAuthInfoRequest.setProjId(projId);
-       rtrvStaffAuthInfoRequest.setHostId(hostId);
-       rtrvStaffAuthInfoRequest.setStaffId(staffId);
+        RtrvStaffAuthInfoRequest rtrvStaffAuthInfoRequest = new RtrvStaffAuthInfoRequest();
+        rtrvStaffAuthInfoRequest.setProjSerialNo(projSerialNo);
+        rtrvStaffAuthInfoRequest.setHostSerialNo(hostSerialNo);
+        rtrvStaffAuthInfoRequest.setStaffId(staffId);
         try {
             responseEntity = restTemplate.postForEntity(rtrvStaffAuthUrl,rtrvStaffAuthInfoRequest,List.class);
 
