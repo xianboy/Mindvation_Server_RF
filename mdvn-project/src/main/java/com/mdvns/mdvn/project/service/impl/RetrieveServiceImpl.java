@@ -265,4 +265,27 @@ public class RetrieveServiceImpl implements RetrieveService {
         return restResponse.getData().getContent();
     }
 
+    /**
+     * 获取指定serialNo的项目的模板Id
+     * @param retrieveRequest request
+     * @return list
+     */
+    @Override
+    public List<Long> retrieveTemplate(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        Long projId = this.projectRepository.findIdBySerialNo(retrieveRequest.getCriterion());
+        return this.projectTemplateRepository.findTemplatesByProjIdAndIsDeleted(projId, isDeleted);
+    }
+
+    /**
+     * 根据serialNo获取layerType
+     * @param retrieveRequest request
+     * @return Integer
+     */
+    @Override
+    public Integer retrieveLayerType(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        Project project = this.projectRepository.findBySerialNo(retrieveRequest.getCriterion());
+        MdvnCommonUtil.notExistingError(project, ErrorEnum.PROJCET_NOT_EXISTS, "编号为【"+retrieveRequest.getCriterion()+"】的项目不存在.");
+        return project.getLayerType();
+    }
 }
