@@ -13,19 +13,16 @@ import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.staff.config.WebConfig;
 import com.mdvns.mdvn.staff.domain.RetrieveStaffRequest;
 import com.mdvns.mdvn.staff.domain.RtrvStaffListByNameResponse;
-import com.mdvns.mdvn.staff.domain.StaffDetail;
 import com.mdvns.mdvn.staff.domain.StaffMatched;
 import com.mdvns.mdvn.staff.domain.entity.Staff;
 import com.mdvns.mdvn.staff.domain.entity.StaffTag;
 import com.mdvns.mdvn.staff.repository.StaffRepository;
 import com.mdvns.mdvn.staff.repository.StaffTagRepository;
 import com.mdvns.mdvn.staff.service.RetrieveService;
-import com.mdvns.mdvn.staff.service.StaffTagService;
 import com.mdvns.mdvn.staff.util.StaffUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -47,9 +44,6 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Resource
     private WebConfig webConfig;
 
-    @Autowired
-    private StaffTagService staffTagService;
-
 
     /**
      * 获取指定id的staff详情
@@ -65,11 +59,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         Staff staff = this.staffRepository.findOne(id);
         //数据不存在，抛异常
         MdvnCommonUtil.notExistingError(staff, "id", singleCriterionRequest.getCriterion());
-        //标签对象
-        StaffDetail staffDetail = StaffUtil.buildDetailByStaff(staff);
-        staffDetail.setTags(this.staffTagService.getStaffTagInfo(staffDetail.getId()));
         //返回结果
-        return RestResponseUtil.success(staffDetail);
+        return RestResponseUtil.success(StaffUtil.buildDetailByStaff(staff));
     }
 
     /**
@@ -79,7 +70,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      * @return RestResponse
      */
     @Override
-    public RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) throws BusinessException {
+    public RestResponse<?> retrieveAll(PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest) {
         //获取分页参数对象
         PageableCriteria pageableCriteria = pageableQueryWithoutArgRequest.getPageableCriteria();
         //构建PageRequest
@@ -91,10 +82,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         }
         //分页查询
         Page<Staff> staffPage = this.staffRepository.findAll(pageRequest);
-        List<Staff> staffList = staffPage.getContent();
-        for (int i = 0; i < staffList.size(); i++) {
-            staffList.get(i).setTags(this.staffTagService.getStaffTagInfo(staffList.get(i).getId()));
-        }
         //返回结果
         return RestResponseUtil.success(staffPage);
     }
@@ -113,21 +100,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         List<TerseInfo> tags = ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet);
         LOG.info("获取指定id集合的id和name完成：{}", tags.toString());
         return RestResponseUtil.success(tags);
-    }
-
-    /**
-     * 根据id集合获取staff对象集合
-     *
-     * @param retrieveTerseInfoRequest request
-     * @return RestResponse
-     */
-    @Override
-    public RestResponse<?> retrieveStaffInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest) {
-        //根据request获取id集合
-        List<Long> ids = retrieveTerseInfoRequest.getIds();
-        List<Staff> resultSet = this.staffRepository.findStaffInfosById(ids);
-        LOG.info("根据id集合获取staff对象完成：{}", resultSet.toString());
-        return RestResponseUtil.success(resultSet);
     }
 
     /**

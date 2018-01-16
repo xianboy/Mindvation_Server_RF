@@ -7,5 +7,5 @@ url:
 
   retrieveReqMembersUrl : http://localhost:8080/mdvn-requirement/requirements/retrieveReqMembers
 
-  rtrvStaffInfoByIdUrl: http://localhost:8080/mdvn-staff/staff/retrieveById
+  retrieveByIdUrl: http://localhost:8080/mdvn-staff/staff/retrieveById
 

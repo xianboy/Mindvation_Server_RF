@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class WebConfig {
-    private String rtrvStaffInfoByIdUrl;
+    private String retrieveByIdUrl;
     private String findTagInfoByIdUrl;
     private String rtrvCommentInfosUrl;
     private String rtrvCreatorIdUrl;

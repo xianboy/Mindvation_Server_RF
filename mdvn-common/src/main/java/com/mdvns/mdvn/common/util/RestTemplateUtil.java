@@ -4,7 +4,10 @@ import com.mdvns.mdvn.common.bean.CustomFunctionLabelRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
-import com.mdvns.mdvn.common.bean.model.*;
+import com.mdvns.mdvn.common.bean.model.AttchInfo;
+import com.mdvns.mdvn.common.bean.model.Delivery;
+import com.mdvns.mdvn.common.bean.model.Staff;
+import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -49,64 +52,6 @@ public class RestTemplateUtil {
         if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
             LOG.error("获取指定id集合的TerseInfo失败.");
             throw new BusinessException(ErrorEnum.GET_BASE_INFO_FAILED, "获取指定id集合的TerseInfo失败.");
-        }
-        return Arrays.asList(restResponse.getData());
-    }
-
-    /**
-     * 根据id集合获取staff对象
-     *
-     * @param url     查询id和name的url
-     * @param staffId 当前用户id
-     * @param ids     需要查询的id集合
-     * @return list
-     */
-    public static List<Staff> retrieveStaffInfos(Long staffId, List<Long> ids, String url) throws BusinessException {
-        LOG.info("查询terseInfo的url是：【{}】", url);
-        //实例化restTemplate对象
-        RestTemplate restTemplate = new RestTemplate();
-        //构建ParameterizedTypeReference
-        ParameterizedTypeReference<RestResponse<Staff[]>> typeRef = new ParameterizedTypeReference<RestResponse<Staff[]>>() {
-        };
-        //构建requestEntity
-        HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveTerseInfoRequest(staffId, ids));
-        //构建responseEntity
-        ResponseEntity<RestResponse<Staff[]>> responseEntity = restTemplate.exchange(url,
-                HttpMethod.POST, requestEntity, typeRef);
-        //获取restResponse
-        RestResponse<Staff[]> restResponse = responseEntity.getBody();
-        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
-            LOG.error("获取指定id集合的TerseInfo失败.");
-            throw new BusinessException(ErrorEnum.GET_BASE_INFO_FAILED, "获取指定id集合的TerseInfo失败.");
-        }
-        return Arrays.asList(restResponse.getData());
-    }
-
-    /**
-     * 根据id集合获取Tag对象
-     *
-     * @param url     查询id和name的url
-     * @param staffId 当前用户id
-     * @param ids     需要查询的id集合
-     * @return list
-     */
-    public static List<Tag> retrieveTagInfos(Long staffId, List<Long> ids, String url) throws BusinessException {
-        LOG.info("查询TagInfo的url是：【{}】", url);
-        //实例化restTemplate对象
-        RestTemplate restTemplate = new RestTemplate();
-        //构建ParameterizedTypeReference
-        ParameterizedTypeReference<RestResponse<Tag[]>> typeRef = new ParameterizedTypeReference<RestResponse<Tag[]>>() {
-        };
-        //构建requestEntity
-        HttpEntity<?> requestEntity = new HttpEntity<>(new RetrieveTerseInfoRequest(staffId, ids));
-        //构建responseEntity
-        ResponseEntity<RestResponse<Tag[]>> responseEntity = restTemplate.exchange(url,
-                HttpMethod.POST, requestEntity, typeRef);
-        //获取restResponse
-        RestResponse<Tag[]> restResponse = responseEntity.getBody();
-        if (!MdvnConstant.SUCCESS_CODE.equals(restResponse.getCode())) {
-            LOG.error("获取指定id集合的TagInfo失败.");
-            throw new BusinessException(ErrorEnum.GET_BASE_INFO_FAILED, "获取指定id集合的TagInfo失败.");
         }
         return Arrays.asList(restResponse.getData());
     }

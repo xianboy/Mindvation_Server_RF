@@ -1,11 +1,13 @@
 package com.mdvns.mdvn.tag.service.impl;
 
-import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.bean.model.PageableCriteria;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.ConvertObjectUtil;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.PageableQueryUtil;
@@ -35,9 +37,8 @@ public class TagServiceImpl implements TagService {
 
     /**
      * 新建tag
-     *
      * @param tag 新建数据
-     * @return 新建成功的tag
+     * @return  新建成功的tag
      * @throws BusinessException tag name已存在
      */
     @Transactional
@@ -60,7 +61,6 @@ public class TagServiceImpl implements TagService {
 
     /**
      * 查询所有数据：支持分页
-     *
      * @return restResponse
      */
     @Override
@@ -84,7 +84,6 @@ public class TagServiceImpl implements TagService {
 
     /**
      * 获取指定name的部门详情
-     *
      * @param retrieveDetailRequest request
      * @return restResponse
      */
@@ -105,7 +104,6 @@ public class TagServiceImpl implements TagService {
 
     /**
      * 获取指定id集合的标签基本信息
-     *
      * @param retrieveTerseInfoRequest request
      * @return restResponse
      */
@@ -120,7 +118,6 @@ public class TagServiceImpl implements TagService {
 
     /**
      * 构建编号
-     *
      * @return String
      */
     private String buildSerialNo() {
@@ -144,69 +141,5 @@ public class TagServiceImpl implements TagService {
     public ResponseEntity<?> findById(Long tagId) {
         Tag tag = this.tagRepository.findOne(tagId);
         return ResponseEntity.ok(tag);
-    }
-
-    /**
-     * 查询一周内热门标签数据：支持分页(悬赏榜/求助)
-     *
-     * @return restResponse
-     */
-    @Override
-    @Transactional
-    public RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException {
-        //获取分页参数对象
-        PageableCriteria pageableCriteria = request.getPageableCriteria();
-        //获取查询条件（悬赏、求助）
-        String criterion = request.getCriterion();
-        //创建pageableResponse对象
-        PageableResponse pageableResponse = new PageableResponse();
-        //判断有无分页参数
-        List<Tag> tags = new ArrayList();
-        try {
-            if (null == pageableCriteria) {
-                LOG.info("用户[{}]没有填写分页参数，故查标签这里不分页.", request.getStaffId());
-                tags = this.tagRepository.findHotTagListInfo();
-                pageableResponse.setTotalElements((long) tags.size());
-            } else {
-                Integer page = pageableCriteria.getPage() - MdvnConstant.ONE;
-                Integer pageSize = pageableCriteria.getSize();
-                Integer m = page * pageSize;
-                Integer n = pageSize;
-                if (criterion.equals("reward")) {
-                    tags = this.tagRepository.findRewardHotTagsHavePageable(m, n);
-                }
-                if (criterion.equals("issue")) {
-                    tags = this.tagRepository.findIssueHotTagsHavePageable(m, n);
-                }
-                pageableResponse.setNumber(page);
-                pageableResponse.setNumberOfElements(tags.size());
-                pageableResponse.setSize(pageSize);
-                //返回总条数
-                List tagsTotals = this.tagRepository.findHotTagListInfo();
-                pageableResponse.setTotalElements((long) tagsTotals.size());
-            }
-        } catch (Exception ex) {
-            LOG.info("查询一周内热门标签数据失败");
-            throw new BusinessException(ErrorEnum.RETRIEVE_HOT_TAGS_FAILED, "查询一周内热门标签数据失败");
-        }
-        //分页查询
-        pageableResponse.setContent(tags);
-        //返回结果
-        return RestResponseUtil.success(pageableResponse);
-    }
-
-    /**
-     * 根据id集合获取Tag对象集合
-     *
-     * @param retrieveTerseInfoRequest request
-     * @return RestResponse
-     */
-    @Override
-    public RestResponse<?> retrieveTagInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest) {
-        //根据request获取id集合
-        List<Long> ids = retrieveTerseInfoRequest.getIds();
-        List<Tag> resultSet = this.tagRepository.findTagInfosByIds(ids);
-        LOG.info("根据id集合获取staff对象完成：{}", resultSet.toString());
-        return RestResponseUtil.success(resultSet);
     }
 }

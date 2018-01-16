@@ -1,12 +1,7 @@
 package com.mdvns.mdvn.story.service.impl;
 
-import com.mdvns.mdvn.common.bean.AssignAuthRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
-<<<<<<< HEAD
 import com.mdvns.mdvn.common.bean.UpdateMvpContentRequest;
-=======
-import com.mdvns.mdvn.common.constant.AuthConstant;
->>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.*;
@@ -25,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -61,18 +55,8 @@ public class CreateServiceImpl implements CreateService {
         story = this.repository.saveAndFlush(story);
         //story保存成功,保存成员映射
         Integer memberAmount = MdvnConstant.ZERO;
-
-        //为创建者添加权限
-        StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(story.getProjSerialNo(),createRequest.getCreatorId(), Arrays.asList(createRequest.getCreatorId()),story.getSerialNo(), AuthConstant.RMEMBER));
-
         if (!(null == createRequest.getMembers() || createRequest.getMembers().isEmpty())) {
             memberAmount = this.memberService.buildMembers(createRequest.getCreatorId(), story.getId(), createRequest.getMembers());
-            //为成员添加权限
-            List<Long> addList = ListUtil.getDistinctAddList(createRequest.getMembers());
-            if(!addList.isEmpty()){
-                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(story.getProjSerialNo(),createRequest.getCreatorId(), addList,story.getSerialNo(), AuthConstant.SMEMBER));
-            }
-
         }
         //设置成员数量
         story.setMemberAmount(memberAmount);
@@ -116,12 +100,6 @@ public class CreateServiceImpl implements CreateService {
             story.setAttaches(aches);
             FileUtil.buildAttaches(attaches,serialNo);
         }
-
-        //项目层级类型
-        if(request.getLayerType().equals(MdvnConstant.TWO)||request.getLayerType().equals(MdvnConstant.THREE)||request.getLayerType().equals(MdvnConstant.FOUR)){
-            story.setLayerType(request.getLayerType());
-        }
-
         return story;
     }
 

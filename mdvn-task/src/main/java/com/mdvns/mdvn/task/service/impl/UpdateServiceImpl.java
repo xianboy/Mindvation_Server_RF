@@ -141,7 +141,7 @@ public class UpdateServiceImpl implements UpdateService {
 
         //记录附件添加历史失败
         try {
-            attachHistory(request.getStaffId(), task.getId(), request.getAttachId(), MdvnConstant.ADD_ATTACH);
+            attachHistory(request.getStaffId(), task.getId(), request.getAttachId(), MdvnConstant.REMOVE_ATTACH);
         } catch (Exception ex) {
             LOG.error("记录附件添加历史失败：【{}】...", ex.getMessage());
         }

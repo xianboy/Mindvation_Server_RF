@@ -37,14 +37,6 @@ public class StaffUtil {
         if (null != staff.getEmail()) {
             staffDetail.setEmail(staff.getEmail());
         }
-        /*部门id*/
-        if (null != staff.getDeptId()) {
-            staffDetail.setDeptId(staff.getDeptId());
-        }
-        /*职位id*/
-        if (null != staff.getPositionId()) {
-            staffDetail.setPositionId(staff.getPositionId());
-        }
         //性别
         staffDetail.setGender(staff.getGender());
         //入职时间
@@ -66,7 +58,7 @@ public class StaffUtil {
             staffDetail.setRecommendation(staff.getRecommendation());
         }
         //编号
-        staffDetail.setSerialNo(staff.getSerialNo());
+        staffDetail.setSerialNum(staff.getSerialNo());
         //工作饱和度
         if (null != staff.getWorkSaturation()) {
             staffDetail.setWorkSaturation(staff.getWorkSaturation());

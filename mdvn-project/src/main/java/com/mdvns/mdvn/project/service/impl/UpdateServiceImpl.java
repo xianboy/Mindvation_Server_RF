@@ -1,15 +1,20 @@
 package com.mdvns.mdvn.project.service.impl;
 
-import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.UpdateBasicInfoRequest;
+import com.mdvns.mdvn.common.bean.UpdateStatusRequest;
 import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.bean.model.BuildAttachesById;
-import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.*;
+import com.mdvns.mdvn.common.util.FileUtil;
+import com.mdvns.mdvn.common.util.MdvnCommonUtil;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.project.config.WebConfig;
+import com.mdvns.mdvn.common.bean.UpdateOptionalInfoRequest;
 import com.mdvns.mdvn.project.domain.UpdateOtherInfoRequest;
 import com.mdvns.mdvn.project.domain.entity.Project;
 import com.mdvns.mdvn.project.domain.entity.ProjectStaff;
@@ -57,7 +62,7 @@ public class UpdateServiceImpl implements UpdateService {
     private RestTemplate restTemplate;
 
     /*注入WebConfig*/
-    @Resource
+    @Autowired
     private WebConfig webConfig;
 
     /**
@@ -169,22 +174,11 @@ public class UpdateServiceImpl implements UpdateService {
         //更新负责人
         if (null != updateRequest.getLeaders()) {
             this.projectStaffService.updateProjectLeader(updateRequest.getStaffId(), projId, updateRequest.getLeaders());
-            //更新权限
-            List<Long> addList = updateRequest.getLeaders().getAddList();
-            if(!addList.isEmpty()){
-                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(project.getSerialNo(),project.getCreatorId(),addList,project.getSerialNo(), AuthConstant.LEADER));
-            }
-            List<Long> removeList = updateRequest.getLeaders().getRemoveList();
-            if(!removeList.isEmpty()){
-                StaffAuthUtil.removeAuth(webConfig.getRemoveAuthUrl(),new RemoveAuthRequest(project.getSerialNo(),project.getCreatorId(),removeList,project.getSerialNo(), AuthConstant.LEADER));
-            }
         }
         //更新模板
         if (null != updateRequest.getTemplates()) {
             this.projectTemplateService.updateProjectTemplate(updateRequest.getStaffId(), projId, updateRequest.getTemplates());
         }
-
-
         LOG.info("更新项目其它信息结束...");
 
         /**

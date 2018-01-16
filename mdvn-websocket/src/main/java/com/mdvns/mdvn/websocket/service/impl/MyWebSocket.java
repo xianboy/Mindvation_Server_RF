@@ -108,15 +108,13 @@ public class MyWebSocket implements WebSocketService {
      * @param session 可选的参数。session为与某个客户端的连接会话，需要通过它来给客户端发送数据
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("id") Long id) throws IOException {
+    public void onOpen(Session session, @PathParam("id") Long id) {
         this.session = session;
+
         WebSocketUtils.add(id, session);
         logger.info("[WebSocketServer] Connected : userId = " + id);
-        session.setMaxIdleTimeout(30 * 60 * 1000);//毫秒算的（设置session过期时间）
+        session.setMaxIdleTimeout(30*60*1000);//毫秒算的（设置session过期时间）
         sessionMap.put(id, session);
-//        /*推送定时给自己的消息开始*/
-//        this.checkMessageToOneself(session,id);
-//        /*推送定时给自己的消息结束*/
         webSocketSet.add(this);    //加入set中
         addOnlineCount();           //在线数加1
         System.out.println("有新连接加入！当前在线人数为" + getOnlineCount());
@@ -224,107 +222,6 @@ public class MyWebSocket implements WebSocketService {
     }
 
     /**
-     * 定时给自己推送消息
-     *
-     * @param request
-     * @throws IOException
-     */
-    public Boolean sendMessageToOneself(SendMessageRequest request) throws IOException {
-        com.mdvns.mdvn.common.bean.model.ServerPush serverPushResponse = request.getServerPushResponse();
-        Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-        long curTime = currentTime.getTime();
-        serverPushResponse.setCreateTime(curTime);
-        //1、使用JSONObject
-        JSONObject json = JSONObject.fromObject(serverPushResponse);
-        String message = json.toString();
-        Long recipientId = request.getInitiatorId();//接收人Id
-        Set<Map.Entry<Long, Session>> set = sessionMap.entrySet();
-        Long keyStaffId = null;
-        for (Map.Entry<Long, Session> i : set) {
-            try {
-                Long key = i.getKey();//用户的staffId
-                /**
-                 * 如果接收人在线，直接推送
-                 */
-                if (key.equals(recipientId)) {//发信息给部分人
-                    logger.info("发起人id: " + recipientId + ";[WebSocketServer] Received Message : userId = " + key + " , message = " + message);
-                    WebSocketUtils.receive(key, message);
-                    i.getValue().getBasicRemote().sendText(message);
-                    logger.info("++++++++++++++++++++定时推送消息给自己成功————————————————————&&");
-                    keyStaffId = recipientId;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        /**
-         * 如果接收人不在线，入库
-         */
-        if (keyStaffId == null) {
-            logger.info("++++++++++++++++++++定时推送消息计入数据库————————————————————&&");
-            ServerPush serverPush = new ServerPush();
-            serverPush.setCreateTime(currentTime);
-            serverPush.setInitiatorId(recipientId);
-            serverPush.setRecipientId(recipientId);
-            serverPush.setSubjectType(serverPushResponse.getSubjectType());
-            serverPush.setSubjectId(serverPushResponse.getSubjectId());
-            serverPush.setType(serverPushResponse.getType());
-            serverPush = this.serverPushRepository.saveAndFlush(serverPush);
-        }
-        return true;
-    }
-
-    /**
-     * 检测是不是有定时给自己推送的消息
-     *
-     * @param session,id
-     * @return
-     * @throws IOException
-     */
-    public Boolean checkMessageToOneself(Session session, Long id) throws IOException {
-        /*查询所有的要定时给自己推送的消息*/
-//        List<ServerPush> serverPushes = this.serverPushRepository.findByIsTimedPush(1);
-        List<ServerPush> serverPushes = new ArrayList<>();
-        for (int i = 0; i < serverPushes.size(); i++) {
-            Long recipientId = serverPushes.get(i).getRecipientId();//接收人Id
-            try {
-                if (id.equals(recipientId)) {//发信息给部分人
-                    logger.info("发起人id: " + recipientId + ";[WebSocketServer] Received Message : userId = " + id + " , message = " + serverPushes.get(i));
-                    /**
-                     * 包装要推送的消息
-                     */
-                    ServerPush serverPush = serverPushes.get(i);
-                    //赋值·
-                    ServerPushInfo serverPushInfo = new ServerPushInfo();
-                    BeanUtils.copyProperties(serverPush, serverPushInfo);
-                    serverPushInfo.setCreateTime(serverPush.getCreateTime().getTime());
-                    Long initiatorId = serverPush.getInitiatorId();//发起人
-                    /**
-                     * 查询发起者详细信息
-                     */
-                    SingleCriterionRequest singleCriterionRequest = new SingleCriterionRequest();
-                    singleCriterionRequest.setCriterion(String.valueOf(initiatorId));
-                    singleCriterionRequest.setStaffId(initiatorId);
-                    ParameterizedTypeReference<RestResponse<Staff>> typeRef = new ParameterizedTypeReference<RestResponse<Staff>>() {
-                    };
-                    ResponseEntity<RestResponse<Staff>> responseEntity = restTemplate.exchange(webConfig.getRetrieveByIdUrl(), HttpMethod.POST, new HttpEntity<Object>(singleCriterionRequest), typeRef, RestResponse.class);
-                    RestResponse<Staff> restResponse = responseEntity.getBody();
-                    serverPushInfo.setInitiator(restResponse.getData());
-                    //1、使用JSONObject
-                    JSONObject json = JSONObject.fromObject(serverPushInfo);
-                    String message = json.toString();
-                    //推送这条信息
-                    session.getBasicRemote().sendText(message);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        return true;
-    }
-
-
-    /**
      * 获取推送信息列表
      *
      * @param request
@@ -332,7 +229,7 @@ public class MyWebSocket implements WebSocketService {
      */
     @Override
     public RestResponse<?> rtrvServerPushInfoList(RtrvServerPushListRequest request) {
-        LOG.info("开始执行{} rtrvServerPushInfoList()方法.", this.CLASS);
+        LOG.info("开始执行{} rtrvServerPushInfoList()方法.",this.CLASS);
         RtrvServerPushResponse rtrvServerPushResponse = new RtrvServerPushResponse();
         Long recipientId = request.getRecipientId();
         Integer m = request.getStartNum();
@@ -381,17 +278,16 @@ public class MyWebSocket implements WebSocketService {
      */
     @Override
     public RestResponse<?> deleteServerPushInfo(Integer uuId) {
-        LOG.info("开始执行{} deleteServerPushInfo()方法.", this.CLASS);
+        LOG.info("开始执行{} deleteServerPushInfo()方法.",this.CLASS);
         try {
             this.serverPushRepository.delete(uuId);
             LOG.info("结束执行{} deleteServerPushInfo()方法.", this.CLASS);
             return RestResponseUtil.success(true);
         } catch (Exception e) {
             logger.info("消息推送(创建comment)出现异常，异常信息：");
-            return RestResponseUtil.error("2301", "Fail to delete serberPush");
+            return RestResponseUtil.error("2301","Fail to delete serberPush");
         }
     }
-
     //-----------------外加----------------
     public static synchronized int getOnlineCount() {
         return onlineCount;

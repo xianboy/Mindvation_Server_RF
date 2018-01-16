@@ -1,16 +1,14 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
-<<<<<<< HEAD
 import com.mdvns.mdvn.common.bean.model.MvpContent;
-=======
-import com.mdvns.mdvn.common.constant.AuthConstant;
->>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
-import com.mdvns.mdvn.common.util.*;
-import com.mdvns.mdvn.requirement.config.WebConfig;
+import com.mdvns.mdvn.common.util.FileUtil;
+import com.mdvns.mdvn.common.util.MdvnCommonUtil;
+import com.mdvns.mdvn.common.util.RestResponseUtil;
+import com.mdvns.mdvn.common.util.ServerPushUtil;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
@@ -40,9 +38,6 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Resource
     private MemberService memberService;
-
-    @Resource
-    private WebConfig webConfig;
 
     /**
      * 更新状态
@@ -208,16 +203,6 @@ public class UpdateServiceImpl implements UpdateService {
         //更新RoleMember
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getMembers());
-            //更新权限
-            List<Long> addList = ListUtil.getDistinctAddList(updateRequest.getMembers());
-            if(!addList.isEmpty()){
-                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),addList,requirement.getSerialNo(), AuthConstant.RMEMBER));
-            }
-            List<Long> removeList = ListUtil.getDistinctRemoveList(updateRequest.getMembers());
-            if(!removeList.isEmpty()){
-                StaffAuthUtil.removeAuth(webConfig.getRemoveAuthUrl(),new RemoveAuthRequest(requirement.getHostSerialNo(),requirement.getCreatorId(),removeList,requirement.getSerialNo(),AuthConstant.RMEMBER));
-            }
-
         }
         //消息推送
         this.serverPushByUpdate(updateRequest.getStaffId(), requirement);

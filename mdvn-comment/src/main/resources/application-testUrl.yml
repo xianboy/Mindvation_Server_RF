@@ -1,5 +1,5 @@
 url:
-  rtrvStaffInfoByIdUrl: http://localhost:8080/mdvn-staff/staff/retrieveById
+  retrieveByIdUrl: http://localhost:8080/mdvn-staff/staff/retrieveById
 
 
 

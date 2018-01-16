@@ -69,17 +69,6 @@ public class TagController {
     }
 
     /**
-     * 根据id集合获取tag对象集合
-     * @param retrieveTerseInfoRequest request
-     * @return RestResponse
-     */
-    @PostMapping(value = "/retrieveTagInfos")
-    public RestResponse<?> retrieveTagInfos(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.tagService.retrieveTagInfos(retrieveTerseInfoRequest);
-    }
-
-    /**
      * 根据Id查询tag
      * @param tagId
      * @return
@@ -89,13 +78,4 @@ public class TagController {
         return this.tagService.findById(tagId);
     }
 
-    /**
-     * 查询一周内热门标签数据：支持分页
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/retrieveHotTagList")
-    public RestResponse<?> retrieveHotTagList(@RequestBody SingleCriterionRequest request) throws BusinessException {
-        return this.tagService.retrieveHotTagList(request);
-    }
 }

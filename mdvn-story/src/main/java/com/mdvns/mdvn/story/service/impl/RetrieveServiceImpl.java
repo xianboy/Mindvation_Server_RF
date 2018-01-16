@@ -70,9 +70,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(story, MdvnConstant.ID, retrieveDetailRequest.getCriterion());
         //设置
         StoryDetail detail = buildDetail(retrieveDetailRequest.getStaffId(), story);
-        //获取用户权限信息
-        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),story.getProjSerialNo(),story.getSerialNo(),retrieveDetailRequest.getStaffId());
-        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定id的story的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
@@ -93,9 +90,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(story, ErrorEnum.STORY_NOT_EXISTS, "编号为【" + singleCriterionRequest.getCriterion() + "】的story不存在");
         //设置
         StoryDetail detail = buildDetail(singleCriterionRequest.getStaffId(), story);
-        //获取用户权限信息
-        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),story.getProjSerialNo(),story.getSerialNo(),singleCriterionRequest.getStaffId());
-        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定serialNo的story的详情成功, 结束运行【retrieveDetailBySerialNo】service...");
         //返回结果
         return RestResponseUtil.success(detail);
@@ -165,10 +159,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setLabel(getLabel(staffId, story.getFunctionLabelId()));
         //设置修改时可选择的子过程方法(上层模块对应的子过程方法)
         detail.setOptionalLabel(getOptionalLabels(staffId, story.getHostSerialNo()));
-        //设置需求创建人对象信息
-        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        Staff staffInfo = StaffUtil.rtrvStaffInfoById(story.getCreatorId(),retrieveByIdUrl);
-        detail.setCreatorInfo(staffInfo);
         //设置成员
         detail.setMembers(getRoleMembers(staffId, story.getId(), story.getTemplateId()));
         //设置修改时可选的成员(上层模块的成员)
@@ -184,8 +174,6 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setAttchInfos(FileUtil.getAttaches(story.getSerialNo()));
         //设置评论
         detail.setCommentDetails(this.rtrvCommentInfos(story));
-        //设置层级结构类型
-        detail.setLayerType(story.getLayerType());
         return detail;
     }
 
@@ -373,7 +361,19 @@ public class RetrieveServiceImpl implements RetrieveService {
         Long storyId = story.getId();
         Long templateId = story.getTemplateId();
         List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, storyId, templateId, 0);
-        List<Long> memberIds = StaffUtil.getDistinctMembers(roleMembers);
+        List<Long> memberIds = new ArrayList<>();
+        for (int i = 0; i < roleMembers.size(); i++) {
+            List<TerseInfo> members = roleMembers.get(i).getMembers();
+            if (!StringUtils.isEmpty(members)) {
+                for (int j = 0; j < members.size(); j++) {
+                    Long memberId = members.get(j).getId();
+                    if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
+                        continue;
+                    }
+                    memberIds.add(memberId);
+                }
+            }
+        }
         if (!memberIds.contains(creatorId)) {
             memberIds.add(creatorId);
         }
@@ -432,11 +432,27 @@ public class RetrieveServiceImpl implements RetrieveService {
      */
     private List<CommentDetail> rtrvCommentInfos(Story story) {
         String rCommentInfosUrl = webConfig.getRtrvCommentInfosUrl();
-        String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-        String projSerialNo = story.getProjSerialNo();
-        String serialNo = story.getSerialNo();
-        List<CommentDetail> comDetails = CommentUtil.rtrvCommentInfos(projSerialNo,serialNo,rCommentInfosUrl,rtrvStaffInfoByIdUrl);
+        RtrvCommentInfosRequest rtrvCommentInfosRequest = new RtrvCommentInfosRequest();
+        rtrvCommentInfosRequest.setProjId(story.getProjSerialNo());
+        rtrvCommentInfosRequest.setSubjectId(story.getSerialNo());
+        //实例化restTemplate对象
+        RestTemplate restTemplate = new RestTemplate();
+        ParameterizedTypeReference trReference = new ParameterizedTypeReference<List<CommentDetail>>() {
+        };
+        List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
+        for (int j = 0; j < comDetails.size(); j++) {
+            //创建者返回对象
+            Long creatorId = comDetails.get(j).getCommentInfo().getCreatorId();
+            String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+            Staff staff = StaffUtil.rtrvStaffInfoById(creatorId, rtrvStaffInfoByIdUrl);
+            comDetails.get(j).getCommentInfo().setCreatorInfo(staff);
+            //被@的人返回对象
+            if (comDetails.get(j).getCommentInfo().getReplyId() != null) {
+                Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
+                Staff passiveAtInfo = StaffUtil.rtrvStaffInfoById(passiveAt, rtrvStaffInfoByIdUrl);
+                comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
+            }
+        }
         return comDetails;
     }
-
 }

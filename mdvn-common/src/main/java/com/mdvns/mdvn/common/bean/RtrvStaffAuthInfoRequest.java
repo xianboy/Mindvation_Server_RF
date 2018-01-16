@@ -13,11 +13,11 @@ public class RtrvStaffAuthInfoRequest {
 //
 //	private String hierarchyId;
 
-	private String projSerialNo;
+	private Long projId;
 
 	private Long staffId;
 
-	private String hostSerialNo;
+	private Long hostId;
 
 
 

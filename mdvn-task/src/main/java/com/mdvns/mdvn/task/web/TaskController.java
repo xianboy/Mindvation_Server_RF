@@ -1,6 +1,5 @@
 package com.mdvns.mdvn.task.web;
 
-import com.mdvns.mdvn.common.bean.MultipleCriterionRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -112,18 +111,6 @@ public class TaskController {
     public RestResponse<?> retrieveHistory(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveHistory(retrieveRequest);
-    }
-
-    /**
-     * 获取某人所有的task信息
-     * @param retrieveRequest retrieveRequest
-     * @param bindingResult bindingResult
-     * @return RestResponse
-     */
-    @PostMapping(value = "/retrieveAllTaskInfoById")
-    public RestResponse<?> retrieveAllTaskInfoById(@RequestBody @Validated MultipleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
-        BindingResultUtil.brResolve(bindingResult);
-        return this.retrieveService.retrieveAllTaskInfoById(retrieveRequest);
     }
 
 }

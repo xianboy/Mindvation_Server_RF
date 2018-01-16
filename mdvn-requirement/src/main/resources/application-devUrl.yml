@@ -3,13 +3,8 @@ url:
   customLabelUrl : http://localhost:20004/mdvn-template/templates/customLabel
   retrieveTagsUrl : http://localhost:20002/mdvn-tag/tags/retrieveTerseInfo
   retrieveMembersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
-  retrieveStaffInfosUrl : http://localhost:20001/mdvn-staff/staff/retrieveStaffInfos
   retrieveLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabel
   retrieveRolesUrl : http://localhost:20004/mdvn-template/templates/retrieveTemplateRoles
   retrieveStoriesUrl : http://localhost:20007/mdvn-story/stories/retrieveList
   rtrvCommentInfosUrl : http://localhost:20012/mdvn-comment/comments/rtrvCommentInfos
   rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
-
-  assignAuthUrl : http://localhost:20001/mdvn-staff/staff/assignAuth
-  rtrvStaffAuthUrl: http://localhost:20001/mdvn-staff/staff/rtrvAuth
-  removeAuthUrl: http://localhost:20001/mdvn-staff/staff/removeAuth
