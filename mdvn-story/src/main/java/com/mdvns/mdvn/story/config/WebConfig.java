@@ -42,4 +42,9 @@ public class WebConfig {
     private String rtrvCommentInfosUrl;
 
     private String rtrvStaffInfoByIdUrl;
+
+
+    private String assignAuthUrl;
+    private String rtrvStaffAuthUrl;
+    private String removeAuthUrl;
 }

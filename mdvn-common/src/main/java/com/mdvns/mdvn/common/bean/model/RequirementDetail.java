@@ -43,6 +43,9 @@ public class RequirementDetail implements Serializable {
     /*过程方法*/
     private TerseInfo label;
 
+    /*需求创建者对象信息*/
+    private Staff creatorInfo;
+
     /*成员*/
     private List<RoleMember> roleMembers;
 
@@ -60,5 +63,19 @@ public class RequirementDetail implements Serializable {
 
     /*评论列表*/
     private List<CommentDetail> commentDetails;
+    /*权限信息*/
+    private List<StaffAuthInfo> staffAuthInfo;
+
+
+    /**
+     * 项目层级结构类型
+     * possible values are : 2, 3, 4
+     *
+     * Explanation
+     * 2 : Project -> Task
+     * 3 : Project -> Requirement -> Task
+     * 4 : Project -> Requirement -> Story -> Task
+     */
+    private Integer layerType;
 
 }

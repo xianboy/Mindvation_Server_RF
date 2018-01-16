@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @Component
 public class WebConfig {
-    private String retrieveByIdUrl;
+    private String rtrvStaffInfoByIdUrl;
 }

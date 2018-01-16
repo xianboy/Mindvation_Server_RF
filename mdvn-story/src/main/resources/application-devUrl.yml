@@ -28,3 +28,7 @@ url:
   rtrvCommentInfosUrl : http://localhost:20012/mdvn-comment/comments/rtrvCommentInfos
   rtrvStaffInfoByIdUrl: http://localhost:20001/mdvn-staff/staff/retrieveById
 
+
+  assignAuthUrl : http://localhost:20001/mdvn-staff/staff/assignAuth
+  rtrvStaffAuthUrl: http://localhost:20001/mdvn-staff/staff/rtrvAuth
+  removeAuthUrl: http://localhost:20001/mdvn-staff/staff/removeAuth

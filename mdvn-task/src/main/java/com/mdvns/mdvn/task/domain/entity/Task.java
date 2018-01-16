@@ -3,6 +3,7 @@ package com.mdvns.mdvn.task.domain.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mdvns.mdvn.common.bean.model.AttchInfo;
 import com.mdvns.mdvn.common.bean.model.Delivery;
+import com.mdvns.mdvn.common.bean.model.StaffAuthInfo;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import lombok.Data;
@@ -85,6 +86,28 @@ public class Task implements Serializable {
 
     @Transient//非持久化字段
     private List<AttchInfo> attchInfos;
+
+    /*项目编号*/
+    @Column(nullable = false)
+    private String projSerialNo;
+
+    /*权限信息*/
+    @Transient//非持久化字段
+    private List<StaffAuthInfo> staffAuthInfo;
+
+    /**
+     * 项目层级结构类型
+     * possible values are : 2, 3, 4
+     *
+     * Explanation
+     * 2 : Project -> Task
+     * 3 : Project -> Requirement -> Task
+     * 4 : Project -> Requirement -> Story -> Task
+     */
+    @Column(nullable = false)
+    private Integer layerType;
+
+
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

@@ -1,7 +1,11 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
+<<<<<<< HEAD
 import com.mdvns.mdvn.common.bean.model.MvpContent;
+=======
+import com.mdvns.mdvn.common.constant.AuthConstant;
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -198,6 +202,15 @@ public class UpdateServiceImpl implements UpdateService {
         //更新RoleMember
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), storyId, updateRequest.getMembers());
+            //更新权限
+            List<Long> addList = ListUtil.getDistinctAddList(updateRequest.getMembers());
+            if(!addList.isEmpty()){
+                StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(story.getProjSerialNo(),updateRequest.getStaffId(), addList,story.getSerialNo(), AuthConstant.SMEMBER));
+            }
+            List<Long> removeList = ListUtil.getDistinctRemoveList(updateRequest.getMembers());
+            if(!removeList.isEmpty()){
+                StaffAuthUtil.removeAuth(webConfig.getRemoveAuthUrl(),new RemoveAuthRequest(story.getProjSerialNo(),updateRequest.getStaffId(), removeList,story.getSerialNo(), AuthConstant.SMEMBER));
+            }
         }
         /**
          * 消息推送

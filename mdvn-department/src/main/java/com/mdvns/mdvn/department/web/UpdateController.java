@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.department.web;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
 import com.mdvns.mdvn.department.domain.UpdateDepartmentRequest;
@@ -23,9 +24,22 @@ public class UpdateController {
      * @param updateRequest
      * @return
      */
-    @PostMapping(value = "/update")
-    public RestResponse<?> update(@RequestBody @Validated UpdateDepartmentRequest updateRequest, BindingResult bindingResult) throws BusinessException {
+    @PostMapping(value = "/updateDept")
+    public RestResponse<?> updateDept(@RequestBody @Validated UpdateDepartmentRequest updateRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
-        return this.updateService.update(updateRequest);
+        return this.updateService.updateDept(updateRequest);
     }
+
+    /**
+     * 删除一个部门信息
+     * @param retrieveDetailRequest
+     * @return
+     */
+    @PostMapping(value = "/deleteDept")
+    public RestResponse<?> deleteDept(@RequestBody @Validated SingleCriterionRequest retrieveDetailRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.updateService.deleteDept(retrieveDetailRequest);
+    }
+
+
 }

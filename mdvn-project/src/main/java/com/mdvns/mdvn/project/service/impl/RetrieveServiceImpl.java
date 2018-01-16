@@ -100,6 +100,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(proj, MdvnConstant.ID, retrieveDetailRequest.getCriterion());
         //设置
         ProjectDetail detail = buildDetail(retrieveDetailRequest.getStaffId(), proj);
+        //获取用户权限信息
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),proj.getSerialNo(),proj.getSerialNo(),retrieveDetailRequest.getStaffId());
+        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定id项目的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
@@ -177,6 +180,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         if (null != proj.getContingency()) {
             detail.setContingency(proj.getContingency());
         }
+        //设置项目创建人对象信息
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff staffInfo = StaffUtil.rtrvStaffInfoById(proj.getCreatorId(),retrieveByIdUrl);
+        detail.setCreatorInfo(staffInfo);
         //设置负责人
         detail.setLeaders(getLeaders(staffId, proj.getId()));
         //设置标签
@@ -187,6 +194,8 @@ public class RetrieveServiceImpl implements RetrieveService {
 //        detail.setRequirements(getRequirements(staffId, proj.getSerialNo()));
         //设置附件
         detail.setAttchInfos(FileUtil.getAttaches(proj.getSerialNo()));
+        //设置层级结构类型
+        detail.setLayerType(proj.getLayerType());
         return detail;
     }
 
