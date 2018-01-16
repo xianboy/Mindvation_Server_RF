@@ -7,6 +7,7 @@ import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.tag.domain.entity.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 
 public interface TagService {
     //新建tag
@@ -22,4 +23,9 @@ public interface TagService {
         RestResponse<?> retrieveBaseInfo(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 
     ResponseEntity<?> findById(Long tagId);
+
+    @Transactional
+    RestResponse<?> retrieveHotTagList(SingleCriterionRequest request) throws BusinessException;
+
+    RestResponse<?> retrieveTagInfos(RetrieveTerseInfoRequest retrieveTerseInfoRequest);
 }

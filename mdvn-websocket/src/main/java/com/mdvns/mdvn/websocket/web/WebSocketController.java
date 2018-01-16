@@ -30,6 +30,16 @@ public class WebSocketController {
     }
 
     /**
+     * 推送信息（给自己定时推送消息）
+     * @param request
+     * @return
+     */
+    @PostMapping(value = "/sendMessageToOneself")
+    public Boolean sendMessageToOneself(@RequestBody SendMessageRequest request) throws IOException {
+        return this.webSocketService.sendMessageToOneself(request);
+    }
+
+    /**
      * 获取不在线时的推送信息
      * @param request
      * @return

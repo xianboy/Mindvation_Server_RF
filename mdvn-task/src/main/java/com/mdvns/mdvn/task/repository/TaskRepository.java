@@ -1,6 +1,8 @@
 package com.mdvns.mdvn.task.repository;
 
 import com.mdvns.mdvn.task.domain.entity.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -25,5 +27,10 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     //获取指定hostSerialNo的task的id
     @Query("select t.id from Task t where t.hostSerialNo=?1 and t.isDeleted=?2")
     List<Long> findIdByHostSerialNoAndIsDeleted(String hostSerialNo, Integer isDeleted);
+
+    /*在task表里查出某人所有的task*/
+    Page<Task> findAllByCreatorIdAndProjSerialNo(Long creatorId, String projSerialNo ,Pageable pageable);
+
+    List<Task> findAllByCreatorIdAndProjSerialNo(Long creatorId, String projSerialNo);
 
 }

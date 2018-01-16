@@ -96,9 +96,23 @@ public class Story implements Serializable {
     /*STORY附件：id*/
     private String attaches;
 
+<<<<<<< HEAD
     /*Story所在mvpId*/
     private Long mvpId;
 
+=======
+    /**
+     * 所属项目层级结构类型
+     * possible values are : 2, 3, 4
+     *
+     * Explanation
+     * 2 : Project -> Task
+     * 3 : Project -> Requirement -> Task
+     * 4 : Project -> Requirement -> Story -> Task
+     */
+    @Column(nullable = false)
+    private Integer layerType;
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 
     public void setStartDate(Long startDate) {
         this.startDate = new Timestamp(startDate);

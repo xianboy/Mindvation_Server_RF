@@ -1,5 +1,6 @@
 package com.mdvns.mdvn.issue.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,7 +12,7 @@ import javax.persistence.Id;
 import java.sql.Timestamp;
 
 /**
- * 发布求助（悬赏榜）
+ * 发布求助
  */
 @Component
 @Entity
@@ -21,7 +22,7 @@ public class Issue {
 
     @Id
     @GeneratedValue
-    private Integer uuId;
+    private Long id;
     private String issueId;
     //所属需求或者story的Id
     private String subjectId;
@@ -33,6 +34,8 @@ public class Issue {
     private Integer reward;//赏金
     private Integer isResolved;//问题是否已解决 (1代表已解决，0代表未解决)
     private Long tagId;
-    private String projId;
+    private String projSerialNo;//项目编号
+    @JsonIgnore
+    private Integer isDeleted = 0;
 
 }

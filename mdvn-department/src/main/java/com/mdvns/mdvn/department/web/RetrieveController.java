@@ -26,7 +26,7 @@ public class RetrieveController {
      * @return
      */
     @PostMapping(value = "/retrieveAll")
-    public RestResponse<?> retrieveAll(@RequestBody @Validated PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest, BindingResult bindingResult) {
+    public RestResponse<?> retrieveAll(@RequestBody @Validated PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveAll(pageableQueryWithoutArgRequest);
     }

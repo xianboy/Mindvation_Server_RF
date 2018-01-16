@@ -1,9 +1,10 @@
 package com.mdvns.mdvn.issue.web;
 
 
+import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
-import com.mdvns.mdvn.issue.domain.*;
 import com.mdvns.mdvn.issue.service.IssueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 /**
- * 评论控制层
+ * issue控制层
  */
 @CrossOrigin
 @RestController
@@ -26,59 +27,27 @@ public class IssueController {
     @Autowired
     private IssueService issueService;
 
-
     /**
-     * 发布求助
+     * 获取求助信息列表(解决/未解决)
      * @param request
      * @return
      */
-    @PostMapping(value = "/createIssueInfo")
-    public RestResponse<?> createIssueInfo(@RequestBody CreateIssueRequest request) throws BusinessException {
-        LOG.info("开始执行{} createIssueInfo()方法.", this.CLASS);
-        return this.issueService.createIssueInfo(request);
+    @PostMapping(value = "/rtrvIssueList")
+    public RestResponse<?> rtrvIssueList(@RequestBody SingleCriterionRequest request) throws BusinessException {
+        LOG.info("开始执行{} rtrvIssueList()方法.", this.CLASS);
+        return this.issueService.rtrvIssueList(request);
     }
+
     /**
-     * 创建answer
+     * 获取求助的排行榜（比例）
      * @param request
      * @return
      */
-    @PostMapping(value = "/createIssueAnswerInfo")
-    public RestResponse<?> createIssueAnswerInfo(@RequestBody CreateIssueAnswerRequest request) throws BusinessException {
-        LOG.info("开始执行{} createIssueAnswerInfo()方法.", this.CLASS);
-        return this.issueService.createIssueAnswerInfo(request);
+    @PostMapping(value = "/rtrvIssueRankingList")
+    public RestResponse<?> rtrvIssueRankingList(@RequestBody PageableQueryWithoutArgRequest request) throws BusinessException {
+        LOG.info("开始执行{} rtrvIssueRankingList()方法.", this.CLASS);
+        return this.issueService.rtrvIssueRankingList(request);
     }
-
-    /**
-     * 获取某个reqmnt或者story的单个求助信息（同时返回该reqmnt或者story下的其他求助信息的key：id,value:是否解决）
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/rtrvIssueDetail")
-    public RestResponse<?> rtrvIssueDetail(@RequestBody RtrvIssueDetailRequest request) {
-        LOG.info("开始执行{} rtrvIssueDetail()方法.", this.CLASS);
-        return this.issueService.rtrvIssueDetail(request);
-    }
-
-    /**
-     * 点赞answer
-     * @param request
-     * @return
-     */
-    @PostMapping(value = "/likeOrDislikeAnswer")
-    public RestResponse<?> likeOrDislikeAnswer(@RequestBody LikeOrDislikeAnswerRequest request) {
-        LOG.info("开始执行{} likeOrDislikeAnswer()方法.", this.CLASS);
-        return this.issueService.likeOrDislikeAnswer(request);
-    }
-
-    /**
-     * 采纳（answer中isAdopt变为1，issue中isResolved变为1）
-     */
-    @PostMapping(value = "/adoptAnswer")
-    public RestResponse<?> adoptAnswer(@RequestBody adoptAnswerRequest request) throws BusinessException {
-        LOG.info("开始执行{} adoptAnswer()方法.", this.CLASS);
-        return this.issueService.adoptAnswer(request);
-    }
-
 
 
 }

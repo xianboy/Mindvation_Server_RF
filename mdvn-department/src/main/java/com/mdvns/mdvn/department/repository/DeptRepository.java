@@ -1,6 +1,8 @@
 package com.mdvns.mdvn.department.repository;
 
 import com.mdvns.mdvn.department.domain.entity.Department;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,4 +14,6 @@ public interface DeptRepository extends JpaRepository<Department, Long>{
 
     //通过名称查部门
     Department findByName(String name);
+
+    Page<Department> findByIsDeleted(Pageable pageable, Integer isDeleted);
 }

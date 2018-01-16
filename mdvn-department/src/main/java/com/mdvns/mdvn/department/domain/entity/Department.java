@@ -32,10 +32,10 @@ public class Department {
     /*创建时间*/
     private Timestamp createTime;
 
+    /*更改时间*/
+    private Timestamp updateTime;
+
     /*创建人id*/
     private Long creatorId;
-
-    /*职位名称*/
-    private String positions;
 
 }

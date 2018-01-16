@@ -39,7 +39,7 @@ public class RetrieveController {
      * @return RestResponse
      */
     @PostMapping(value = "/retrieveAll")
-    public RestResponse<?> retrieveAll(@RequestBody @Validated PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest, BindingResult bindingResult) {
+    public RestResponse<?> retrieveAll(@RequestBody @Validated PageableQueryWithoutArgRequest pageableQueryWithoutArgRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveAll(pageableQueryWithoutArgRequest);
     }
@@ -53,6 +53,17 @@ public class RetrieveController {
     public RestResponse<?> retrieveTerseInfo(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveTerseInfo(retrieveTerseInfoRequest);
+    }
+
+    /**
+     * 根据id集合获取staff对象
+     * @param retrieveTerseInfoRequest request
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveStaffInfos")
+    public RestResponse<?> retrieveStaffInfos(@RequestBody @Validated RetrieveTerseInfoRequest retrieveTerseInfoRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveStaffInfos(retrieveTerseInfoRequest);
     }
 
 

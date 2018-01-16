@@ -12,6 +12,7 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.StaffUtil;
 import com.mdvns.mdvn.requirement.config.WebConfig;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
 import com.mdvns.mdvn.requirement.domain.entity.RequirementMember;
@@ -248,6 +249,7 @@ public class MemberServiceImpl implements MemberService {
         Long requirementId = requirement.getId();
         Long templateId = requirement.getTemplateId();
         List<RoleMember> roleMembers = this.getRoleMembers(staffId, requirementId, templateId, 0);
+<<<<<<< HEAD
         List<Long> memberIds = new ArrayList<>();
         for (RoleMember roleMember : roleMembers) {
             List<TerseInfo> members = roleMember.getMembers();
@@ -262,6 +264,9 @@ public class MemberServiceImpl implements MemberService {
             }
         }
         return memberIds;
+=======
+        return StaffUtil.getDistinctMembers(roleMembers);
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
     }
 
 }

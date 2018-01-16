@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,13 +56,13 @@ public class CreateServiceImpl implements CreateService {
         //saveAndBuildDetail(createRequest);
         //根据request构建department
         dept = buildDepartmentByRequest(createRequest);
-        //构建部门职位
-        if (!(createRequest.getPositions().isEmpty())) {
-            String positions = buildDeptPosition(createRequest.getCreatorId(), createRequest.getPositions());
-            dept.setPositions(positions);
-        }
         //保存dept
         dept = this.deptRepository.saveAndFlush(dept);
+        //构建部门职位
+        if (!(createRequest.getPositions().isEmpty())) {
+            List<Position> positions = buildDeptPosition(createRequest.getCreatorId(),dept, createRequest.getPositions());
+//            dept.setPositions(positions);
+        }
         LOG.info("创建部门成功...");
         //构建response
         return RestResponseUtil.success(DepartmentUtil.buildDetailByDepartment(dept, this.positionRepository));
@@ -72,13 +73,17 @@ public class CreateServiceImpl implements CreateService {
      * @param pNames names
      * @return StringBuilder
      */
-    private String buildDeptPosition(Long creatorId, List<String> pNames) {
+    private List<Position> buildDeptPosition(Long creatorId,Department dept, List<String> pNames) {
         LOG.info("创建部门职位开始...");
-        StringBuilder stringBuilder = new StringBuilder();
+        List<Position> positions = new ArrayList<>();
+        Long deptId = dept.getId();
         for (String pName : pNames) {
             Position position = this.positionRepository.findByName(pName);
             //如果Position不存在，保存
             if (null == position) {
+                position = new Position();
+                //设置hostId
+                position.setHostId(deptId);
                 //设置creatorId
                 position.setCreatorId(creatorId);
                 //设置name
@@ -89,13 +94,11 @@ public class CreateServiceImpl implements CreateService {
                 position.setIsDeleted(MdvnConstant.ZERO);
                 //新建position
                 position = this.positionRepository.saveAndFlush(position);
-
+                positions.add(position);
             }
-            stringBuilder.append(position.getId()).append(",");
         }
-        stringBuilder.deleteCharAt(stringBuilder.length() - MdvnConstant.ONE);
         LOG.info("创建部门职位成功...");
-        return stringBuilder.toString();
+        return positions;
     }
 
     /**

@@ -1,6 +1,12 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
+<<<<<<< HEAD
 import com.mdvns.mdvn.common.bean.*;
+=======
+import com.mdvns.mdvn.common.bean.PageableResponse;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
 import com.mdvns.mdvn.common.bean.model.*;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
@@ -9,6 +15,7 @@ import com.mdvns.mdvn.common.util.*;
 import com.mdvns.mdvn.requirement.config.WebConfig;
 import com.mdvns.mdvn.requirement.domain.ReqmtDashboard;
 import com.mdvns.mdvn.requirement.domain.entity.Requirement;
+import com.mdvns.mdvn.requirement.repository.MemberRepository;
 import com.mdvns.mdvn.requirement.repository.RequirementRepository;
 import com.mdvns.mdvn.requirement.service.MemberService;
 import com.mdvns.mdvn.requirement.service.RetrieveService;
@@ -35,6 +42,9 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Resource
     private RequirementRepository repository;
+
+    @Resource
+    private MemberRepository memberRepository;
 
     @Resource
     private TagService tagService;
@@ -89,6 +99,9 @@ public class RetrieveServiceImpl implements RetrieveService {
         MdvnCommonUtil.notExistingError(requirement, MdvnConstant.ID, retrieveDetailRequest.getCriterion());
         //设置
         RequirementDetail detail = buildDetail(retrieveDetailRequest.getStaffId(), requirement);
+        //获取用户权限信息
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.rtrvStaffAuthInfo(webConfig.getRtrvStaffAuthUrl(),requirement.getHostSerialNo(),requirement.getSerialNo(),retrieveDetailRequest.getStaffId());
+        detail.setStaffAuthInfo(staffAuthInfos);
         LOG.info("获取指定id项目的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
@@ -154,6 +167,10 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setPriority(requirement.getPriority());
         //设置过程方法
         detail.setLabel(getLabel(staffId, requirement.getFunctionLabelId()));
+        //设置需求创建人对象信息
+        String retrieveByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        Staff staffInfo = StaffUtil.rtrvStaffInfoById(requirement.getCreatorId(),retrieveByIdUrl);
+        detail.setCreatorInfo(staffInfo);
         //设置成员
         detail.setRoleMembers(getRoleMembers(staffId, requirement.getId(), requirement.getTemplateId()));
         //设置开始/结束日期
@@ -166,6 +183,8 @@ public class RetrieveServiceImpl implements RetrieveService {
         detail.setAttchInfos(FileUtil.getAttaches(requirement.getSerialNo()));
         //设置评论
         detail.setCommentDetails(this.rtrvCommentInfos(requirement));
+        //设置层级结构类型
+        detail.setLayerType(requirement.getLayerType());
         return detail;
     }
 
@@ -271,6 +290,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         Requirement requirement = this.repository.findBySerialNo(singleCriterionRequest.getCriterion());
         Long staffId = singleCriterionRequest.getStaffId();
         Long creatorId = requirement.getCreatorId();
+<<<<<<< HEAD
 //        Long requirementId = requirement.getId();
 //        Long templateId = requirement.getTemplateId();
 //        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, requirementId, templateId, 0);
@@ -288,6 +308,12 @@ public class RetrieveServiceImpl implements RetrieveService {
                 }
             }
         }*/
+=======
+        Long requirementId = requirement.getId();
+        Long templateId = requirement.getTemplateId();
+        List<RoleMember> roleMembers = this.memberService.getRoleMembers(staffId, requirementId, templateId, 0);
+        List<Long> memberIds = StaffUtil.getDistinctMembers(roleMembers);
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
         if (!memberIds.contains(creatorId)) {
             memberIds.add(creatorId);
         }
@@ -295,6 +321,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
+<<<<<<< HEAD
      * 获取指定id的过程方法对应的需求编号
      * @param retrieveRequest request
      * @return List
@@ -317,36 +344,55 @@ public class RetrieveServiceImpl implements RetrieveService {
         List<String> result = this.repository.findSerialNoByHostSerialNoAndTemplateIdAndIsDeleted(retrieveRequest.getHostSerialNo(), retrieveRequest.getTemplateId(), isDeleted);
         LOG.info("成功获取hostSerialNo为【{}】和templateId为【{}】的需求编号:【{}】", retrieveRequest.getHostSerialNo(),retrieveRequest.getTemplateId(), result);
         return result;
+=======
+     * 获取指定serialNo的requirement的不重复成员对象
+     * @param singleCriterionRequest
+     * @return
+     */
+    @Override
+    public RestResponse<?> retrieveReqMembersInfoBySerialNo(SingleCriterionRequest singleCriterionRequest) throws BusinessException {
+        LOG.info("获取所有requirement的成员信息开始...");
+        String projSerialNo = singleCriterionRequest.getCriterion();
+        Long staffId = singleCriterionRequest.getStaffId();
+        /*在requirement_member表里查出所有不重复的id*/
+        List<Long> allDistinctMemberIds = this.memberRepository.findAllDistinctMembers(projSerialNo);
+        if (allDistinctMemberIds.isEmpty()) {
+            LOG.info("project暂无成员.", allDistinctMemberIds);
+            return null;
+        }
+        //BigInteger转Long
+        List<Long> staffIds = new ArrayList<>();
+        for (int i = 0; i < allDistinctMemberIds.size(); i++) {
+            Long sId = Long.parseLong(String.valueOf(allDistinctMemberIds.get(i)));
+            staffIds.add(sId);
+        }
+        //获取member的url
+        String retrieveMembersUrl = webConfig.getRetrieveStaffInfosUrl();
+        //调用staff模块获取成员信息
+        List<Staff> members = RestTemplateUtil.retrieveStaffInfos(staffId, staffIds, retrieveMembersUrl);
+        MdvnCommonUtil.emptyList(members, ErrorEnum.STAFF_NOT_EXISTS, "Id为【" + staffIds.toString() + "】的用户不存在.");
+        LOG.info("获取所有requirement的成员信息成功...");
+        return RestResponseUtil.success(members);
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
     }
 
     /**
      * 返回需求的评论list
+<<<<<<< HEAD
      * @param requirement requirement
      * @return List
+=======
+     *
+     * @param requirement
+     * @return
+>>>>>>> d3bc18c747396a1b3b704de7144e67dd8f4159ef
      */
-    private List<CommentDetail> rtrvCommentInfos(Requirement requirement){
+    private List<CommentDetail> rtrvCommentInfos(Requirement requirement) {
         String rCommentInfosUrl = webConfig.getRtrvCommentInfosUrl();
-        RtrvCommentInfosRequest rtrvCommentInfosRequest = new RtrvCommentInfosRequest();
-        rtrvCommentInfosRequest.setProjId(requirement.getHostSerialNo());
-        rtrvCommentInfosRequest.setSubjectId(requirement.getSerialNo());
-        //实例化restTemplate对象
-        RestTemplate restTemplate = new RestTemplate();
-        ParameterizedTypeReference trReference = new ParameterizedTypeReference<List<CommentDetail>>() {
-        };
-        List<CommentDetail> comDetails = FetchListUtil.fetch(restTemplate, rCommentInfosUrl, rtrvCommentInfosRequest, trReference);
-        for (int j = 0; j < comDetails.size(); j++) {
-            //创建者返回对象
-            Long creatorId = comDetails.get(j).getCommentInfo().getCreatorId();
-            String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
-            Staff staff = StaffUtil.rtrvStaffInfoById(creatorId,rtrvStaffInfoByIdUrl);
-            comDetails.get(j).getCommentInfo().setCreatorInfo(staff);
-            //被@的人返回对象
-            if (comDetails.get(j).getCommentInfo().getReplyId() != null) {
-                Long passiveAt = comDetails.get(j).getReplyDetail().getCreatorId();
-                Staff passiveAtInfo = StaffUtil.rtrvStaffInfoById(passiveAt,rtrvStaffInfoByIdUrl);
-                comDetails.get(j).getReplyDetail().setCreatorInfo(passiveAtInfo);
-            }
-        }
+        String rtrvStaffInfoByIdUrl = webConfig.getRtrvStaffInfoByIdUrl();
+        String projSerialNo = requirement.getHostSerialNo();
+        String serialNo = requirement.getSerialNo();
+        List<CommentDetail> comDetails = CommentUtil.rtrvCommentInfos(projSerialNo,serialNo,rCommentInfosUrl,rtrvStaffInfoByIdUrl);
         return comDetails;
     }
 

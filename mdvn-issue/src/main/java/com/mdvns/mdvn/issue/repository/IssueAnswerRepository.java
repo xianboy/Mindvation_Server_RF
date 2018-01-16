@@ -18,6 +18,9 @@ public interface IssueAnswerRepository extends JpaRepository<IssueAnswer, Intege
     @Query(value="SELECT creator_id FROM story WHERE story_id = ?1 UNION ALL (SELECT creator_id FROM requirement_info WHERE reqmnt_id = ?1)", nativeQuery = true)
     String findCreateId(String subjectId);
 
+    /*查询所有回答过issue的员工*/
+    @Query(value="SELECT DISTINCT creator_id FROM issue_answer", nativeQuery = true)
+    List<Long> findAllIssueStaffList();
 
 
 }

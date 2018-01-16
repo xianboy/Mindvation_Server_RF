@@ -74,7 +74,7 @@ public class CreateServiceImpl implements CreateService {
         staff = buildStaffByUpdateRequest(staff, updateRequest);
         //保存
         staff = this.staffRepository.saveAndFlush(staff);
-        return RestResponseUtil.success(staff);
+        return RestResponseUtil.success(true);
     }
 
     /**
@@ -84,30 +84,34 @@ public class CreateServiceImpl implements CreateService {
      * @param updateRequest
      * @return
      */
-    private Staff buildStaffByUpdateRequest(Staff staff, UpdateStaffRequest updateRequest) {
+    private Staff buildStaffByUpdateRequest(Staff staff, UpdateStaffRequest updateRequest) throws BusinessException {
         //设置deptId
-        if (StringUtils.isEmpty(updateRequest.getDeptId())) {
+        if (!StringUtils.isEmpty(updateRequest.getDeptId())) {
             staff.setDeptId(updateRequest.getDeptId());
         }
         //设置positionId
-        if (StringUtils.isEmpty(updateRequest.getPositionId())) {
+        if (!StringUtils.isEmpty(updateRequest.getPositionId())) {
             staff.setPositionId(updateRequest.getPositionId());
         }
         //设置positionLvl
-        if (StringUtils.isEmpty(updateRequest.getPositionLvl())) {
+        if (!StringUtils.isEmpty(updateRequest.getPositionLvl())) {
             staff.setPositionLvl(updateRequest.getPositionLvl());
         }
         //设置Email
-        if (StringUtils.isEmpty(updateRequest.getEmail())) {
+        if (!StringUtils.isEmpty(updateRequest.getEmail())) {
             staff.setEmail(updateRequest.getEmail());
         }
         //设置Mobile
-        if (StringUtils.isEmpty(updateRequest.getMobile())) {
+        if (!StringUtils.isEmpty(updateRequest.getMobile())) {
             staff.setMobile(updateRequest.getMobile());
         }
         //设置Gender
-        if (StringUtils.isEmpty(updateRequest.getGender())) {
+        if (!StringUtils.isEmpty(updateRequest.getGender())) {
             staff.setGender(updateRequest.getGender());
+        }
+        //更新标签
+        if (null != updateRequest.getTags()) {
+            this.staffTagService.updateTag(updateRequest.getStaffId(), updateRequest.getId(), updateRequest.getTags());
         }
         staff.setLastUpdateTime(new Timestamp(System.currentTimeMillis()));
         return staff;
@@ -140,6 +144,7 @@ public class CreateServiceImpl implements CreateService {
         }
         //根据Staff构建StaffResponse
         StaffDetail staffDetail = StaffUtil.buildDetailByStaff(staff);
+        staffDetail.setTags(this.staffTagService.getStaffTagInfo(staffDetail.getId()));
         return RestResponseUtil.success(staffDetail);
     }
 

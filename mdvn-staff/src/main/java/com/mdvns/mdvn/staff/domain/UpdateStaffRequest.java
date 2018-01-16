@@ -1,14 +1,19 @@
 package com.mdvns.mdvn.staff.domain;
 
+import com.mdvns.mdvn.common.bean.model.AddOrRemoveById;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
 public class UpdateStaffRequest {
     /*当前用户id*/
-    private Long userId;
-    /*Staff的id*/
+    @NotNull(message = "用户Id不能为空")
+    private Long staffId;
+    /*Staff的id,要更改的员工id*/
+    @NotNull(message = "要修改的员工Id不能为空")
     private Long id;
     /*部门id*/
     private Long deptId;
@@ -22,10 +27,12 @@ public class UpdateStaffRequest {
     private String mobile;
     /*性别*/
     private String gender;
-    /*标签*/
-    private String tags;
+//    /*标签*/
+//    private String tags;
     /*状态:active, inactive, unregistered*/
     private String status;
+    /*新增或删除标签*/
+    private AddOrRemoveById tags;
 
 
 }

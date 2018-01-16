@@ -1,12 +1,16 @@
 package com.mdvns.mdvn.task.service.impl;
 
+import com.mdvns.mdvn.common.bean.AssignAuthRequest;
 import com.mdvns.mdvn.common.bean.CustomDeliveryRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.StaffAuthInfo;
+import com.mdvns.mdvn.common.constant.AuthConstant;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.ServerPushUtil;
+import com.mdvns.mdvn.common.util.StaffAuthUtil;
 import com.mdvns.mdvn.task.config.WebConfig;
 import com.mdvns.mdvn.task.domain.CreateTaskRequest;
 import com.mdvns.mdvn.task.domain.entity.Task;
@@ -22,6 +26,7 @@ import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -54,6 +59,10 @@ public class CreateServiceImpl implements CreateService {
         Task task = buildByRequest(createRequest);
         //保存
         task = this.repository.saveAndFlush(task);
+
+        //分配权限
+        List<StaffAuthInfo> staffAuthInfos = StaffAuthUtil.assignAuth(webConfig.getAssignAuthUrl(),new AssignAuthRequest(task.getProjSerialNo(),task.getCreatorId(), Arrays.asList(task.getCreatorId()),task.getSerialNo(), AuthConstant.TMEMBER));
+        task.setStaffAuthInfo(staffAuthInfos);
         createHistory(createRequest.getCreatorId(), task.getId());
         //根据id获取task详情
         /**
@@ -79,6 +88,9 @@ public class CreateServiceImpl implements CreateService {
         task.setDeliveryId(buildDelivery(createRequest.getDelivery(), createRequest.getCreatorId(), serialNo));
         task.setStartDate(createRequest.getStartDate());
         task.setEndDate(createRequest.getEndDate());
+
+        task.setProjSerialNo(createRequest.getProjSerialNo());
+        task.setLayerType(createRequest.getLayerType());
         return task;
     }
 

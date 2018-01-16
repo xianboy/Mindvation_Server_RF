@@ -10,7 +10,8 @@ public class StaffAuthInfo {
     private Integer id;
 
     /*项目Id*/
-    private String projId;
+//    private String projId;
+    private String projSerialNo;
 
     /*员工Id*/
 //    private String staffId;
@@ -23,6 +24,6 @@ public class StaffAuthInfo {
     private  Long assignerId;
 
 //    private String hierarchyId;
-    private Long hostId;
+    private String hostSerialNo;
 
 }

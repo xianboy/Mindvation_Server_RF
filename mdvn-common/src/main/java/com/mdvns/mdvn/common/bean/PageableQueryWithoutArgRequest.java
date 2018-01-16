@@ -20,4 +20,9 @@ public class PageableQueryWithoutArgRequest implements Serializable {
     /*分页参数对象*/
     private PageableCriteria pageableCriteria;
 
+    public PageableQueryWithoutArgRequest(Long staffId, PageableCriteria pageableCriteria) {
+        this.staffId = staffId;
+        this.pageableCriteria = pageableCriteria;
+    }
+
 }

@@ -11,4 +11,6 @@ public interface PositionRepository extends JpaRepository<Position, Long>{
 
     //根据id集合查询职位信息
     List<Position> findByIdIn(List<Long> positions);
+
+    List<Position> findAllByHostIdAndIsDeleted(Long hostId, Integer isDeleted);
 }

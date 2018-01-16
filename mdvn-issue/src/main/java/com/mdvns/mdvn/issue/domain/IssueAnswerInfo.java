@@ -16,12 +16,12 @@ import java.util.List;
 public class IssueAnswerInfo {
     private String answerId;
     private String issueId;
-    private String creatorId;
+    private Long creatorId;
     private Long createTime;
     //求助回答
     private String content;
     private Integer isAdopt;//是否被采纳
-    private String projId;
+    private String projSerialNo;//项目编号
     //点赞这个回答的人数
     private Integer likeQty;
     //踩这个回答的人数

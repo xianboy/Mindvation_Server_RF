@@ -66,5 +66,9 @@ public class CreateStoryRequest implements Serializable {
     /*STORY附件: 多个附件的id*/
     private List<Long> attaches;
 
+    /* 层级结构类型 */
+    @NotNull(message = "层级不能为空.")
+    private Integer layerType;
+
 
 }

@@ -8,6 +8,7 @@ import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
 import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.RestTemplateUtil;
+import com.mdvns.mdvn.common.util.StaffUtil;
 import com.mdvns.mdvn.story.config.WebConfig;
 import com.mdvns.mdvn.story.domain.entity.Story;
 import com.mdvns.mdvn.story.domain.entity.StoryMember;
@@ -230,20 +231,7 @@ public class MemberServiceImpl implements MemberService {
         Long storyId = story.getId();
         Long templateId = story.getTemplateId();
         List<RoleMember> roleMembers = this.getRoleMembers(staffId, storyId, templateId, 0);
-        List<Long> memberIds = new ArrayList<>();
-        for (int i = 0; i < roleMembers.size(); i++) {
-            List<TerseInfo> members = roleMembers.get(i).getMembers();
-            if (!StringUtils.isEmpty(members)) {
-                for (int j = 0; j < members.size(); j++) {
-                    Long memberId = members.get(j).getId();
-                    if (!memberIds.isEmpty() && memberIds.contains(memberId)) {
-                        continue;
-                    }
-                    memberIds.add(memberId);
-                }
-            }
-        }
-        return memberIds;
+        return StaffUtil.getDistinctMembers(roleMembers);
     }
 }
 
