@@ -1,0 +1,41 @@
+url:
+
+  #获取指定需求集合的Mvp Dashboard
+  retrieveReqmtDashboardUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveDashboard
+
+  #拖动(修改)mvp的reqmt
+  updateMvpDashboardByReqmtUrl : http://localhost:20006/mdvn-requirement/requirements/updateMvpDashboard
+
+  #获取项目的层级标记
+  retrieveProjectLayerTypeUrl : http://localhost:20005/mdvn-project/projects/retrieveLayerType
+
+  #拖动(修改)mvp的Story
+  updateMvpDashboardByStoryUrl : http://localhost:20007/mdvn-story/stories/updateMvpDashboard
+
+  #获取指定Id的模板
+  retrieveTemplateNameUrl : http://localhost:20004/mdvn-template/templates/retrieveName
+
+  #获取指定hostSerialNo(项目编号)和templateId的需求编号
+  retrieveReqmtSerialNoUrl : http://localhost:20006/mdvn-requirement/requirements/retrieveSerialNo
+
+  #获取指定Id的项目的模板Id
+  retrieveTemplateUrl : http://localhost:20005/mdvn-project/projects/retrieveTemplate
+
+  #获取mvpId为指定的值的过程方法的Id
+  retrieveMvpLabelUrl : http://localhost:20004/mdvn-template/templates/retrieveLabelByMvp
+
+  #获取指定过程方法ID对应的需求编号
+  retrieveReqmtSerialNoByLabel : http://localhost:20006/mdvn-requirement/requirements/retrieveSerialNoByLabel
+
+  #获取指定serialNo的模板的迭代计划
+  retrieveMvpTemplatesUrl : http://localhost:20004/mdvn-template/templates/retrieveMvpTemplates
+
+  #修改reqmt中的mvpId
+  updateReqmtMvpUrl : http://localhost:20006/mdvn-requirement/requirements/updateMvp
+
+  #新建mvp:修改Story中的mvpId
+  createStoryMvpUrl : http://localhost:20007/mdvn-story/stories/createMvp
+
+  retrieveMembersUrl : http://localhost:20001/mdvn-staff/staff/retrieveTerseInfo
+  retrieveRolesUrl : http://localhost:20004/mdvn-template/templates/retrieveTemplateRoles
+

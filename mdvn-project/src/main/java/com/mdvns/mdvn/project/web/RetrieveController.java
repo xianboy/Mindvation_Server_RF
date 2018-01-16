@@ -11,6 +11,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 查询controller
@@ -36,7 +37,7 @@ public class RetrieveController {
     }
 
     /**
-     * 获取指定id的项目详情
+     * 获取指定serialNo的项目详情
      * @param retrieveDetailRequest request
      * @return RestResponse
      */
@@ -45,5 +46,31 @@ public class RetrieveController {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveDetailBySerialNo(retrieveDetailRequest);
     }
+
+    /**
+     * 获取指定Id的项目的模板Id
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return List
+     */
+    @PostMapping(value = "/retrieveTemplate")
+    public List<Long> retrieveTemplate(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveTemplate(retrieveRequest);
+    }
+
+    /**
+     * 根据serialNo获取layerType
+     * @param retrieveRequest request
+     * @param bindingResult  bindingResult
+     * @return layerType
+     */
+    @PostMapping(value = "retrieveLayerType")
+    public Integer retrieveLayerType(@RequestBody @Validated SingleCriterionRequest retrieveRequest, BindingResult bindingResult) throws BusinessException {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveLayerType(retrieveRequest);
+    }
+
+
 
 }

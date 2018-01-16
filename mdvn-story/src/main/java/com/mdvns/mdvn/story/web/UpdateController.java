@@ -44,6 +44,7 @@ public class UpdateController {
 
     /**
      * 修改其他信息
+     *
      * @param updateRequest request
      * @param bindingResult bindingResult
      * @return restResponse
@@ -59,17 +60,29 @@ public class UpdateController {
 
     /**
      * 修改可选信息
+     *
      * @param updateRequest request
      * @param bindingResult bindingResult
      * @return restResponse
      * @throws BusinessException exception
      */
     @PostMapping(value = "/updateOptionalInfo")
-    public RestResponse<?> updateOptionalInfo(@RequestBody @Validated UpdateOptionalInfoRequest updateRequest, BindingResult bindingResult) throws BusinessException{
+    public RestResponse<?> updateOptionalInfo(@RequestBody @Validated UpdateOptionalInfoRequest updateRequest, BindingResult bindingResult) throws BusinessException {
         //请求参数校验
         BindingResultUtil.brResolve(bindingResult);
         //调用更新service
         return this.updateService.updateOptionalInfo(updateRequest);
     }
 
+    /**
+     * 修改某个模板的mvp Dashboard
+     * @param updateRequest updateRequest
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/updateMvpDashboard")
+    public RestResponse<?> updateMvpDashboard(@RequestBody @Validated UpdateMvpDashboardRequest updateRequest, BindingResult bindingResult) {
+        BindingResultUtil.brResolve(bindingResult);
+        return this.updateService.updateMvpDashboard(updateRequest);
+    }
 }

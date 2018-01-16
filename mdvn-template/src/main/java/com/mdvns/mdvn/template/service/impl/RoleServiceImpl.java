@@ -20,7 +20,7 @@ import java.util.List;
 public class RoleServiceImpl implements RoleService {
 
     @Resource
-    private TemplateRoleRepository roleRepository;
+    private TemplateRoleRepository repository;
 
     @Resource
     private TemplateRepository templateRepository;
@@ -43,7 +43,7 @@ public class RoleServiceImpl implements RoleService {
             role.setHostSerialNo(hostSerialNo);
             role.setSerialNo(buildSerialNo());
             role.setName(name);
-            role = this.roleRepository.saveAndFlush(role);
+            role = this.repository.saveAndFlush(role);
             roleList.add(role);
         }
         return roleList;
@@ -63,10 +63,22 @@ public class RoleServiceImpl implements RoleService {
         //获取request中的isDeleted
         Integer isDeleted = (null == singleCriterionRequest.getIsDeleted()) ? MdvnConstant.ZERO : singleCriterionRequest.getIsDeleted();
         //根据id查询模板的角色信息
-        List<Object[]> resultSet = this.roleRepository.findRoleTerseInfoByHostSerial(templateSerialNo, isDeleted);
+        List<Object[]> resultSet = this.repository.findRoleTerseInfoByHostSerial(templateSerialNo, isDeleted);
         //转换结果集并返回
         return RestResponseUtil.success(ConvertObjectUtil.convertObjectArray2TerseInfo(resultSet));
     }
+
+    /**
+     * 获取指定hostSerialNo的角色信息
+     * @param retrieveRequest request
+     * @return List
+     */
+    @Override
+    public List<TemplateRole> getRoles(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
+        return this.repository.findDistinctByHostSerialNoAndIsDeleted(retrieveRequest.getCriterion(), isDeleted);
+    }
+
 
     /**
      * 构建template编号
@@ -75,7 +87,7 @@ public class RoleServiceImpl implements RoleService {
      */
     private String buildSerialNo() {
         //查询表中的最大id  maxId
-        Long maxId = this.roleRepository.getMaxId();
+        Long maxId = this.repository.getMaxId();
         //如果表中没有数据，则给maxId赋值为0
         if (maxId == null) {
             maxId = Long.valueOf(MdvnConstant.ZERO);

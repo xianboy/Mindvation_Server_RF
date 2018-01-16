@@ -39,4 +39,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long>{
 
     //根据编号查询
     Project findBySerialNo(String serialNo);
+
+    //根据编号获取id
+    @Query("select p.id from Project p where p.serialNo=?1")
+    Long findIdBySerialNo(String serialNo);
 }

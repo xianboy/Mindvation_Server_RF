@@ -1,7 +1,13 @@
 package com.mdvns.mdvn.project.service.impl;
 
-import com.mdvns.mdvn.common.bean.*;
-import com.mdvns.mdvn.common.bean.model.*;
+import com.mdvns.mdvn.common.bean.PageableQueryWithoutArgRequest;
+import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RetrieveTerseInfoRequest;
+import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.PageableCriteria;
+import com.mdvns.mdvn.common.bean.model.ProjectDetail;
+import com.mdvns.mdvn.common.bean.model.TerseInfo;
+import com.mdvns.mdvn.common.bean.model.TerseTemplate;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -27,7 +33,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -49,7 +54,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     @Resource
     private TemplateRepository projectTemplateRepository;
 
-    /*注入 webconfig*/
+    /*注入 webConfig*/
     @Resource
     private WebConfig webConfig;
 
@@ -78,7 +83,7 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 获取指定id的项目详情
+     * 获取指定serialNo的项目详情
      *
      * @param retrieveDetailRequest request
      * @return restResponse
@@ -98,6 +103,30 @@ public class RetrieveServiceImpl implements RetrieveService {
         LOG.info("获取指定id项目的详情成功, 结束运行【retrieveDetailById】service...");
         //返回结果
         return RestResponseUtil.success(detail);
+    }
+
+    /**
+     * 获取指定serialNo的项目的模板Id
+     * @param retrieveRequest request
+     * @return list
+     */
+    @Override
+    public List<Long> retrieveTemplate(SingleCriterionRequest retrieveRequest) {
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        Long projId = this.projectRepository.findIdBySerialNo(retrieveRequest.getCriterion());
+        return this.projectTemplateRepository.findTemplatesByProjIdAndIsDeleted(projId, isDeleted);
+    }
+
+    /**
+     * 根据serialNo获取layerType
+     * @param retrieveRequest request
+     * @return Integer
+     */
+    @Override
+    public Integer retrieveLayerType(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        Project project = this.projectRepository.findBySerialNo(retrieveRequest.getCriterion());
+        MdvnCommonUtil.notExistingError(project, ErrorEnum.PROJCET_NOT_EXISTS, "编号为【"+retrieveRequest.getCriterion()+"】的项目不存在.");
+        return project.getLayerType();
     }
 
     /**
@@ -227,9 +256,7 @@ public class RetrieveServiceImpl implements RetrieveService {
         //获取指定项目的负责人id
         List<Long> ids = this.projectStaffRepository.findLeadersByProjIdAndIsDeleted(projId, MdvnConstant.ZERO);
         //如果负责人
-        if (ids.isEmpty()) {
-            return null;
-        }
+        if (ids.isEmpty()) return null;
         //构建获取指定项目负责人url
         String retrieveLeadersUrl = webConfig.getRetrieveLeadersUrl();
         //调用staff模块获取负责人信息
@@ -243,7 +270,7 @@ public class RetrieveServiceImpl implements RetrieveService {
      * @param projSerialNo projSerialNo
      * @return restResponse
      */
-    private List<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
+    /*private List<RequirementModel> getRequirements(Long staffId, String projSerialNo) throws BusinessException {
         //实例化restTem对象
         RestTemplate restTemplate = new RestTemplate();
         //构建retrieveRequirementsUrl
@@ -263,6 +290,6 @@ public class RetrieveServiceImpl implements RetrieveService {
             throw new BusinessException(restResponse.getCode(), restResponse.getMsg());
         }
         return restResponse.getData().getContent();
-    }
+    }*/
 
 }

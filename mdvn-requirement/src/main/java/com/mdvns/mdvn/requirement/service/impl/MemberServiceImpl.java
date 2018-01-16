@@ -2,7 +2,9 @@ package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.MemberRequest;
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RetrieveMvpContentRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
+import com.mdvns.mdvn.common.bean.model.ReqmtDashboard;
 import com.mdvns.mdvn.common.bean.model.RoleMember;
 import com.mdvns.mdvn.common.bean.model.TerseInfo;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
@@ -25,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
@@ -246,8 +249,8 @@ public class MemberServiceImpl implements MemberService {
         Long templateId = requirement.getTemplateId();
         List<RoleMember> roleMembers = this.getRoleMembers(staffId, requirementId, templateId, 0);
         List<Long> memberIds = new ArrayList<>();
-        for (int i = 0; i < roleMembers.size(); i++) {
-            List<TerseInfo> members = roleMembers.get(i).getMembers();
+        for (RoleMember roleMember : roleMembers) {
+            List<TerseInfo> members = roleMember.getMembers();
             if (!StringUtils.isEmpty(members)) {
                 for (int j = 0; j < members.size(); j++) {
                     Long memberId = members.get(j).getId();
@@ -260,6 +263,5 @@ public class MemberServiceImpl implements MemberService {
         }
         return memberIds;
     }
-
 
 }

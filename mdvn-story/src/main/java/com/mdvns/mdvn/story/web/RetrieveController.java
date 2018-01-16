@@ -1,9 +1,11 @@
 package com.mdvns.mdvn.story.web;
 
 import com.mdvns.mdvn.common.bean.RestResponse;
+import com.mdvns.mdvn.common.bean.RetrieveMvpContentRequest;
 import com.mdvns.mdvn.common.bean.SingleCriterionRequest;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.util.BindingResultUtil;
+import com.mdvns.mdvn.story.domain.StoryDashboard;
 import com.mdvns.mdvn.story.service.RetrieveService;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
@@ -71,6 +73,18 @@ public class RetrieveController {
     public List<Long> retrieveStoryMembersBySerialNo(@RequestBody  @Validated SingleCriterionRequest singleCriterionRequest, BindingResult bindingResult) throws BusinessException {
         BindingResultUtil.brResolve(bindingResult);
         return this.retrieveService.retrieveStoryMembersBySerialNo(singleCriterionRequest);
+    }
+
+    /**
+     * 获取指定MvpId的Story集合
+     * @param retrieveRequest request
+     * @param bindingResult bindingResult
+     * @return RestResponse
+     */
+    @PostMapping(value = "/retrieveDashboard")
+    public StoryDashboard retrieveDashboard(@RequestBody RetrieveMvpContentRequest retrieveRequest, BindingResult bindingResult) {
+       BindingResultUtil.brResolve(bindingResult);
+        return this.retrieveService.retrieveDashboard(retrieveRequest);
     }
 
 

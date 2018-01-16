@@ -11,17 +11,12 @@ import com.mdvns.mdvn.common.util.MdvnCommonUtil;
 import com.mdvns.mdvn.common.util.PageableQueryUtil;
 import com.mdvns.mdvn.common.util.RestResponseUtil;
 import com.mdvns.mdvn.template.domain.TerseTemplate;
-import com.mdvns.mdvn.template.domain.entity.Delivery;
-import com.mdvns.mdvn.template.domain.entity.FunctionLabel;
-import com.mdvns.mdvn.template.domain.entity.Industry;
-import com.mdvns.mdvn.template.domain.entity.Template;
+import com.mdvns.mdvn.template.domain.entity.*;
 import com.mdvns.mdvn.template.repository.DeliveryRepository;
 import com.mdvns.mdvn.template.repository.IndustryRepository;
 import com.mdvns.mdvn.template.repository.TemplateRepository;
 import com.mdvns.mdvn.template.repository.TemplateRoleRepository;
-import com.mdvns.mdvn.template.service.DeliveryService;
-import com.mdvns.mdvn.template.service.LabelService;
-import com.mdvns.mdvn.template.service.RetrieveService;
+import com.mdvns.mdvn.template.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -55,6 +50,12 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     @Resource
     private DeliveryService deliveryService;
+
+    @Resource
+    private RoleService roleService;
+
+    @Resource
+    private MvpService mvpService;
 
     /**
      * 根据industryId查询模板
@@ -141,6 +142,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id集合的模板角色
+     *
      * @param ids ids
      * @return List
      * @throws BusinessException exception
@@ -178,60 +180,54 @@ public class RetrieveServiceImpl implements RetrieveService {
     }
 
     /**
-     * 根据ID获取
+     * 根据ID获取详情
      *
-     * @param singleCriterionRequest request
+     * @param retrieveRequest request
      * @return RestResponse
      */
-    public RestResponse<?> retrieveById(SingleCriterionRequest singleCriterionRequest) throws BusinessException {
-        //从request中获取isDeleted值
-        Integer isDeleted = singleCriterionRequest.getIsDeleted();
-        //如果isDeleted为空，则赋值为0
-        if (null == isDeleted) {
-            isDeleted = MdvnConstant.ZERO;
-        }
+    public RestResponse<?> retrieveById(SingleCriterionRequest retrieveRequest) throws BusinessException {
+        //从request中获取isDeleted值:如果isDeleted为空，则赋值为0
+        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
         //获取指定id的模板
-        Long id = Long.valueOf(singleCriterionRequest.getCriterion());
+        Long id = Long.valueOf(retrieveRequest.getCriterion());
         Template template = this.templateRepository.findOne(id);
         MdvnCommonUtil.notExistingError(template, ErrorEnum.TEMPLATE_NOT_EXISTS, "id为【" + id + "】的模板不存在.");
         //获取模板下的过程方法模块
-        template.setFunctionLabels(this.labelService.getTemplateLabel(template.getSerialNo(), isDeleted));
-        //获取模板的角色
-        List<Long> idList = this.roleRepository.findIdByHostSerialNoAndIsDeleted(template.getSerialNo(), isDeleted);
-        if (!idList.isEmpty()) {
-            List<TerseInfo> roles = getRoles(idList);
-            template.setRoles(roles);
-        }
+        template.setLabels(this.labelService.retrieveTemplateLabels(new SingleCriterionRequest(retrieveRequest.getStaffId(), template.getSerialNo(), isDeleted)));
+        //根据编号获取模板的角色
+        List<TemplateRole> roles = this.roleService.getRoles(new SingleCriterionRequest(retrieveRequest.getStaffId(), template.getSerialNo()));
+        template.setRoles(roles);
         return RestResponseUtil.success(template);
     }
 
+
     /**
      * 获取指定id的过程方法及其子方法
+     *
      * @param retrieveRequest request
      * @return RestResponse
      */
     @Override
     public RestResponse<?> retrieveLabelDetail(SingleCriterionRequest retrieveRequest) throws BusinessException {
-        Integer isDeleted = (null==retrieveRequest.getIsDeleted())?MdvnConstant.ZERO:retrieveRequest.getIsDeleted();
+        Integer isDeleted = (null == retrieveRequest.getIsDeleted()) ? MdvnConstant.ZERO : retrieveRequest.getIsDeleted();
         FunctionLabel label;
+        //建议使用该方法时以Id为参数，但是为了提高服务质量，也作了按serialNo查询的容错
         try {
             Long id = Long.valueOf(retrieveRequest.getCriterion());
             label = this.labelService.retrieveLabelDetailById(id, isDeleted);
             if (null == label) {
                 LOG.error("ID为【{}】的FunctionLabel不存在.", id);
-                throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【"+id+"】的FunctionLabel不存在.");
+                throw new BusinessException(ErrorEnum.FUNCTION_LABEL_NOT_EXISTS, "ID为【" + id + "】的FunctionLabel不存在.");
             }
         } catch (Exception ex) {
             label = this.labelService.retrieveLabelDetailByHostSerialNo(retrieveRequest.getCriterion(), isDeleted);
-
-
         }
-
         return RestResponseUtil.success(label);
     }
 
     /**
      * 获取指定id的交付件
+     *
      * @param retrieveRequest request
      * @return RestResponse
      */
@@ -244,6 +240,7 @@ public class RetrieveServiceImpl implements RetrieveService {
 
     /**
      * 获取指定id的模板的交付件
+     *
      * @param retrieveRequest request
      * @return RestResponse
      */
@@ -253,10 +250,41 @@ public class RetrieveServiceImpl implements RetrieveService {
         String hostSerialNo = this.templateRepository.getSerialNoById(Long.valueOf(retrieveRequest.getCriterion()));
         if (StringUtils.isEmpty(hostSerialNo)) {
             LOG.error("ID为【{}】的模板不存在...", retrieveRequest.getCriterion());
-            throw new BusinessException(ErrorEnum.TEMPLATE_NOT_EXISTS, "ID为【"+retrieveRequest.getCriterion()+"】的模板不存在.");
+            throw new BusinessException(ErrorEnum.TEMPLATE_NOT_EXISTS, "ID为【" + retrieveRequest.getCriterion() + "】的模板不存在.");
         }
         List<Delivery> deliveries = this.deliveryService.retrieveDeliveriesByHostSerialNo(hostSerialNo, isDeleted);
         return RestResponseUtil.success(deliveries);
+    }
+
+    /**
+     * 获取指定ID的模板的迭代计划
+     * @param retrieveRequest request
+     * @return List<MvpTemplate>
+     */
+    @Override
+    public List<MvpTemplate> retrieveMvpTemplates(SingleCriterionRequest retrieveRequest) {
+        String templateSerialNo = this.templateRepository.getSerialNoById(Long.valueOf(retrieveRequest.getCriterion()));
+        return this.mvpService.retrieveMvpTemplates(new SingleCriterionRequest(retrieveRequest.getStaffId(),templateSerialNo));
+    }
+
+    /**
+     * 获取mvpId为指定的值的过程方法的Id
+     * @param retrieveRequest request
+     * @return List
+     */
+    @Override
+    public List<Long> retrieveLabelByMvp(SingleCriterionRequest retrieveRequest) {
+        return this.labelService.retrieveLabelByMvp(retrieveRequest);
+    }
+
+    /**
+     * 获取指定ID的模板名称
+     * @param retrieveRequest request
+     * @return 模板名称
+     */
+    @Override
+    public String retrieveTemplateName(SingleCriterionRequest retrieveRequest) {
+        return this.templateRepository.findNameById(Long.valueOf(retrieveRequest.getCriterion()));
     }
 
 }

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.story.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.model.MvpContent;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -44,6 +45,7 @@ public class UpdateServiceImpl implements UpdateService {
 
     /**
      * 更新状态
+     *
      * @param updateStatusRequest request
      * @return restResponse
      */
@@ -60,6 +62,7 @@ public class UpdateServiceImpl implements UpdateService {
 
     /**
      * 修改基础信息
+     *
      * @param updateBasicInfoRequest request
      * @return restResponse
      */
@@ -87,13 +90,14 @@ public class UpdateServiceImpl implements UpdateService {
          */
         //根据id查询story
         Story story = this.repository.findOne(storyId);
-        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(),story);
+        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(), story);
         LOG.info("修改基础信息成功...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
     /**
      * 修改其他信息
+     *
      * @param updateRequest request
      * @return restResponse
      */
@@ -114,7 +118,7 @@ public class UpdateServiceImpl implements UpdateService {
     @Transactional
     public RestResponse<?> updateOptionalInfo(UpdateOptionalInfoRequest updateRequest) throws BusinessException {
         LOG.info("更新STORY附件信息开始...");
-        //STORYid
+        //StoryId
         Long storyId = updateRequest.getHostId();
         //根据id查询项目
         Story story = this.repository.findOne(storyId);
@@ -123,13 +127,32 @@ public class UpdateServiceImpl implements UpdateService {
         //更新附件
         if (null != updateRequest.getAttaches()) {
             String serialNo = story.getSerialNo();
-            FileUtil.updateAttaches(updateRequest,serialNo);
+            FileUtil.updateAttaches(updateRequest, serialNo);
         }
         /**
          * 消息推送
          */
-        this.serverPushByUpdate(updateRequest.getStaffId(),story);
+        this.serverPushByUpdate(updateRequest.getStaffId(), story);
         LOG.info("更新STORY附件信息结束...");
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 修改某个模板的mvp Dashboard
+     *
+     * @param updateRequest request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvpDashboard(UpdateMvpDashboardRequest updateRequest) {
+        LOG.info("修改mvp Dashboard开始...");
+        //遍历mvpList修改story中的mvpId
+        for (MvpContent mvpContent : updateRequest.getMvpList()) {
+            LOG.info("修改ID为【{}】的Story的mvpId成【{}】开始...", mvpContent.getContents(), mvpContent.getMvpId());
+            this.repository.updateMvpIdByIdIn(mvpContent.getMvpId(), mvpContent.getContents());
+            LOG.info("成功修改ID为【{}】的Story的mvpId成【{}】...", mvpContent.getContents(), mvpContent.getMvpId());
+        }
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
@@ -163,7 +186,7 @@ public class UpdateServiceImpl implements UpdateService {
             story.setStoryPoint(updateRequest.getStoryPoint());
         }
         //更新过程方法
-        if (null!=updateRequest.getLabel()) {
+        if (null != updateRequest.getLabel()) {
             story.setFunctionLabelId(buildLabel(updateRequest.getStaffId(), story.getSerialNo(), updateRequest.getLabel()));
         }
         //保存
@@ -179,14 +202,15 @@ public class UpdateServiceImpl implements UpdateService {
         /**
          * 消息推送
          */
-        this.serverPushByUpdate(updateRequest.getStaffId(),story);
+        this.serverPushByUpdate(updateRequest.getStaffId(), story);
         return story;
     }
 
     /**
-     *  构建过程方法
-     * @param creatorId creatorId
-     * @param hostSerialNo hostSerialNo
+     * 构建过程方法
+     *
+     * @param creatorId     creatorId
+     * @param hostSerialNo  hostSerialNo
      * @param functionLabel functionLabel
      * @return Long
      * @throws BusinessException BusinessException
@@ -207,7 +231,7 @@ public class UpdateServiceImpl implements UpdateService {
             String serialNo = story.getSerialNo();
             String subjectType = "story";
             String type = "update";
-            List<Long> staffIds = this.memberService.getStoryMembers(initiatorId,story);
+            List<Long> staffIds = this.memberService.getStoryMembers(initiatorId, story);
             if (!(null == staffIds || staffIds.isEmpty())) {
                 //接受者包括story的创建者
                 if (!staffIds.contains(story.getCreatorId())) {

@@ -1,6 +1,7 @@
 package com.mdvns.mdvn.requirement.service.impl;
 
 import com.mdvns.mdvn.common.bean.*;
+import com.mdvns.mdvn.common.bean.model.MvpContent;
 import com.mdvns.mdvn.common.constant.MdvnConstant;
 import com.mdvns.mdvn.common.exception.BusinessException;
 import com.mdvns.mdvn.common.exception.ErrorEnum;
@@ -87,7 +88,7 @@ public class UpdateServiceImpl implements UpdateService {
          */
         //根据id查询项目
         Requirement requirement = this.requirementRepository.findOne(requirementId);
-        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(),requirement);
+        this.serverPushByUpdate(updateBasicInfoRequest.getStaffId(), requirement);
         LOG.info("修改基础信息成功...");
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
@@ -127,13 +128,45 @@ public class UpdateServiceImpl implements UpdateService {
         //更新附件
         if (null != updateRequest.getAttaches()) {
             String serialNo = requirement.getSerialNo();
-            FileUtil.updateAttaches(updateRequest,serialNo);
+            FileUtil.updateAttaches(updateRequest, serialNo);
         }
         /**
          * 消息推送
          */
-        this.serverPushByUpdate(updateRequest.getStaffId(),requirement);
+        this.serverPushByUpdate(updateRequest.getStaffId(), requirement);
         LOG.info("更新需求附件信息结束...");
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 创建MVP:修改指定条件下的mvpId
+     *
+     * @param request request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvp(UpdateMvpContentRequest request) {
+        this.requirementRepository.updateMvpIdBySerialNoIn(request.getMvpId(), request.getSerialNo());
+        return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
+    }
+
+    /**
+     * 修改某个模板的mvp Dashboard
+     *
+     * @param updateRequest request
+     * @return RestResponse
+     */
+    @Override
+    @Modifying
+    public RestResponse<?> updateMvpDashboard(UpdateMvpDashboardRequest updateRequest) {
+        LOG.info("修改mvp Dashboard开始...");
+        //遍历mvpList修改requirement中的mvpId
+        for (MvpContent mvpContent : updateRequest.getMvpList()) {
+            LOG.info("修改ID为【{}】的Requirement的mvpId成【{}】开始...", mvpContent.getContents(), mvpContent.getMvpId());
+            this.requirementRepository.updateMvpIdByIdIn(mvpContent.getMvpId(), mvpContent.getContents());
+            LOG.info("成功修改ID为【{}】的Requirement的mvpId成【{}】...", mvpContent.getContents(), mvpContent.getMvpId());
+        }
         return RestResponseUtil.success(MdvnConstant.SUCCESS_VALUE);
     }
 
@@ -171,10 +204,8 @@ public class UpdateServiceImpl implements UpdateService {
         if (null != updateRequest.getMembers()) {
             this.memberService.updateRoleMembers(updateRequest.getStaffId(), requirementId, updateRequest.getMembers());
         }
-        /**
-         * 消息推送
-         */
-        this.serverPushByUpdate(updateRequest.getStaffId(),requirement);
+        //消息推送
+        this.serverPushByUpdate(updateRequest.getStaffId(), requirement);
         return requirement;
     }
 
@@ -190,7 +221,7 @@ public class UpdateServiceImpl implements UpdateService {
             String serialNo = requirement.getSerialNo();
             String subjectType = "requirement";
             String type = "update";
-            List<Long> staffIds = this.memberService.getReqMembers(initiatorId,requirement);
+            List<Long> staffIds = this.memberService.getReqMembers(initiatorId, requirement);
             if (!(null == staffIds || staffIds.isEmpty())) {
                 //接受者包括项目的创建者
                 if (!staffIds.contains(requirement.getCreatorId())) {

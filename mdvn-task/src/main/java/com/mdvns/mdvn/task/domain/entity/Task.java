@@ -31,6 +31,9 @@ public class Task implements Serializable {
     @JsonIgnore
     private Long assigneeId;
 
+    /*项目编号*/
+    private String projSerialNo;
+
     /*编号*/
     @Column(nullable = false)
     private String serialNo;

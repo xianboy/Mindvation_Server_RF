@@ -66,10 +66,18 @@ public class Template {
 
     /*过程方法模块*/
     @Transient//非持久化字段
-    private List<TerseInfo> functionLabels;
+    private List<FunctionLabel> labels;
 
     /*模板角色*/
     @Transient//非持久化字段
-    private List<TerseInfo> roles;
+    private List<TemplateRole> roles;
+
+    /*模板迭代计划*/
+    @Transient//非持久化字段
+    private List<MvpTemplate> mvpTemplates;
+
+    /*模板交付件*/
+    @Transient//非持久化字段
+    private List<Delivery> deliveries;
 
 }
